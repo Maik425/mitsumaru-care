@@ -8,42 +8,403 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-enum Role {
+// ========================================
+// 列挙型定義
+// ========================================
+
+enum UserRole {
   OWNER
   ADMIN
   MEMBER
 }
 
+enum ShiftStatus {
+  DRAFT
+  PUBLISHED
+  COMPLETED
+}
+
+enum RoleAssignmentStatus {
+  DRAFT
+  PUBLISHED
+  COMPLETED
+}
+
+enum AttendanceStatus {
+  PLANNED
+  CHECKED_IN
+  CHECKED_OUT
+  ABSENT
+  LATE
+  EARLY_LEAVE
+  OVERTIME
+}
+
+enum HolidayType {
+  PAID_LEAVE
+  SICK_LEAVE
+  PERSONAL_LEAVE
+  EXCHANGE_LEAVE
+}
+
+enum HolidayStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum SkillCategory {
+  CARE
+  MEDICAL
+  ADMINISTRATIVE
+  OTHER
+}
+
+// ========================================
+// 認証・認可系テーブル
+// ========================================
+
 model User {
-  id          String           @id @default(cuid())
-  email       String           @unique
-  memberships UserTenantRole[]
-  projects    Project[]        @relation("OwnerProjects")
+  id             String            @id @default(cuid())
+  email          String            @unique
+  name           String
+  employeeNumber String            @unique
+  phoneNumber    String?
+  isActive       Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  memberships    UserTenantRole[]
+  shiftAssignments ShiftAssignment[]
+  roleAssignmentDetails RoleAssignmentDetail[]
+  attendances   Attendance[]
+  holidays      Holiday[]
+  approvedHolidays Holiday[] @relation("HolidayApprover")
+
+  @@index([email])
+  @@index([employeeNumber])
+  @@index([isActive])
+  @@map("users")
 }
 
 model Tenant {
   id          String           @id @default(cuid())
   name        String
+  address     String?
+  phoneNumber String?
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
   memberships UserTenantRole[]
-  projects    Project[]
+  shiftTypes ShiftType[]
+  positions  Position[]
+  skills     Skill[]
+  jobRules   JobRule[]
+  roleTemplates RoleTemplate[]
+  shifts     Shift[]
+  roleAssignments RoleAssignment[]
+  attendances Attendance[]
+  holidays   Holiday[]
+  attendanceRules AttendanceRule[]
+
+  @@index([name])
+  @@index([isActive])
+  @@map("tenants")
 }
 
 model UserTenantRole {
-  id       String @id @default(cuid())
+  id       String   @id @default(cuid())
   userId   String
   tenantId String
-  role     Role
-  user     User   @relation(fields: [userId], references: [id])
-  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  role     UserRole
+  isActive Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant   Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
   @@unique([userId, tenantId])
+  @@index([userId])
+  @@index([tenantId])
+  @@index([role])
+  @@map("user_tenant_roles")
 }
 
-model Project {
-  id        String  @id @default(cuid())
-  name      String
+// ========================================
+// マスターデータ系テーブル
+// ========================================
+
+model ShiftType {
+  id        String   @id @default(cuid())
   tenantId  String
-  ownerId   String
-  tenant    Tenant  @relation(fields: [tenantId], references: [id])
-  owner     User    @relation("OwnerProjects", fields: [ownerId], references: [id])
+  name      String
+  startTime String   // TIME型はStringで表現
+  endTime   String   // TIME型はStringで表現
+  breakTime Int      @default(0)
+  color     String   @default("#2563eb")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  jobRules  JobRule[]
+  roleTemplates RoleTemplate[]
+  shifts    Shift[]
+
   @@index([tenantId])
+  @@index([isActive])
+  @@index([name])
+  @@map("shift_types")
+}
+
+model Position {
+  id            String   @id @default(cuid())
+  tenantId      String
+  name          String
+  description   String?
+  requiredSkills Json?   @default("[]")
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tenant        Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  shiftAssignments ShiftAssignment[]
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@index([name])
+  @@map("positions")
+}
+
+model Skill {
+  id          String        @id @default(cuid())
+  tenantId    String
+  name        String
+  category    SkillCategory
+  description String?
+  isActive    Boolean       @default(true)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([category])
+  @@index([isActive])
+  @@index([name])
+  @@map("skills")
+}
+
+model JobRule {
+  id              String   @id @default(cuid())
+  tenantId        String
+  name            String
+  shiftTypeId     String
+  requiredPositions Json   @default("[]")
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tenant          Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  shiftType       ShiftType @relation(fields: [shiftTypeId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([shiftTypeId])
+  @@index([isActive])
+  @@map("job_rules")
+}
+
+model RoleTemplate {
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
+  shiftTypeId String
+  roles       Json     @default("[]")
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  shiftType   ShiftType @relation(fields: [shiftTypeId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([shiftTypeId])
+  @@index([isActive])
+  @@map("role_templates")
+}
+
+// ========================================
+// 業務データ系テーブル
+// ========================================
+
+model Shift {
+  id           String      @id @default(cuid())
+  tenantId     String
+  date         DateTime    @db.Date
+  shiftTypeId  String
+  status       ShiftStatus @default(DRAFT)
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  tenant       Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  shiftType    ShiftType   @relation(fields: [shiftTypeId], references: [id], onDelete: Cascade)
+  shiftAssignments ShiftAssignment[]
+  roleAssignments RoleAssignment[]
+  attendances Attendance[]
+
+  @@unique([tenantId, date])
+  @@index([tenantId])
+  @@index([date])
+  @@index([shiftTypeId])
+  @@index([status])
+  @@index([tenantId, date])
+  @@map("shifts")
+}
+
+model ShiftAssignment {
+  id           String   @id @default(cuid())
+  shiftId      String
+  userId       String
+  positionId   String
+  isSubstitute Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  shift        Shift    @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  position     Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  @@unique([shiftId, userId])
+  @@index([shiftId])
+  @@index([userId])
+  @@index([positionId])
+  @@index([isSubstitute])
+  @@map("shift_assignments")
+}
+
+model RoleAssignment {
+  id          String                @id @default(cuid())
+  tenantId    String
+  shiftId     String
+  date        DateTime              @db.Date
+  status      RoleAssignmentStatus  @default(DRAFT)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+
+  tenant      Tenant                @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  shift       Shift                 @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+  details     RoleAssignmentDetail[]
+
+  @@unique([tenantId, date])
+  @@index([tenantId])
+  @@index([shiftId])
+  @@index([date])
+  @@index([status])
+  @@index([tenantId, date])
+  @@map("role_assignments")
+}
+
+model RoleAssignmentDetail {
+  id                String   @id @default(cuid())
+  roleAssignmentId  String
+  userId            String
+  roleName          String
+  startTime         String   // TIME型はStringで表現
+  endTime           String   // TIME型はStringで表現
+  notes             String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  roleAssignment    RoleAssignment @relation(fields: [roleAssignmentId], references: [id], onDelete: Cascade)
+  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([roleAssignmentId])
+  @@index([userId])
+  @@index([roleName])
+  @@map("role_assignment_details")
+}
+
+model Attendance {
+  id                String           @id @default(cuid())
+  tenantId          String
+  userId            String
+  shiftId           String
+  date              DateTime         @db.Date
+  plannedStartTime  String           // TIME型はStringで表現
+  plannedEndTime    String           // TIME型はStringで表現
+  actualStartTime   String?          // TIME型はStringで表現
+  actualEndTime     String?          // TIME型はStringで表現
+  status            AttendanceStatus @default(PLANNED)
+  notes             String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  tenant            Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user              User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  shift             Shift            @relation(fields: [shiftId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, shiftId])
+  @@index([tenantId])
+  @@index([userId])
+  @@index([shiftId])
+  @@index([date])
+  @@index([status])
+  @@index([tenantId, date])
+  @@index([userId, date])
+  @@map("attendances")
+}
+
+model Holiday {
+  id          String        @id @default(cuid())
+  tenantId    String
+  userId      String
+  date        DateTime      @db.Date
+  type        HolidayType
+  status      HolidayStatus @default(REQUESTED)
+  reason      String?
+  approvedBy  String?
+  approvedAt  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  tenant      Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approver    User?         @relation("HolidayApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+
+  @@unique([userId, date])
+  @@index([tenantId])
+  @@index([userId])
+  @@index([date])
+  @@index([type])
+  @@index([status])
+  @@index([approvedBy])
+  @@index([tenantId, date])
+  @@index([userId, date])
+  @@map("holidays")
+}
+
+// ========================================
+// 設定系テーブル
+// ========================================
+
+model AttendanceRule {
+  id                    String   @id @default(cuid())
+  tenantId              String
+  name                  String
+  lateThreshold         Int      @default(15)
+  earlyLeaveThreshold   Int      @default(15)
+  overtimeThreshold     Int      @default(0)
+  breakTimeRules        Json     @default("[]")
+  isActive              Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  tenant                Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([isActive])
+  @@map("attendance_rules")
 }

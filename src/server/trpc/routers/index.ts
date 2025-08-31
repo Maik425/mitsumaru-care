@@ -1,8 +1,16 @@
-import { t } from '../trpc';
-import { projectRouter } from './project';
+import { router, publicProcedure } from '../middleware/auth';
 
-export const appRouter = t.router({
-  project: projectRouter,
+// 基本的なヘルスチェックルーター
+export const appRouter = router({
+  health: router({
+    check: publicProcedure.query(async () => {
+      return {
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        message: 'mitsumaru-care API is running',
+      };
+    }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

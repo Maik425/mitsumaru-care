@@ -58,6 +58,15 @@ pnpm build               # ビルドテスト
 - メジャーバージョン更新は事前にテスト
 - `pnpm update` で定期的に更新
 
+### 7. 実装完了時の必須チェック ⚠️
+
+```bash
+# 実装が完了したら必ず実行
+pnpm check:strict        # TypeScript + ESLint + Prettier の厳密チェック
+```
+
+**重要**: このチェックでエラーが出ないように修正してから次のステップに進む
+
 ## 📁 開発進捗管理
 
 ### ディレクトリ構成
@@ -65,10 +74,16 @@ pnpm build               # ビルドテスト
 ```
 docs/development/
 ├── README.md                    # 開発進捗管理のトップレベル
-├── current-sprint.md            # 現在のスプリント状況
+├── current-tasks.md             # 現在のタスク管理状況
 ├── next-tasks.md               # 次の作業内容
 ├── implementation-plan.md       # 実装計画
 ├── progress-tracking.md         # 進捗追跡
+├── implementation-tasks/        # 実装タスク管理（PR単位）
+│   ├── README.md               # 実装タスク管理の概要
+│   ├── pr-001-base-infrastructure/ # PR #1: 基盤インフラ構築
+│   ├── pr-002-authentication-system/ # PR #2: 認証システム実装
+│   ├── pr-003-master-data-api/ # PR #3: マスターデータAPI実装
+│   └── pr-004-shift-management-api/ # PR #4: シフト管理API実装
 ├── milestones/                  # マイルストーン管理
 │   ├── phase1-basic-design.md  # 第1段階完了
 │   ├── phase2-detailed-design.md # 第2段階完了
@@ -94,7 +109,7 @@ docs/development/
 
 #### 進行中
 
-- `current-sprint.md` - 現在のスプリント状況
+- `current-tasks.md` - 現在のタスク管理状況
 - `active-tasks.md` - 進行中のタスク
 - `progress-tracking.md` - 進捗追跡
 
@@ -180,6 +195,6 @@ pnpm build
 ### 開発進捗
 
 - [開発進捗管理](./docs/development/README.md)
-- [現在のスプリント](./docs/development/current-sprint.md)
+- [現在のタスク管理](./docs/development/current-tasks.md)
 - [次の作業内容](./docs/development/next-tasks.md)
 - [実装計画](./docs/development/implementation-plan.md)

@@ -9,7 +9,13 @@ const handler = (req: Request) =>
     endpoint: '/api/trpc',
     req,
     router: appRouter,
-    createContext,
+    createContext: async () => {
+      // App Router用のコンテキスト作成
+      return createContext({
+        req,
+        res: {} as any,
+      });
+    },
   });
 
 export { handler as GET, handler as POST };

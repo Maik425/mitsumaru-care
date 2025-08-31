@@ -1,10 +1,21 @@
-export async function createContext() {
-  // デモ用（本番はAuth.js連携で実ユーザー/テナントを解決）
-  return {
-    user: { id: 'demo-user-1' },
-    tenantId: 'demo-tenant-1',
-    role: 'OWNER' as const,
-  };
-}
+import { PrismaClient } from '@prisma/client';
+import { createServerSupabaseClient } from '../../lib/supabase';
 
-export type AppContext = Awaited<ReturnType<typeof createContext>>;
+// Prismaクライアントのインスタンス
+const prisma = new PrismaClient();
+
+export const createContext = async (opts: { req: Request; res: any }) => {
+  const { req, res } = opts;
+
+  // Supabaseクライアントの初期化
+  const supabase = createServerSupabaseClient();
+
+  return {
+    req,
+    res,
+    prisma,
+    supabase,
+  };
+};
+
+export type Context = Awaited<ReturnType<typeof createContext>>;
