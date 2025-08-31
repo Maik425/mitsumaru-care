@@ -13,9 +13,9 @@ datasource db {
 // ========================================
 
 enum UserRole {
-  OWNER
-  ADMIN
-  MEMBER
+  SYSTEM_ADMIN
+  FACILITY_ADMIN
+  FACILITY_STAFF
 }
 
 enum ShiftStatus {
@@ -75,6 +75,14 @@ model User {
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
+  // 認証関連
+  supabaseId     String?           @unique
+  lastLoginAt    DateTime?
+  
+  // 権限関連
+  userRoleAssignments UserRoleAssignment[]
+  userPermissions UserPermission[]
+
   memberships    UserTenantRole[]
   shiftAssignments ShiftAssignment[]
   roleAssignmentDetails RoleAssignmentDetail[]
@@ -85,7 +93,101 @@ model User {
   @@index([email])
   @@index([employeeNumber])
   @@index([isActive])
+  @@index([supabaseId])
   @@map("users")
+}
+
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // 権限関連
+  rolePermissions RolePermission[]
+  userRoleAssignments UserRoleAssignment[]
+
+  @@index([name])
+  @@index([isActive])
+  @@map("roles")
+}
+
+model Permission {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  description String?
+  category    String?
+  isActive    Boolean          @default(true)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // 権限関連
+  rolePermissions RolePermission[]
+  userPermissions UserPermission[]
+
+  @@index([name])
+  @@index([category])
+  @@index([isActive])
+  @@map("permissions")
+}
+
+model UserRoleAssignment {
+  id        String   @id @default(cuid())
+  userId    String
+  roleId    String
+  tenantId  String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // リレーション
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      Role     @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId, tenantId])
+  @@index([userId])
+  @@index([roleId])
+  @@index([tenantId])
+  @@map("user_role_assignments")
+}
+
+model RolePermission {
+  id           String   @id @default(cuid())
+  roleId       String
+  permissionId String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // リレーション
+  role         Role       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, permissionId])
+  @@index([roleId])
+  @@index([permissionId])
+  @@map("role_permissions")
+}
+
+model UserPermission {
+  id           String   @id @default(cuid())
+  userId       String
+  permissionId String
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // リレーション
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, permissionId])
+  @@index([userId])
+  @@index([permissionId])
+  @@map("user_permissions")
 }
 
 model Tenant {
@@ -98,6 +200,7 @@ model Tenant {
   updatedAt   DateTime         @updatedAt
 
   memberships UserTenantRole[]
+  userRoleAssignments UserRoleAssignment[]
   shiftTypes ShiftType[]
   positions  Position[]
   skills     Skill[]

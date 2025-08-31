@@ -8,6 +8,7 @@ export interface User {
 
 export interface AuthResult {
   success: boolean;
+  user?: User;
   error?: string;
 }
 
@@ -54,15 +55,28 @@ export const useAuth = (): AuthContextType => {
           ],
         };
         setUser(adminUser);
-        return { success: true };
-      } else if (email === 'user@mitsumaru.com') {
-        const regularUser: User = {
-          id: 'user-1',
-          email: 'user@mitsumaru.com',
+        return { success: true, user: adminUser };
+      } else if (email === 'facility-admin@mitsumaru.com') {
+        const facilityAdminUser: User = {
+          id: 'facility-admin-1',
+          email: 'facility-admin@mitsumaru.com',
+          permissions: [
+            'SHIFT_MANAGEMENT',
+            'SHIFT_VIEW',
+            'ATTENDANCE_MANAGEMENT',
+            'ATTENDANCE_UPDATE',
+          ],
+        };
+        setUser(facilityAdminUser);
+        return { success: true, user: facilityAdminUser };
+      } else if (email === 'staff@mitsumaru.com') {
+        const staffUser: User = {
+          id: 'staff-1',
+          email: 'staff@mitsumaru.com',
           permissions: ['SHIFT_VIEW', 'ATTENDANCE_UPDATE'],
         };
-        setUser(regularUser);
-        return { success: true };
+        setUser(staffUser);
+        return { success: true, user: staffUser };
       } else {
         return { success: false, error: '認証に失敗しました' };
       }

@@ -1,10 +1,12 @@
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { LoginForm } from '../../components/login-form';
 
 describe('シンプルな認証テスト', () => {
-  it('ログインフォームが正しく表示される', () => {
+  it('ログインフォームの要素が表示される', () => {
     render(<LoginForm />);
 
+    // フォーム要素の確認
     expect(
       screen.getByText('ログイン', { selector: '[data-slot="card-title"]' })
     ).toBeInTheDocument();
@@ -19,7 +21,14 @@ describe('シンプルな認証テスト', () => {
     render(<LoginForm />);
 
     expect(screen.getByText('テスト用アカウント:')).toBeInTheDocument();
-    expect(screen.getByText('管理者: admin@mitsumaru.com')).toBeInTheDocument();
-    expect(screen.getByText('一般職: user@mitsumaru.com')).toBeInTheDocument();
+    expect(
+      screen.getByText('システム管理者: admin@mitsumaru.com')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('施設管理者: facility-admin@mitsumaru.com')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText('一般職員: staff@mitsumaru.com')
+    ).toBeInTheDocument();
   });
 });
