@@ -1,148 +1,185 @@
-# 🚀 mitsumarq-care 開発ルール
+# みつまるケア プロジェクトルール
 
-## 🎯 プロジェクト概要
+## 🚀 技術スタック
 
-- **プロジェクト名**: mitsumarq-care
-- **フレームワーク**: Next.js 14 (App Router, TypeScript)
+- **フロントエンド**: Next.js 14 (App Router, TypeScript)
 - **バックエンド**: tRPC + DDD Architecture
 - **データベース**: Supabase (PostgreSQL)
 - **ORM**: Prisma
 - **認証**: Supabase Auth
 - **デプロイ**: Vercel
+- **UIライブラリ**: React + shadcn/ui, Tailwind CSS
+- **状態管理**: React Hooks + Context API
+- **バリデーション**: Zod
+- **アーキテクチャ**: Layered Architecture, Domain-Driven Design (DDD)
 
-## 🔄 毎回確認するルール
+## 📝 開発ルール
 
-### 1. **データベーススキーマ変更時**
+### 1. コードスタイル
+
+- TypeScript strict mode を使用
+- ESLint + Prettier でコードフォーマット統一
+- 関数・変数名は日本語の意図が分かる英語名
+- コメントは日本語で記述
+
+### 2. ファイル・ディレクトリ命名
+
+- コンポーネント: PascalCase (例: `UserDashboard.tsx`)
+- ページ: kebab-case (例: `user-dashboard/page.tsx`)
+- ユーティリティ: camelCase (例: `formatDate.ts`)
+- 定数: UPPER_SNAKE_CASE (例: `API_ENDPOINTS.ts`)
+
+### 3. データベーススキーマ変更時
 
 ```bash
-# スキーマを変更したら必ず実行
+# スキーマ変更後は必ず以下を実行
 pnpm prisma db push        # データベースに直接反映
 pnpm prisma generate      # クライアントを再生成
 ```
 
-### 2. **環境変数の確認**
+### 4. 環境変数
+
+- `.env.local` にローカル開発用の環境変数を設定
+- 本番環境変数は Vercel で管理
+- 環境変数変更時は `.env.example` も更新
+
+### 5. コード品質チェック
 
 ```bash
-# 開発開始前に必ず実行
-source .env
-echo "POSTGRES_URL: $POSTGRES_URL"
-echo "POSTGRES_URL_NON_POOLING: $POSTGRES_URL_NON_POOLING"
+# 開発前後で以下を実行
+pnpm lint                 # ESLint チェック
+pnpm type-check          # TypeScript 型チェック
+pnpm build               # ビルドテスト
 ```
 
-### 3. **コード品質チェック**
+### 6. 依存関係更新
 
-```bash
-# コミット前に必ず実行
-pnpm check              # TypeScript + ESLint + Prettier
-pnpm check:strict       # 厳密なチェック（推奨）
+- セキュリティアップデートは即座に適用
+- メジャーバージョン更新は事前にテスト
+- `pnpm update` で定期的に更新
+
+## 📁 開発進捗管理
+
+### ディレクトリ構成
+
+```
+docs/development/
+├── README.md                    # 開発進捗管理のトップレベル
+├── current-sprint.md            # 現在のスプリント状況
+├── next-tasks.md               # 次の作業内容
+├── implementation-plan.md       # 実装計画
+├── progress-tracking.md         # 進捗追跡
+├── milestones/                  # マイルストーン管理
+│   ├── phase1-basic-design.md  # 第1段階完了
+│   ├── phase2-detailed-design.md # 第2段階完了
+│   ├── phase3-implementation-design.md # 第3段階完了
+│   └── phase4-development.md   # 第4段階（開発フェーズ）
+├── tasks/                       # タスク管理
+│   ├── backend/                 # バックエンドタスク
+│   ├── frontend/                # フロントエンドタスク
+│   └── infrastructure/          # インフラタスク
+└── reviews/                     # レビュー・検証
+    ├── design-review.md         # 設計レビュー
+    └── implementation-review.md # 実装レビュー
 ```
 
-### 4. **依存関係の更新確認**
+### ファイル命名規則
 
-```bash
-# 新しいパッケージ追加後
-pnpm install
-pnpm typecheck         # 型チェックでエラーがないか確認
-```
+#### 完了済み
 
-## ⚠️ 指定されたら確認するルール
+- `phase1-complete.md` - 第1段階完了
+- `phase2-complete.md` - 第2段階完了
+- `phase3-complete.md` - 第3段階完了
+- `phase4-complete.md` - 第4段階完了
 
-### 1. **データベース接続テスト**
+#### 進行中
 
-```bash
-# 接続に問題がある場合
-pnpm prisma studio     # ブラウザで http://localhost:5555
-```
+- `current-sprint.md` - 現在のスプリント状況
+- `active-tasks.md` - 進行中のタスク
+- `progress-tracking.md` - 進捗追跡
 
-### 2. **マイグレーション履歴の管理**
+#### 計画・設計
 
-```bash
-# 設計が固まったら本格的なマイグレーション開始
-rm -rf prisma/migrations/     # 開発履歴を削除
-pnpm prisma migrate dev --name production_ready_schema
-```
+- `next-tasks.md` - 次の作業内容
+- `implementation-plan.md` - 実装計画
+- `development-roadmap.md` - 開発ロードマップ
 
-### 3. **環境変数の再読み込み**
+#### 完了報告
 
-```bash
-# 環境変数が反映されない場合
-source .env
-# または
-export $(cat .env | xargs)
-```
+- `phase1-completion.md` - 第1段階完了報告
+- `phase2-completion.md` - 第2段階完了報告
+- `phase3-completion.md` - 第3段階完了報告
+- `phase4-completion.md` - 第4段階完了報告
 
-## 🚫 開発段階では避けるべきこと
+#### レビュー・検証
 
-### 1. **マイグレーション履歴の蓄積**
+- `design-review.md` - 設計レビュー
+- `implementation-review.md` - 実装レビュー
+- `code-review.md` - コードレビュー
 
-- 理由: DB設計が未確定で頻繁な変更が予想される
-- 代わりに: `pnpm prisma db push` を使用
+#### タスク管理
 
-### 2. **本番環境でのテスト**
-
-- 理由: 開発中の不安定なスキーマ
-- 代わりに: ローカル環境 + Supabase開発環境
-
-### 3. **複雑なリレーションの早期実装**
-
-- 理由: 設計変更時の影響範囲が大きい
-- 代わりに: シンプルな構造から段階的に拡張
-
-## ✅ 推奨する開発フロー
-
-### **日常的な開発サイクル**
-
-1. スキーマ変更 → `pnpm prisma db push`
-2. コード実装 → 型チェック
-3. 動作確認 → Prisma Studio
-4. 品質チェック → `pnpm check`
-5. コミット
-
-### **設計変更時**
-
-1. 現在のスキーマをバックアップ
-2. 新しいスキーマで `pnpm prisma db push`
-3. 既存データの移行確認
-4. アプリケーションの動作確認
+- `backend-tasks.md` - バックエンドタスク
+- `frontend-tasks.md` - フロントエンドタスク
+- `infrastructure-tasks.md` - インフラタスク
 
 ## 🔧 トラブルシューティング
 
-### **よくある問題と解決方法**
+### よくある問題と解決方法
 
-#### **環境変数が読み込まれない**
-
-```bash
-source .env
-# または
-export $(cat .env | xargs)
-```
-
-#### **Prismaクライアントエラー**
+#### 1. Prisma エラー
 
 ```bash
+# スキーマ変更後、クライアントが更新されない
 pnpm prisma generate
-pnpm prisma db push
+
+# データベース接続エラー
+pnpm prisma db push --force-reset
 ```
 
-#### **データベース接続エラー**
+#### 2. tRPC エラー
 
 ```bash
-# .envファイルの接続情報を確認
-cat .env | grep POSTGRES_URL
+# 型エラーが解決されない
+pnpm build
+pnpm type-check
 ```
 
-## 📚 参考リンク
+#### 3. Supabase 接続エラー
 
+- 環境変数の確認
+- プロジェクトの有効性確認
+- API Key の権限確認
+
+#### 4. ビルドエラー
+
+```bash
+# 依存関係のクリーンアップ
+rm -rf node_modules
+rm -rf .next
+pnpm install
+pnpm build
+```
+
+## 📚 参考資料
+
+### 公式ドキュメント
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [tRPC Documentation](https://trpc.io/docs)
 - [Prisma Documentation](https://www.prisma.io/docs)
 - [Supabase Documentation](https://supabase.com/docs)
-- [Next.js Documentation](https://nextjs.org/docs)
 
-## 📝 更新履歴
+### 設計書
 
-- 2024/08/31: 初版作成
-- 開発段階でのルールを定義
-- マイグレーション履歴リセット方針を決定
+- [要件定義](./docs/requirements/README.md)
+- [基本設計](./docs/entities/README.md)
+- [詳細設計](./docs/workflows/README.md)
+- [実装設計](./docs/database/README.md)
 
----
+### 開発進捗
 
-**注意**: このルールは開発段階でのものです。本番環境投入前には適切なマイグレーション管理に移行してください。
+- [開発進捗管理](./docs/development/README.md)
+- [現在のスプリント](./docs/development/current-sprint.md)
+- [次の作業内容](./docs/development/next-tasks.md)
+- [実装計画](./docs/development/implementation-plan.md)
