@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL") // Supabase用
+}
+
+enum Role {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+model User {
+  id          String           @id @default(cuid())
+  email       String           @unique
+  memberships UserTenantRole[]
+  projects    Project[]        @relation("OwnerProjects")
+}
+
+model Tenant {
+  id          String           @id @default(cuid())
+  name        String
+  memberships UserTenantRole[]
+  projects    Project[]
+}
+
+model UserTenantRole {
+  id       String @id @default(cuid())
+  userId   String
+  tenantId String
+  role     Role
+  user     User   @relation(fields: [userId], references: [id])
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+  @@unique([userId, tenantId])
+}
+
+model Project {
+  id        String  @id @default(cuid())
+  name      String
+  tenantId  String
+  ownerId   String
+  tenant    Tenant  @relation(fields: [tenantId], references: [id])
+  owner     User    @relation("OwnerProjects", fields: [ownerId], references: [id])
+  @@index([tenantId])
+}

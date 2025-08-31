@@ -1,5 +1,5 @@
-import { UserAttendance } from "@/components/user-attendance"
+import { UserAttendance } from '@/components/user-attendance';
 
 export default function UserAttendancePage() {
-  return <UserAttendance />
+  return <UserAttendance />;
 }

@@ -1,7 +1,7 @@
-"use client"
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Sidebar,
   SidebarContent,
@@ -16,17 +16,17 @@ import {
   SidebarProvider,
   SidebarRail,
   SidebarTrigger,
-} from "@/components/ui/sidebar"
-import { Separator } from "@/components/ui/separator"
-import { Calendar, Clock, HelpCircle, Building2, LogOut } from "lucide-react"
-import Link from "next/link"
-import { ClockWidget } from "./clock-widget"
+} from '@/components/ui/sidebar';
+import { Separator } from '@/components/ui/separator';
+import { Calendar, Clock, HelpCircle, Building2, LogOut } from 'lucide-react';
+import Link from 'next/link';
+import { ClockWidget } from './clock-widget';
 
 export function UserDashboard() {
   const menuItems = [
-    { name: "勤怠管理", href: "/user/attendance", icon: Clock },
-    { name: "希望休管理", href: "/user/holidays", icon: Calendar },
-  ]
+    { name: '勤怠管理', href: '/user/attendance', icon: Clock },
+    { name: '希望休管理', href: '/user/holidays', icon: Calendar },
+  ];
 
   return (
     <SidebarProvider>
@@ -45,8 +45,8 @@ export function UserDashboard() {
             <SidebarGroupLabel>メニュー</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {menuItems.map((item) => {
-                  const Icon = item.icon
+                {menuItems.map(item => {
+                  const Icon = item.icon;
                   return (
                     <SidebarMenuItem key={item.name}>
                       <SidebarMenuButton asChild>
@@ -56,7 +56,7 @@ export function UserDashboard() {
                         </Link>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
-                  )
+                  );
                 })}
               </SidebarMenu>
             </SidebarGroupContent>
@@ -93,13 +93,19 @@ export function UserDashboard() {
         <header className="flex h-16 shrink-0 items-center gap-2 border-b px-4">
           <SidebarTrigger className="-ml-1" />
           <Separator orientation="vertical" className="mr-2 h-4" />
-          <h1 className="text-xl font-semibold text-gray-900">ダッシュボード</h1>
+          <h1 className="text-xl font-semibold text-gray-900">
+            ダッシュボード
+          </h1>
         </header>
 
         <main className="flex-1 p-6">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">一般職ダッシュボード</h2>
-            <p className="text-gray-600">お疲れ様です！今日も一日頑張りましょう</p>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              一般職ダッシュボード
+            </h2>
+            <p className="text-gray-600">
+              お疲れ様です！今日も一日頑張りましょう
+            </p>
           </div>
 
           <div className="mb-6">
@@ -115,7 +121,9 @@ export function UserDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">打刻申請・追加訂正申請ができます</p>
+                <p className="text-gray-600 mb-4">
+                  打刻申請・追加訂正申請ができます
+                </p>
                 <Link href="/user/attendance">
                   <Button className="w-full">勤怠ページへ</Button>
                 </Link>
@@ -130,7 +138,9 @@ export function UserDashboard() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600 mb-4">希望休の入力・確認ができます</p>
+                <p className="text-gray-600 mb-4">
+                  希望休の入力・確認ができます
+                </p>
                 <Link href="/user/holidays">
                   <Button className="w-full">希望休入力ページへ</Button>
                 </Link>
@@ -143,11 +153,13 @@ export function UserDashboard() {
               <CardTitle>今月のシフト</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-600">今月のシフト予定を確認できます（実装予定）</p>
+              <p className="text-gray-600">
+                今月のシフト予定を確認できます（実装予定）
+              </p>
             </CardContent>
           </Card>
         </main>
       </SidebarInset>
     </SidebarProvider>
-  )
+  );
 }

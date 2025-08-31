@@ -1,5 +1,5 @@
-import { RoleTemplatesManagement } from "@/components/role-templates-management"
+import { RoleTemplatesManagement } from '@/components/role-templates-management';
 
 export default function RoleTemplatesPage() {
-  return <RoleTemplatesManagement />
+  return <RoleTemplatesManagement />;
 }

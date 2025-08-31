@@ -1,5 +1,5 @@
-import { AttendanceTypesManagement } from "@/components/attendance-types-management"
+import { AttendanceTypesManagement } from '@/components/attendance-types-management';
 
 export default function AttendanceTypesPage() {
-  return <AttendanceTypesManagement />
+  return <AttendanceTypesManagement />;
 }

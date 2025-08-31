@@ -1,5 +1,5 @@
-import { UserHolidays } from "@/components/user-holidays"
+import { UserHolidays } from '@/components/user-holidays';
 
 export default function UserHolidaysPage() {
-  return <UserHolidays />
+  return <UserHolidays />;
 }

@@ -1,5 +1,5 @@
-import { JobRulesManagement } from "@/components/job-rules-management"
+import { JobRulesManagement } from '@/components/job-rules-management';
 
 export default function JobRulesPage() {
-  return <JobRulesManagement />
+  return <JobRulesManagement />;
 }

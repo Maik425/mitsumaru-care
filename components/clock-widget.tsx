@@ -1,38 +1,40 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Clock } from "lucide-react"
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Clock } from 'lucide-react';
 
 export function ClockWidget() {
-  const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString("ja-JP", { hour12: false }))
-  const [isWorking, setIsWorking] = useState(false)
+  const [currentTime, setCurrentTime] = useState(
+    new Date().toLocaleTimeString('ja-JP', { hour12: false })
+  );
+  const [isWorking, setIsWorking] = useState(false);
 
   // 現在時刻を更新
   useState(() => {
     const timer = setInterval(() => {
-      setCurrentTime(new Date().toLocaleTimeString("ja-JP", { hour12: false }))
-    }, 1000)
-    return () => clearInterval(timer)
-  })
+      setCurrentTime(new Date().toLocaleTimeString('ja-JP', { hour12: false }));
+    }, 1000);
+    return () => clearInterval(timer);
+  });
 
   const todaySchedule = {
-    shift: "日勤",
-    startTime: "09:00",
-    endTime: "18:00",
-    breakTime: "12:00-13:00",
-  }
+    shift: '日勤',
+    startTime: '09:00',
+    endTime: '18:00',
+    breakTime: '12:00-13:00',
+  };
 
   const handleClockIn = () => {
-    setIsWorking(true)
+    setIsWorking(true);
     // 実際の実装では、ここでAPIを呼び出して打刻を記録
-  }
+  };
 
   const handleClockOut = () => {
-    setIsWorking(false)
+    setIsWorking(false);
     // 実際の実装では、ここでAPIを呼び出して打刻を記録
-  }
+  };
 
   return (
     <Card>
@@ -45,7 +47,9 @@ export function ClockWidget() {
       <CardContent className="text-center">
         <div className="mb-6">
           <p className="text-3xl font-bold text-gray-900 mb-2">{currentTime}</p>
-          <p className="text-gray-600">{new Date().toLocaleDateString("ja-JP")}</p>
+          <p className="text-gray-600">
+            {new Date().toLocaleDateString('ja-JP')}
+          </p>
         </div>
 
         <div className="mb-6 p-4 bg-blue-50 rounded-lg">
@@ -55,7 +59,8 @@ export function ClockWidget() {
               <strong>シフト:</strong> {todaySchedule.shift}
             </p>
             <p>
-              <strong>勤務時間:</strong> {todaySchedule.startTime} - {todaySchedule.endTime}
+              <strong>勤務時間:</strong> {todaySchedule.startTime} -{' '}
+              {todaySchedule.endTime}
             </p>
             <p>
               <strong>休憩時間:</strong> {todaySchedule.breakTime}
@@ -65,11 +70,17 @@ export function ClockWidget() {
 
         <div className="space-y-3">
           {!isWorking ? (
-            <Button onClick={handleClockIn} className="w-full h-12 text-lg bg-green-600 hover:bg-green-700">
+            <Button
+              onClick={handleClockIn}
+              className="w-full h-12 text-lg bg-green-600 hover:bg-green-700"
+            >
               出勤打刻
             </Button>
           ) : (
-            <Button onClick={handleClockOut} className="w-full h-12 text-lg bg-red-600 hover:bg-red-700">
+            <Button
+              onClick={handleClockOut}
+              className="w-full h-12 text-lg bg-red-600 hover:bg-red-700"
+            >
               退勤打刻
             </Button>
           )}
@@ -83,5 +94,5 @@ export function ClockWidget() {
         )}
       </CardContent>
     </Card>
-  )
+  );
 }

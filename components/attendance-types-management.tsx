@@ -1,68 +1,82 @@
-"use client"
+'use client';
 
-import { useState } from "react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Plus, Edit, Trash2, Clock } from "lucide-react"
-import Link from "next/link"
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Plus, Edit, Trash2, Clock } from 'lucide-react';
+import Link from 'next/link';
 
 export function AttendanceTypesManagement() {
-  const [attendanceTypes, setAttendanceTypes] = useState([
-    { id: 1, name: "早番", startTime: "07:00", endTime: "16:00", breakTime: 60, color: "bg-blue-100 text-blue-800" },
-    { id: 2, name: "日勤", startTime: "09:00", endTime: "18:00", breakTime: 60, color: "bg-green-100 text-green-800" },
+  const [attendanceTypes] = useState([
+    {
+      id: 1,
+      name: '早番',
+      startTime: '07:00',
+      endTime: '16:00',
+      breakTime: 60,
+      color: 'bg-blue-100 text-blue-800',
+    },
+    {
+      id: 2,
+      name: '日勤',
+      startTime: '09:00',
+      endTime: '18:00',
+      breakTime: 60,
+      color: 'bg-green-100 text-green-800',
+    },
     {
       id: 3,
-      name: "遅番",
-      startTime: "11:00",
-      endTime: "20:00",
+      name: '遅番',
+      startTime: '11:00',
+      endTime: '20:00',
       breakTime: 60,
-      color: "bg-orange-100 text-orange-800",
+      color: 'bg-orange-100 text-orange-800',
     },
     {
       id: 4,
-      name: "夜勤",
-      startTime: "20:00",
-      endTime: "09:00",
+      name: '夜勤',
+      startTime: '20:00',
+      endTime: '09:00',
       breakTime: 120,
-      color: "bg-purple-100 text-purple-800",
+      color: 'bg-purple-100 text-purple-800',
     },
-  ])
+  ]);
 
-  const [isEditing, setIsEditing] = useState(false)
-  const [editingType, setEditingType] = useState(null)
+  const [isEditing, setIsEditing] = useState(false);
+  // const [editingType, setEditingType] = useState<any>(null); // 未使用のためコメントアウト
   const [formData, setFormData] = useState({
-    name: "",
-    startTime: "",
-    endTime: "",
-    breakTime: "",
-  })
+    name: '',
+    startTime: '',
+    endTime: '',
+    breakTime: '',
+  });
 
   const handleEdit = (type: any) => {
-    setEditingType(type)
+    // setEditingType(type); // 未使用のためコメントアウト
     setFormData({
       name: type.name,
       startTime: type.startTime,
       endTime: type.endTime,
       breakTime: type.breakTime.toString(),
-    })
-    setIsEditing(true)
-  }
+    });
+    setIsEditing(true);
+  };
 
   const handleSave = () => {
     // 実際の実装では、ここでAPIを呼び出してデータを保存
-    setIsEditing(false)
-    setEditingType(null)
-    setFormData({ name: "", startTime: "", endTime: "", breakTime: "" })
-  }
+    setIsEditing(false);
+    // setEditingType(null); // 未使用のためコメントアウト
+    setFormData({ name: '', startTime: '', endTime: '', breakTime: '' });
+  };
 
   const handleCancel = () => {
-    setIsEditing(false)
-    setEditingType(null)
-    setFormData({ name: "", startTime: "", endTime: "", breakTime: "" })
-  }
+    setIsEditing(false);
+    // setEditingType(null); // 未使用のためコメントアウト
+    setFormData({ name: '', startTime: '', endTime: '', breakTime: '' });
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -75,7 +89,9 @@ export function AttendanceTypesManagement() {
                 ダッシュボードに戻る
               </Button>
             </Link>
-            <h1 className="text-xl font-semibold text-gray-900 ml-4">シフト形態管理</h1>
+            <h1 className="text-xl font-semibold text-gray-900 ml-4">
+              シフト形態管理
+            </h1>
           </div>
         </div>
       </header>
@@ -87,7 +103,7 @@ export function AttendanceTypesManagement() {
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Plus className="h-5 w-5 mr-2" />
-                  {isEditing ? "シフト形態編集" : "新しいシフト形態"}
+                  {isEditing ? 'シフト形態編集' : '新しいシフト形態'}
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -97,7 +113,9 @@ export function AttendanceTypesManagement() {
                     <Input
                       id="name"
                       value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      onChange={e =>
+                        setFormData({ ...formData, name: e.target.value })
+                      }
                       placeholder="例: 早番"
                     />
                   </div>
@@ -108,7 +126,12 @@ export function AttendanceTypesManagement() {
                         id="startTime"
                         type="time"
                         value={formData.startTime}
-                        onChange={(e) => setFormData({ ...formData, startTime: e.target.value })}
+                        onChange={e =>
+                          setFormData({
+                            ...formData,
+                            startTime: e.target.value,
+                          })
+                        }
                       />
                     </div>
                     <div>
@@ -117,7 +140,9 @@ export function AttendanceTypesManagement() {
                         id="endTime"
                         type="time"
                         value={formData.endTime}
-                        onChange={(e) => setFormData({ ...formData, endTime: e.target.value })}
+                        onChange={e =>
+                          setFormData({ ...formData, endTime: e.target.value })
+                        }
                       />
                     </div>
                   </div>
@@ -127,16 +152,22 @@ export function AttendanceTypesManagement() {
                       id="breakTime"
                       type="number"
                       value={formData.breakTime}
-                      onChange={(e) => setFormData({ ...formData, breakTime: e.target.value })}
+                      onChange={e =>
+                        setFormData({ ...formData, breakTime: e.target.value })
+                      }
                       placeholder="60"
                     />
                   </div>
                   <div className="flex space-x-2">
                     <Button onClick={handleSave} className="flex-1">
-                      {isEditing ? "更新" : "追加"}
+                      {isEditing ? '更新' : '追加'}
                     </Button>
                     {isEditing && (
-                      <Button onClick={handleCancel} variant="outline" className="flex-1 bg-transparent">
+                      <Button
+                        onClick={handleCancel}
+                        variant="outline"
+                        className="flex-1 bg-transparent"
+                      >
                         キャンセル
                       </Button>
                     )}
@@ -156,15 +187,26 @@ export function AttendanceTypesManagement() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {attendanceTypes.map((type) => (
-                    <div key={type.id} className="p-4 border border-gray-200 rounded-lg">
+                  {attendanceTypes.map(type => (
+                    <div
+                      key={type.id}
+                      className="p-4 border border-gray-200 rounded-lg"
+                    >
                       <div className="flex items-center justify-between mb-2">
                         <Badge className={type.color}>{type.name}</Badge>
                         <div className="flex space-x-1">
-                          <Button size="sm" variant="ghost" onClick={() => handleEdit(type)}>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => handleEdit(type)}
+                          >
                             <Edit className="h-3 w-3" />
                           </Button>
-                          <Button size="sm" variant="ghost" className="text-red-600">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="text-red-600"
+                          >
                             <Trash2 className="h-3 w-3" />
                           </Button>
                         </div>
@@ -174,7 +216,15 @@ export function AttendanceTypesManagement() {
                           勤務時間: {type.startTime} - {type.endTime}
                         </p>
                         <p>休憩時間: {type.breakTime}分</p>
-                        <p>実働時間: {calculateWorkingHours(type.startTime, type.endTime, type.breakTime)}時間</p>
+                        <p>
+                          実働時間:{' '}
+                          {calculateWorkingHours(
+                            type.startTime,
+                            type.endTime,
+                            type.breakTime
+                          )}
+                          時間
+                        </p>
                       </div>
                     </div>
                   ))}
@@ -185,24 +235,28 @@ export function AttendanceTypesManagement() {
         </div>
       </main>
     </div>
-  )
+  );
 }
 
-function calculateWorkingHours(start: string, end: string, breakTime: number): string {
-  const [startHour, startMin] = start.split(":").map(Number)
-  const [endHour, endMin] = end.split(":").map(Number)
+function calculateWorkingHours(
+  start: string,
+  end: string,
+  breakTime: number
+): string {
+  const [startHour, startMin] = start.split(':').map(Number);
+  const [endHour, endMin] = end.split(':').map(Number);
 
-  const startMinutes = startHour * 60 + startMin
-  let endMinutes = endHour * 60 + endMin
+  const startMinutes = startHour * 60 + startMin;
+  let endMinutes = endHour * 60 + endMin;
 
   // 夜勤の場合（終了時刻が開始時刻より小さい）
   if (endMinutes < startMinutes) {
-    endMinutes += 24 * 60
+    endMinutes += 24 * 60;
   }
 
-  const totalMinutes = endMinutes - startMinutes - breakTime
-  const hours = Math.floor(totalMinutes / 60)
-  const minutes = totalMinutes % 60
+  const totalMinutes = endMinutes - startMinutes - breakTime;
+  const hours = Math.floor(totalMinutes / 60);
+  const minutes = totalMinutes % 60;
 
-  return minutes > 0 ? `${hours}時間${minutes}分` : `${hours}時間`
+  return minutes > 0 ? `${hours}時間${minutes}分` : `${hours}時間`;
 }
