@@ -1,0 +1,32 @@
+{
+  "projectName": "mitsumarq-care",
+  "description": "介護施設向けの包括的な管理システム - Next.js + DDD + tRPC + Supabase",
+  "rules": [
+    "開発段階ではマイグレーション履歴を蓄積しない",
+    "スキーマ変更時は必ずpnpm prisma db pushを実行",
+    "環境変数の確認を忘れずに行う",
+    "コード品質チェックをコミット前に実行",
+    "複雑なリレーションは段階的に実装"
+  ],
+  "architecture": {
+    "pattern": "DDD (Domain-Driven Design)",
+    "layers": [
+      "Domain (Entity, ValueObject, Repository Interface)",
+      "Application (UseCase)",
+      "Infrastructure (Repository Implementation, Mapper, ORM)",
+      "Controller (tRPC)"
+    ]
+  },
+  "database": {
+    "provider": "Supabase (PostgreSQL)",
+    "orm": "Prisma",
+    "development": "db push (履歴なし)",
+    "production": "migrate dev (履歴あり)"
+  },
+  "techStack": {
+    "frontend": "Next.js 14 (App Router, TypeScript)",
+    "backend": "tRPC",
+    "validation": "Yup",
+    "deployment": "Vercel"
+  }
+}
