@@ -1,9 +1,10 @@
 import { FacilityAdminGuard } from '@/src/components/auth/auth-guard';
+import { Layout } from '@/src/components/layout/layout';
 
 export default function FacilityAdminDashboard() {
   return (
     <FacilityAdminGuard>
-      <div className="min-h-screen bg-gray-50 p-6">
+      <Layout>
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
@@ -80,7 +81,7 @@ export default function FacilityAdminDashboard() {
             </div>
           </div>
         </div>
-      </div>
+      </Layout>
     </FacilityAdminGuard>
   );
 }

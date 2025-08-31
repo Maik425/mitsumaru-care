@@ -1,9 +1,10 @@
 import { StaffGuard } from '@/src/components/auth/auth-guard';
+import { Layout } from '@/src/components/layout/layout';
 
 export default function StaffDashboard() {
   return (
     <StaffGuard>
-      <div className="min-h-screen bg-gray-50 p-6">
+      <Layout>
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl font-bold text-gray-900">
@@ -80,7 +81,7 @@ export default function StaffDashboard() {
             </div>
           </div>
         </div>
-      </div>
+      </Layout>
     </StaffGuard>
   );
 }
