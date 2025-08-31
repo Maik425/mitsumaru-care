@@ -45,6 +45,8 @@ describe('Header', () => {
         user: {
           id: 'admin-1',
           email: 'admin@mitsumaru.com',
+          name: 'Admin User',
+          employeeNumber: 'ADM001',
           permissions: ['SYSTEM_SETTINGS'],
         },
         isAuthenticated: true,
@@ -85,6 +87,8 @@ describe('Header', () => {
         user: {
           id: 'facility-admin-1',
           email: 'facility-admin@mitsumaru.com',
+          name: 'Facility Admin User',
+          employeeNumber: 'FAC001',
           permissions: ['SHIFT_MANAGEMENT'],
         },
         isAuthenticated: true,
@@ -120,6 +124,8 @@ describe('Header', () => {
         user: {
           id: 'staff-1',
           email: 'staff@mitsumaru.com',
+          name: 'Staff User',
+          employeeNumber: 'STF001',
           permissions: ['SHIFT_VIEW'],
         },
         isAuthenticated: true,
@@ -154,7 +160,9 @@ describe('Header', () => {
       mockUseAuth.mockReturnValue({
         user: {
           id: 'user-1',
-          email: 'user@example.com',
+          email: 'test@example.com',
+          name: 'Test User',
+          employeeNumber: 'USR001',
           permissions: ['SHIFT_VIEW'],
         },
         isAuthenticated: true,

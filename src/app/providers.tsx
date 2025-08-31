@@ -12,7 +12,21 @@ export const trpc = createTRPCReact<AppRouter>();
 export default function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
   const [trpcClient] = useState(() =>
-    trpc.createClient({ links: [httpBatchLink({ url: '/api/trpc' })] })
+    trpc.createClient({
+      links: [
+        httpBatchLink({
+          url: '/api/trpc',
+          // 認証ヘッダーを追加
+          headers: () => {
+            if (typeof window !== 'undefined') {
+              const token = localStorage.getItem('auth-token');
+              return token ? { authorization: `Bearer ${token}` } : {};
+            }
+            return {};
+          },
+        }),
+      ],
+    })
   );
 
   return (

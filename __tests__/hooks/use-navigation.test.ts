@@ -36,6 +36,8 @@ describe('useNavigation', () => {
         user: {
           id: 'admin-1',
           email: 'admin@mitsumaru.com',
+          name: 'Admin User',
+          employeeNumber: 'ADM001',
           permissions: [
             'SYSTEM_SETTINGS',
             'USER_MANAGEMENT',
@@ -96,6 +98,8 @@ describe('useNavigation', () => {
         user: {
           id: 'facility-admin-1',
           email: 'facility-admin@mitsumaru.com',
+          name: 'Facility Admin User',
+          employeeNumber: 'FAC001',
           permissions: ['SHIFT_MANAGEMENT', 'ATTENDANCE_VIEW'],
         },
         isAuthenticated: true,
@@ -152,6 +156,8 @@ describe('useNavigation', () => {
         user: {
           id: 'staff-1',
           email: 'staff@mitsumaru.com',
+          name: 'Staff User',
+          employeeNumber: 'STF001',
           permissions: ['SHIFT_VIEW', 'ATTENDANCE_VIEW'],
         },
         isAuthenticated: true,
@@ -208,7 +214,9 @@ describe('useNavigation', () => {
       mockUseAuth.mockReturnValue({
         user: {
           id: 'user-1',
-          email: 'user@example.com',
+          email: 'user@mitsumaru.com',
+          name: 'User',
+          employeeNumber: 'USR001',
           permissions: ['SHIFT_VIEW', 'ATTENDANCE_UPDATE'],
         },
         isAuthenticated: true,

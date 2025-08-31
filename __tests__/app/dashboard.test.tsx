@@ -11,11 +11,6 @@ jest.mock('next/navigation', () => ({
   }),
 }));
 
-// Sidebarコンポーネントのモック（usePathnameの問題を回避）
-jest.mock('../../src/components/layout/sidebar', () => ({
-  Sidebar: () => <div data-testid="mock-sidebar">Mock Sidebar</div>,
-}));
-
 const mockUseAuth = useAuth as jest.MockedFunction<typeof useAuth>;
 
 describe('Dashboard', () => {
@@ -66,7 +61,9 @@ describe('Dashboard', () => {
         user: {
           id: 'admin-1',
           email: 'admin@mitsumaru.com',
-          permissions: ['SYSTEM_SETTINGS'],
+          name: 'Admin User',
+          employeeNumber: 'ADM001',
+          permissions: ['SYSTEM_SETTINGS', 'USER_MANAGEMENT'],
         },
         isAuthenticated: true,
         loading: false,
@@ -90,7 +87,9 @@ describe('Dashboard', () => {
         user: {
           id: 'facility-admin-1',
           email: 'facility-admin@mitsumaru.com',
-          permissions: ['SHIFT_MANAGEMENT'],
+          name: 'Facility Admin User',
+          employeeNumber: 'FAC001',
+          permissions: ['SHIFT_MANAGEMENT', 'ATTENDANCE_MANAGEMENT'],
         },
         isAuthenticated: true,
         loading: false,
@@ -113,7 +112,9 @@ describe('Dashboard', () => {
         user: {
           id: 'staff-1',
           email: 'staff@mitsumaru.com',
-          permissions: ['SHIFT_VIEW'],
+          name: 'Staff User',
+          employeeNumber: 'STF001',
+          permissions: ['SHIFT_VIEW', 'ATTENDANCE_UPDATE'],
         },
         isAuthenticated: true,
         loading: false,
@@ -135,7 +136,9 @@ describe('Dashboard', () => {
       mockUseAuth.mockReturnValue({
         user: {
           id: 'user-1',
-          email: 'user@example.com',
+          email: 'user@mitsumaru.com',
+          name: 'User',
+          employeeNumber: 'USR001',
           permissions: [],
         },
         isAuthenticated: true,

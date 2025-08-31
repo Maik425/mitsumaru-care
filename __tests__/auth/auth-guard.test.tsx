@@ -69,6 +69,8 @@ describe('AuthGuard', () => {
       user: {
         id: '1',
         email: 'test@example.com',
+        name: 'Test User',
+        employeeNumber: 'USR001',
         permissions: ['TEST_PERMISSION'],
       },
       isAuthenticated: true,
@@ -93,6 +95,8 @@ describe('AuthGuard', () => {
       user: {
         id: '1',
         email: 'test@example.com',
+        name: 'Test User',
+        employeeNumber: 'USR001',
         permissions: ['OTHER_PERMISSION'],
       },
       isAuthenticated: true,
@@ -127,6 +131,8 @@ describe('AdminGuard', () => {
       user: {
         id: '1',
         email: 'admin@example.com',
+        name: 'Admin User',
+        employeeNumber: 'ADM001',
         permissions: ['SYSTEM_SETTINGS'],
       },
       isAuthenticated: true,
@@ -158,6 +164,8 @@ describe('FacilityAdminGuard', () => {
       user: {
         id: '1',
         email: 'facility@example.com',
+        name: 'Facility Admin User',
+        employeeNumber: 'FAC001',
         permissions: ['SHIFT_MANAGEMENT'],
       },
       isAuthenticated: true,
@@ -189,6 +197,8 @@ describe('StaffGuard', () => {
       user: {
         id: '1',
         email: 'staff@example.com',
+        name: 'Staff User',
+        employeeNumber: 'STF001',
         permissions: ['SHIFT_VIEW'],
       },
       isAuthenticated: true,
@@ -217,7 +227,13 @@ describe('AuthenticatedGuard', () => {
     >;
 
     mockUseAuth.mockReturnValue({
-      user: { id: '1', email: 'user@example.com', permissions: [] },
+      user: {
+        id: 'user-1',
+        email: 'user@example.com',
+        name: 'Test User',
+        employeeNumber: 'USR001',
+        permissions: ['SHIFT_VIEW'],
+      },
       isAuthenticated: true,
       loading: false,
       hasPermission: jest.fn().mockReturnValue(false),

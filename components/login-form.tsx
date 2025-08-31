@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/src/hooks/use-auth';
 import { validateEmail, validatePassword } from '@/src/lib/validation';
 
@@ -16,7 +15,6 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  const router = useRouter();
   const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -41,18 +39,10 @@ export function LoginForm() {
       // 認証実行
       const result = await signIn(email, password);
 
-      if (result.success) {
-        // 認証成功時のリダイレクト
-        if (result.user?.permissions?.includes('SYSTEM_SETTINGS')) {
-          router.push('/admin/dashboard');
-        } else if (result.user?.permissions?.includes('SHIFT_MANAGEMENT')) {
-          router.push('/facility-admin/dashboard');
-        } else {
-          router.push('/staff/dashboard');
-        }
-      } else {
+      if (!result.success) {
         setError(result.error || 'ログインに失敗しました');
       }
+      // 成功時はuseAuthフックでリダイレクトが処理される
     } catch (err) {
       setError('ログイン中にエラーが発生しました');
       console.error('Login error:', err);

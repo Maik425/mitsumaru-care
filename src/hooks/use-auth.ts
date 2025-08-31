@@ -1,8 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
+import { trpc } from '../app/providers';
+import { useRouter } from 'next/navigation';
 
 export interface User {
   id: string;
   email: string;
+  name: string;
+  employeeNumber: string;
   permissions: string[];
 }
 
@@ -24,6 +28,14 @@ export interface AuthContextType {
 export const useAuth = (): AuthContextType => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  // tRPCミューテーション
+  const loginMutation = trpc.auth.login.useMutation();
+  const logoutMutation = trpc.auth.logout.useMutation();
+  const meQuery = trpc.auth.me.useQuery(undefined, {
+    enabled: false, // 手動で実行
+  });
 
   const hasPermission = useCallback(
     (requiredPermissions: string[]): boolean => {
@@ -38,64 +50,74 @@ export const useAuth = (): AuthContextType => {
 
   const signIn = async (
     email: string,
-    _password: string
+    password: string
   ): Promise<AuthResult> => {
     try {
       setLoading(true);
 
-      // モック認証ロジック（実際の実装ではSupabase Authを使用）
-      if (email === 'admin@mitsumaru.com') {
-        const adminUser: User = {
-          id: 'admin-1',
-          email: 'admin@mitsumaru.com',
-          permissions: [
-            'USER_MANAGEMENT',
-            'SYSTEM_SETTINGS',
-            'SHIFT_MANAGEMENT',
-          ],
-        };
-        setUser(adminUser);
-        return { success: true, user: adminUser };
-      } else if (email === 'facility-admin@mitsumaru.com') {
-        const facilityAdminUser: User = {
-          id: 'facility-admin-1',
-          email: 'facility-admin@mitsumaru.com',
-          permissions: [
-            'SHIFT_MANAGEMENT',
-            'SHIFT_VIEW',
-            'ATTENDANCE_MANAGEMENT',
-            'ATTENDANCE_UPDATE',
-          ],
-        };
-        setUser(facilityAdminUser);
-        return { success: true, user: facilityAdminUser };
-      } else if (email === 'staff@mitsumaru.com') {
-        const staffUser: User = {
-          id: 'staff-1',
-          email: 'staff@mitsumaru.com',
-          permissions: ['SHIFT_VIEW', 'ATTENDANCE_UPDATE'],
-        };
-        setUser(staffUser);
-        return { success: true, user: staffUser };
+      const result = await loginMutation.mutateAsync({
+        email,
+        password,
+      });
+
+      if (result.user) {
+        setUser(result.user);
+
+        // トークンをローカルストレージに保存
+        if (result.session?.access_token) {
+          localStorage.setItem('auth-token', result.session.access_token);
+        }
+
+        // 権限に基づいてダッシュボードにリダイレクト
+        if (result.user.permissions.includes('SYSTEM_SETTINGS')) {
+          router.push('/admin/dashboard');
+        } else if (result.user.permissions.includes('SHIFT_MANAGEMENT')) {
+          router.push('/facility-admin/dashboard');
+        } else {
+          router.push('/staff/dashboard');
+        }
+
+        return { success: true, user: result.user };
       } else {
         return { success: false, error: '認証に失敗しました' };
       }
-    } catch (error) {
-      return { success: false, error: '認証に失敗しました' };
+    } catch (error: any) {
+      const errorMessage = error?.message || '認証に失敗しました';
+      return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
     }
   };
 
   const signOut = async (): Promise<void> => {
-    setUser(null);
-    setLoading(false);
+    try {
+      await logoutMutation.mutateAsync();
+    } catch (error) {
+      console.error('ログアウトエラー:', error);
+    } finally {
+      setUser(null);
+      localStorage.removeItem('auth-token');
+      router.push('/');
+    }
   };
 
+  // 初期化時にユーザー情報を取得
   useEffect(() => {
-    // 初期化処理（実際の実装ではセッション確認など）
-    setLoading(false);
-  }, []);
+    const token = localStorage.getItem('auth-token');
+    if (token) {
+      meQuery.refetch().then((result: any) => {
+        if (result.data) {
+          setUser(result.data);
+        } else {
+          // トークンが無効な場合は削除
+          localStorage.removeItem('auth-token');
+        }
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
+  }, [meQuery]);
 
   return {
     user,
