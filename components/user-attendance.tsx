@@ -3,6 +3,8 @@
 import type React from 'react';
 
 import { useState } from 'react';
+import { trpc } from '@/src/app/providers';
+import { showSuccessMessage, handleApiError } from '@/src/lib/api-helpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -330,20 +332,18 @@ export function UserAttendance() {
                           </Button>
                           <Button
                             type="submit"
-                            onClick={() => {
-                              setTimeout(() => {
-                                const message = document.createElement('div');
-                                message.textContent =
-                                  '修正申請が送信されました';
-                                message.style.cssText =
-                                  'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
-                                document.body.appendChild(message);
-                                setTimeout(() => {
-                                  if (document.body.contains(message)) {
-                                    document.body.removeChild(message);
-                                  }
-                                }, 3000);
-                              }, 200);
+                            onClick={async () => {
+                              try {
+                                // フェーズ1: ダミー処理（将来的にはAPI呼び出し）
+                                // const correctionData = { date: '2025-03-15', type: 'clock_in', reason: 'forgot' };
+                                // await submitCorrectionMutation.mutateAsync(correctionData);
+                                await new Promise(resolve => setTimeout(resolve, 200));
+                                
+                                // 既存のメッセージ仕様を維持
+                                showSuccessMessage('correctionSubmitted');
+                              } catch (error) {
+                                handleApiError(error, '修正申請の送信中にエラーが発生しました');
+                              }
                             }}
                           >
                             申請

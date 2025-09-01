@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { trpc } from '@/src/app/providers';
+import { showSuccessMessage, handleApiError } from '@/src/lib/api-helpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -74,16 +76,18 @@ export default function ShiftExchangeApprovalPage() {
                   <div className="flex space-x-2">
                     <Button
                       size="sm"
-                      onClick={() => {
-                        const message = document.createElement('div');
-                        message.textContent = '承認されました';
-                        message.style.cssText =
-                          'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
-                        document.body.appendChild(message);
-                        setTimeout(
-                          () => document.body.removeChild(message),
-                          3000
-                        );
+                      onClick={async () => {
+                        try {
+                          // フェーズ1: ダミー処理（将来的にはAPI呼び出し）
+                          // const approvalData = { exchangeId: exchange.id, status: 'approved' };
+                          // await approveExchangeMutation.mutateAsync(approvalData);
+                          await new Promise(resolve => setTimeout(resolve, 500));
+                          
+                          // 既存のメッセージ仕様を維持
+                          showSuccessMessage('exchangeApproved');
+                        } catch (error) {
+                          handleApiError(error, 'シフト交換の承認中にエラーが発生しました');
+                        }
                       }}
                     >
                       承認

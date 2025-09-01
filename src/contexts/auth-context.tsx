@@ -7,7 +7,7 @@ import React, {
   useEffect,
   ReactNode,
 } from 'react';
-import { trpc } from '../lib/trpc';
+import { trpc } from '../app/providers';
 import { useRouter } from 'next/navigation';
 
 // ユーザー型定義

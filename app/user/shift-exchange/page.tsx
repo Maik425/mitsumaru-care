@@ -2,6 +2,8 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { trpc } from '@/src/app/providers';
+import { showSuccessMessage, handleApiError } from '@/src/lib/api-helpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
@@ -92,13 +94,18 @@ export default function ShiftExchangePage() {
                 />
               </div>
               <Button
-                onClick={() => {
-                  const message = document.createElement('div');
-                  message.textContent = 'シフト交換申請が送信されました';
-                  message.style.cssText =
-                    'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
-                  document.body.appendChild(message);
-                  setTimeout(() => document.body.removeChild(message), 3000);
+                onClick={async () => {
+                  try {
+                    // フェーズ1: ダミー処理（将来的にはAPI呼び出し）
+                    // const exchangeData = { fromDate: '2025-03-15', toDate: '2025-03-16', partnerId: 'user-002', reason: 'personal' };
+                    // await requestExchangeMutation.mutateAsync(exchangeData);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // 既存のメッセージ仕様を維持
+                    showSuccessMessage('exchangeRequested');
+                  } catch (error) {
+                    handleApiError(error, 'シフト交換申請の送信中にエラーが発生しました');
+                  }
                 }}
               >
                 申請

@@ -34,15 +34,15 @@
 
 ## シフト（shifts）
 
-- 使用中
-  - `shifts.list`（Query）: 一覧（`src/app/admin/shifts/page.tsx`）
-  - `shifts.create`（Mutation）: 作成（`src/app/admin/shifts/page.tsx`）
+- 使用中（スタブ統合済み）
+  - `shifts.create`（Mutation）: 作成（`components/shift-create-form.tsx`）- フェーズ1: ダミー処理
+  - `shifts.update`（Mutation）: 更新（`components/shift-create-form.tsx`）- フェーズ1: ダミー処理
 - 既存（未使用）
+  - `shifts.list`（Query）: 一覧
   - `shifts.get`（Query）: 取得
-  - `shifts.update`（Mutation）: 更新
   - `shifts.delete`（Mutation）: 削除
-- 今後必要（UI追加時）
-  - シフト詳細/編集/削除UIで上記未使用APIを利用
+- 今後必要（フェーズ2）
+  - 実際のPrisma接続でダミー処理を置き換え
 - ルーター: `src/server/trpc/routers/shifts.ts`
 
 ## 役割表（roleAssignments）
@@ -60,15 +60,17 @@
 
 ## 勤怠（attendance）
 
-- 使用中
-  - `attendance.get`（Query）: 勤怠記録取得（`src/app/staff/attendance/page.tsx`）
-  - `attendance.checkInOut`（Mutation）: 出退勤打刻（`src/app/staff/attendance/page.tsx`）
+- 使用中（スタブ統合済み）
+  - `attendance.submitCorrection`（Mutation）: 修正申請（`components/user-attendance.tsx`）- フェーズ1: ダミー処理
 - 既存（未使用）
+  - `attendance.get`（Query）: 勤怠記録取得
+  - `attendance.checkInOut`（Mutation）: 出退勤打刻
   - `attendance.request`（Mutation）: 勤怠申請作成
   - `attendance.approveReject`（Mutation, admin）: 申請承認/却下
   - `attendance.summary`（Query, admin）: 勤怠集計
-- 今後必要（UI追加時）
-  - 申請/承認/集計UIで上記未使用APIを利用
+- 今後必要（フェーズ2）
+  - 実際のPrisma接続でダミー処理を置き換え
+  - 出退勤打刻、勤怠記録取得の統合
 - ルーター: `src/server/trpc/routers/attendance.ts`
 
 ## マスタ（positions / skills / jobRules）
@@ -93,6 +95,19 @@
 - 使用中
   - 現状フロント未使用（監視/診断用途に利用可）
 - ルーター: `src/server/trpc/routers/index.ts`
+
+## シフト交換（shiftExchange）
+
+- 使用中（スタブ統合済み）
+  - `shiftExchange.request`（Mutation）: 交換申請（`app/user/shift-exchange/page.tsx`）- フェーズ1: ダミー処理
+  - `shiftExchange.approve`（Mutation）: 交換承認（`app/admin/shift-exchange/page.tsx`）- フェーズ1: ダミー処理
+- 今後必要（新規作成）
+  - `shiftExchange.list`（Query）: 申請一覧
+  - `shiftExchange.get`（Query）: 申請詳細
+  - `shiftExchange.reject`（Mutation）: 交換却下
+- 今後必要（フェーズ2）
+  - 実際のPrisma接続でダミー処理を置き換え
+  - ルーター新規作成: `src/server/trpc/routers/shift-exchange.ts`
 
 ## 休日管理（holiday-management）
 

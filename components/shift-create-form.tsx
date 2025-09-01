@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
+import { trpc } from '@/src/app/providers';
+import { showSuccessMessage, handleApiError, isOffline, showNetworkError } from '@/src/lib/api-helpers';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +52,9 @@ interface StaffMember {
 export function ShiftCreateForm() {
   const [selectedMonth, setSelectedMonth] = useState('2025-03');
   const [validationError, setValidationError] = useState('');
+  
+  // tRPC mutation for shift creation
+  const createShiftMutation = trpc.shifts.create.useMutation();
   const [viewMode, setViewMode] = useState<'current' | 'past' | 'future'>(
     'current'
   );
@@ -462,18 +467,13 @@ export function ShiftCreateForm() {
   // }, [pastShifts]);
 
   const saveShifts = useCallback(async () => {
-    // network error
-    if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      const err = document.createElement('div');
-      err.textContent = 'ネットワークエラー: 接続できません';
-      err.style.cssText =
-        'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
-      document.body.appendChild(err);
-      setTimeout(() => document.body.removeChild(err), 4000);
+    // ネットワークエラーチェック（既存仕様維持）
+    if (isOffline()) {
+      showNetworkError();
       return;
     }
 
-    // validation
+    // バリデーション（既存仕様維持）
     setValidationError('');
     const monthInput = document.getElementById(
       'target-month'
@@ -488,22 +488,37 @@ export function ShiftCreateForm() {
     }
 
     setIsSaving(true);
-    // シミュレート：実際の保存処理
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setIsSaving(false);
+    
+    try {
+      // フェーズ1: ダミーレスポンス（tRPC構造は準備済み）
+      // 実際のシフトデータを準備
+      const shiftData = {
+        tenantId: 'tenant-001', // 仮のテナントID
+        date: `${selectedMonth}-01`, // 月の最初の日
+        shiftTypeId: 'shift-type-001', // 仮のシフトタイプID
+        assignedUsers: [
+          {
+            userId: 'user-001',
+            positionId: 'position-001',
+          },
+        ],
+      };
 
-    // 成功メッセージを画面に表示
-    const message = document.createElement('div');
-    message.textContent = 'シフトが生成されました';
-    message.style.cssText =
-      'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
-    document.body.appendChild(message);
-    setTimeout(() => {
-      if (document.body.contains(message)) {
-        document.body.removeChild(message);
-      }
-    }, 5000);
-  }, []);
+      // フェーズ1では実際のAPI呼び出しはスキップ、ダミー処理
+      // 将来的には: await createShiftMutation.mutateAsync(shiftData);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setIsSaving(false);
+      
+      // 既存の成功メッセージ仕様を維持
+      showSuccessMessage('shiftGenerated');
+      setIsGenerated(true);
+      
+    } catch (error) {
+      setIsSaving(false);
+      handleApiError(error, 'シフトの作成中にエラーが発生しました');
+    }
+  }, [selectedMonth, createShiftMutation]);
 
   const exportToExcel = useCallback(async () => {
     setIsExporting(true);
@@ -1411,14 +1426,20 @@ export function ShiftCreateForm() {
                       ?.addEventListener('click', remove);
                     overlay
                       .querySelector('#detail-save')
-                      ?.addEventListener('click', () => {
+                      ?.addEventListener('click', async () => {
                         remove();
-                        const msg = document.createElement('div');
-                        msg.textContent = '保存されました';
-                        msg.style.cssText =
-                          'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 2200; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
-                        document.body.appendChild(msg);
-                        setTimeout(() => document.body.removeChild(msg), 3000);
+                        
+                        try {
+                          // フェーズ1: ダミー処理（将来的にはAPI呼び出し）
+                          // const updateData = { id: 'shift-id', tenantId: 'tenant-001', data: { shiftTypeId: 'new-shift-type' } };
+                          // await updateShiftMutation.mutateAsync(updateData);
+                          await new Promise(resolve => setTimeout(resolve, 500));
+                          
+                          // 既存のメッセージ仕様を維持
+                          showSuccessMessage('shiftSaved');
+                        } catch (error) {
+                          handleApiError(error, 'シフトの更新中にエラーが発生しました');
+                        }
                       });
                   }}
                 >
@@ -1503,17 +1524,18 @@ export function ShiftCreateForm() {
                             ?.addEventListener('click', remove);
                           overlay
                             .querySelector('#detail-save')
-                            ?.addEventListener('click', () => {
+                            ?.addEventListener('click', async () => {
                               remove();
-                              const msg = document.createElement('div');
-                              msg.textContent = '保存されました';
-                              msg.style.cssText =
-                                'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 2200; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
-                              document.body.appendChild(msg);
-                              setTimeout(
-                                () => document.body.removeChild(msg),
-                                3000
-                              );
+                              
+                              try {
+                                // フェーズ1: ダミー処理（将来的にはAPI呼び出し）
+                                await new Promise(resolve => setTimeout(resolve, 500));
+                                
+                                // 既存のメッセージ仕様を維持
+                                showSuccessMessage('shiftSaved');
+                              } catch (error) {
+                                handleApiError(error, 'シフトの更新中にエラーが発生しました');
+                              }
                             });
                         }}
                       >
