@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,11 +20,66 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { Separator } from '@/components/ui/separator';
-import { Calendar, Clock, HelpCircle, Building2, LogOut } from 'lucide-react';
+import { Calendar, Clock, HelpCircle, Building2, LogOut, FileText, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { ClockWidget } from './clock-widget';
 
 export function UserDashboard() {
+  const [userRole, setUserRole] = useState<string>('');
+  const [userEmail, setUserEmail] = useState<string>('');
+  const router = useRouter();
+
+  useEffect(() => {
+    // ユーザー情報の確認
+    const role = localStorage.getItem('userRole');
+    const email = localStorage.getItem('userEmail');
+    const lastActivity = localStorage.getItem('lastActivity');
+
+    if (!role || !email) {
+      router.push('/');
+      return;
+    }
+
+    // セッションタイムアウトチェック（30分）
+    if (lastActivity) {
+      const now = Date.now();
+      const lastActivityTime = parseInt(lastActivity);
+      const timeout = 30 * 60 * 1000; // 30分
+
+      if (now - lastActivityTime > timeout) {
+        // セッションタイムアウト
+        localStorage.removeItem('userRole');
+        localStorage.removeItem('userEmail');
+        localStorage.removeItem('lastActivity');
+        router.push('/?timeout=true');
+        return;
+      }
+    }
+
+    // 一般職員権限の確認
+    if (role !== 'MEMBER') {
+      // 権限不足の場合はエラーページにリダイレクト
+      router.push('/?error=insufficient_permissions');
+      return;
+    }
+
+    // アクティビティ時刻を更新
+    localStorage.setItem('lastActivity', Date.now().toString());
+    setUserRole(role);
+    setUserEmail(email);
+  }, [router]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('userEmail');
+    localStorage.removeItem('lastActivity');
+    router.push('/');
+  };
+
+  if (!userRole || !userEmail) {
+    return <div>読み込み中...</div>;
+  }
+
   const menuItems = [
     { name: '勤怠管理', href: '/user/attendance', icon: Clock },
     { name: '希望休管理', href: '/user/holidays', icon: Calendar },
@@ -113,7 +170,7 @@ export function UserDashboard() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
+            <Card data-testid="勤怠管理-card">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Clock className="h-5 w-5 mr-2" />
@@ -130,7 +187,7 @@ export function UserDashboard() {
               </CardContent>
             </Card>
 
-            <Card>
+            <Card data-testid="希望休管理-card">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <Calendar className="h-5 w-5 mr-2" />
@@ -148,7 +205,7 @@ export function UserDashboard() {
             </Card>
           </div>
 
-          <Card className="mt-6">
+          <Card className="mt-6" data-testid="今月のシフト-card">
             <CardHeader>
               <CardTitle>今月のシフト</CardTitle>
             </CardHeader>
@@ -158,6 +215,45 @@ export function UserDashboard() {
               </p>
             </CardContent>
           </Card>
+
+          {/* 看護師専用機能 */}
+          {userEmail === 'nurse@mitsumaru-care.com' && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              <Card data-testid="看護記録・管理-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <FileText className="h-5 w-5 mr-2" />
+                    看護記録
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">
+                    看護記録の入力・管理ができます
+                  </p>
+                  <Link href="/user/nursing-records">
+                    <Button className="w-full">看護記録・管理</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+
+              <Card data-testid="医療処置・管理-card">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Settings className="h-5 w-5 mr-2" />
+                    医療処置
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 mb-4">
+                    医療処置の記録・管理ができます
+                  </p>
+                  <Link href="/user/medical-procedures">
+                    <Button className="w-full">医療処置・管理</Button>
+                  </Link>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </main>
       </SidebarInset>
     </SidebarProvider>

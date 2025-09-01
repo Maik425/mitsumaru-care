@@ -1,10 +1,10 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AttendanceManagement } from '@/components/attendance-management';
 
-export default function AttendanceManagementPage() {
+export default function AdminStaffIndexPage() {
   const router = useRouter();
+
   useEffect(() => {
     const role = localStorage.getItem('userRole');
     const email = localStorage.getItem('userEmail');
@@ -16,7 +16,9 @@ export default function AttendanceManagementPage() {
       router.push('/?error=insufficient_permissions');
       return;
     }
+    // 既存のスタッフ関連ページに誘導する場合はここでpush
+    // router.push('/admin/settings/accounts');
   }, [router]);
 
-  return <AttendanceManagement />;
+  return null;
 }

@@ -1,9 +1,9 @@
 'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { AttendanceManagement } from '@/components/attendance-management';
+import { ShiftCreateForm } from '@/components/shift-create-form';
 
-export default function AttendanceManagementPage() {
+export default function ShiftManagementPage() {
   const router = useRouter();
   useEffect(() => {
     const role = localStorage.getItem('userRole');
@@ -18,5 +18,5 @@ export default function AttendanceManagementPage() {
     }
   }, [router]);
 
-  return <AttendanceManagement />;
+  return <ShiftCreateForm />;
 }
