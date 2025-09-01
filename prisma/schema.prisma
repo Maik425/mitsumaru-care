@@ -89,6 +89,8 @@ model User {
   attendances   Attendance[]
   holidays      Holiday[]
   approvedHolidays Holiday[] @relation("HolidayApprover")
+  attendanceRequests AttendanceRequest[]
+  approvedAttendanceRequests AttendanceRequest[] @relation("AttendanceRequestApprover")
 
   @@index([email])
   @@index([employeeNumber])
@@ -211,6 +213,7 @@ model Tenant {
   attendances Attendance[]
   holidays   Holiday[]
   attendanceRules AttendanceRule[]
+  attendanceRequests AttendanceRequest[]
 
   @@index([name])
   @@index([isActive])
@@ -458,6 +461,35 @@ model Attendance {
   @@index([tenantId, date])
   @@index([userId, date])
   @@map("attendances")
+}
+
+model AttendanceRequest {
+  id                 String           @id @default(cuid())
+  tenantId           String
+  userId             String
+  date               DateTime         @db.Date
+  type               String           // LATE, EARLY_LEAVE, OVERTIME, ABSENT
+  reason             String
+  requestedStartTime String?          // TIME型はStringで表現
+  requestedEndTime   String?          // TIME型はStringで表現
+  status             String           @default("REQUESTED") // REQUESTED, APPROVED, REJECTED
+  approvedBy         String?
+  approvedAt         DateTime?
+  notes              String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+
+  tenant             Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approver           User?            @relation("AttendanceRequestApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, userId, date, type])
+  @@index([tenantId])
+  @@index([userId])
+  @@index([date])
+  @@index([type])
+  @@index([status])
+  @@map("attendance_requests")
 }
 
 model Holiday {

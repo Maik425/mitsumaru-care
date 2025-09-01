@@ -28,25 +28,19 @@ export function useNavigation() {
       {
         id: 'shifts',
         label: 'シフト管理',
-        href: '/shifts',
-        requiredPermissions: ['SHIFT_VIEW'],
+        href: '/admin/shifts',
+        requiredPermissions: ['SHIFT_MANAGEMENT'],
         children: [
           {
             id: 'shift-view',
             label: 'シフト確認',
-            href: '/shifts/view',
+            href: '/admin/shifts',
             requiredPermissions: ['SHIFT_VIEW'],
           },
           {
             id: 'shift-create',
             label: 'シフト作成',
-            href: '/shifts/create',
-            requiredPermissions: ['SHIFT_MANAGEMENT'],
-          },
-          {
-            id: 'shift-edit',
-            label: 'シフト編集',
-            href: '/shifts/edit',
+            href: '/admin/shifts',
             requiredPermissions: ['SHIFT_MANAGEMENT'],
           },
         ],
@@ -54,45 +48,39 @@ export function useNavigation() {
       {
         id: 'attendance',
         label: '勤怠管理',
-        href: '/attendance',
+        href: '/staff/attendance',
         requiredPermissions: ['ATTENDANCE_VIEW'],
         children: [
           {
             id: 'attendance-view',
             label: '勤怠確認',
-            href: '/attendance/view',
+            href: '/staff/attendance',
             requiredPermissions: ['ATTENDANCE_VIEW'],
           },
           {
             id: 'attendance-update',
             label: '勤怠入力',
-            href: '/attendance/update',
+            href: '/staff/attendance',
             requiredPermissions: ['ATTENDANCE_UPDATE'],
-          },
-          {
-            id: 'attendance-manage',
-            label: '勤怠承認',
-            href: '/attendance/manage',
-            requiredPermissions: ['ATTENDANCE_MANAGEMENT'],
           },
         ],
       },
       {
         id: 'roles',
         label: '役割表管理',
-        href: '/roles',
+        href: '/admin/role-assignments',
         requiredPermissions: ['ROLE_MANAGEMENT'],
         children: [
           {
             id: 'role-view',
             label: '役割確認',
-            href: '/roles/view',
+            href: '/admin/role-assignments',
             requiredPermissions: ['ROLE_VIEW'],
           },
           {
             id: 'role-create',
             label: '役割作成',
-            href: '/roles/create',
+            href: '/admin/role-assignments',
             requiredPermissions: ['ROLE_MANAGEMENT'],
           },
         ],
@@ -100,9 +88,15 @@ export function useNavigation() {
       {
         id: 'admin',
         label: '管理画面',
-        href: '/admin',
+        href: '/admin/dashboard',
         requiredPermissions: ['SYSTEM_SETTINGS'],
         children: [
+          {
+            id: 'shift-types',
+            label: 'シフト形態管理',
+            href: '/admin/master/shift-types',
+            requiredPermissions: ['SYSTEM_SETTINGS'],
+          },
           {
             id: 'user-management',
             label: 'ユーザー管理',

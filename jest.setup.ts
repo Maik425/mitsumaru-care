@@ -1,15 +1,22 @@
 import '@testing-library/jest-dom';
 
-// Next.jsのApp Routerをモック
+// useRouterのモックを改善
+const mockPush = jest.fn();
+const mockReplace = jest.fn();
+const mockPrefetch = jest.fn();
+const mockBack = jest.fn();
+const mockForward = jest.fn();
+const mockRefresh = jest.fn();
+
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
-      push: jest.fn(),
-      replace: jest.fn(),
-      prefetch: jest.fn(),
-      back: jest.fn(),
-      forward: jest.fn(),
-      refresh: jest.fn(),
+      push: mockPush,
+      replace: mockReplace,
+      prefetch: mockPrefetch,
+      back: mockBack,
+      forward: mockForward,
+      refresh: mockRefresh,
     };
   },
   useSearchParams() {
@@ -19,6 +26,16 @@ jest.mock('next/navigation', () => ({
     return '';
   },
 }));
+
+// モック関数をエクスポート
+export {
+  mockPush,
+  mockReplace,
+  mockPrefetch,
+  mockBack,
+  mockForward,
+  mockRefresh,
+};
 
 // Global test setup
 global.ResizeObserver = jest.fn().mockImplementation(() => ({

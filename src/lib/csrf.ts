@@ -31,11 +31,11 @@ export function verifyCSRFToken(
 
 /**
  * CSRFトークンの有効期限をチェックする
- * @param token トークン
- * @param maxAge 最大有効期限（ミリ秒）
+ * @param _token トークン
+ * @param _maxAge 最大有効期限（ミリ秒）
  * @returns 有効期限の結果
  */
-export function isCSRFTokenExpired(token: string, maxAge: number): boolean {
+export function isCSRFTokenExpired(_token: string, _maxAge: number): boolean {
   // トークンにタイムスタンプが含まれている場合の実装
   // 現在はシンプルな実装
   return false;

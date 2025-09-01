@@ -6,12 +6,7 @@ import {
   protectedProcedure,
   adminProcedure,
 } from '../middleware/auth';
-import { createServerSupabaseClient } from '../../../lib/supabase';
-import {
-  logLoginSuccess,
-  logLoginFailure,
-  logPermissionDenied,
-} from '../../../lib/security-logger';
+import { logLoginSuccess, logLoginFailure } from '../../../lib/security-logger';
 import { rateLimitHelpers } from '../../../lib/rate-limit';
 
 // ログイン入力のバリデーション
