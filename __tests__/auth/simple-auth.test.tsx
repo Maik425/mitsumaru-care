@@ -2,6 +2,46 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { LoginForm } from '../../components/login-form';
 
+// tRPCをモック
+jest.mock('../../src/lib/trpc', () => ({
+  trpc: {
+    auth: {
+      login: {
+        useMutation: jest.fn(() => ({
+          mutateAsync: jest.fn(),
+          isLoading: false,
+          error: null,
+        })),
+      },
+      logout: {
+        useMutation: jest.fn(() => ({
+          mutateAsync: jest.fn(),
+          isLoading: false,
+          error: null,
+        })),
+      },
+      me: {
+        useQuery: jest.fn(() => ({
+          data: null,
+          isLoading: false,
+          refetch: jest.fn(),
+        })),
+      },
+    },
+  },
+}));
+
+// useAuthフックをモック
+jest.mock('../../src/hooks/use-auth', () => ({
+  useAuth: jest.fn(() => ({
+    signIn: jest.fn(),
+    signOut: jest.fn(),
+    user: null,
+    loading: false,
+    isAuthenticated: false,
+  })),
+}));
+
 describe('シンプルな認証テスト', () => {
   it('ログインフォームの要素が表示される', () => {
     render(<LoginForm />);

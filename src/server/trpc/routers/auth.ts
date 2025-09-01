@@ -8,6 +8,7 @@ import {
 } from '../middleware/auth';
 import { logLoginSuccess, logLoginFailure } from '../../../lib/security-logger';
 import { rateLimitHelpers } from '../../../lib/rate-limit';
+import { createServerSupabaseClient } from '../../../lib/supabase';
 
 // ログイン入力のバリデーション
 const loginInputSchema = z.object({
@@ -45,10 +46,11 @@ export const authRouter = router({
         }
 
         // Supabaseで認証
+        const supabase = createServerSupabaseClient();
         const {
           data: { user, session },
           error,
-        } = await ctx.supabase.auth.signInWithPassword({
+        } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
