@@ -1,0 +1,1176 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - generic [ref=e5]: シフト作成
+    - generic [ref=e7]:
+      - banner [ref=e8]:
+        - generic [ref=e10]:
+          - generic [ref=e11]:
+            - link "ダッシュボードに戻る" [ref=e12] [cursor=pointer]:
+              - /url: /admin/dashboard
+              - button "ダッシュボードに戻る" [ref=e13]:
+                - img
+                - text: ダッシュボードに戻る
+            - heading "シフト管理" [level=1] [ref=e14]
+          - generic [ref=e15]:
+            - button "印刷" [ref=e16]:
+              - img
+              - text: 印刷
+            - button "Excel出力" [ref=e17]:
+              - img
+              - text: Excel出力
+            - button "シフト確定ボタン" [ref=e18]:
+              - img
+              - text: シフト確定
+            - button "シフト作成" [ref=e19]:
+              - img
+              - text: シフト作成
+            - button "シフト保存" [ref=e20]:
+              - img
+              - text: シフト保存
+      - main [ref=e21]:
+        - generic [ref=e22]:
+          - generic [ref=e23]:
+            - generic [ref=e25]:
+              - img [ref=e26]
+              - text: シフト形態
+            - generic [ref=e30]:
+              - generic [ref=e31]:
+                - generic [ref=e32]:
+                  - checkbox "8:30-17:30" [checked] [ref=e33]
+                  - generic [ref=e34]: 8:30-17:30
+                - generic [ref=e35]:
+                  - generic [ref=e36]: 人数
+                  - spinbutton "早番" [ref=e37]: "2"
+              - generic [ref=e38]:
+                - generic [ref=e39]:
+                  - checkbox "9:00-18:00" [checked] [ref=e40]
+                  - generic [ref=e41]: 9:00-18:00
+                - generic [ref=e42]:
+                  - generic [ref=e43]: 人数
+                  - spinbutton "日勤" [ref=e44]: "3"
+              - generic [ref=e45]:
+                - generic [ref=e46]:
+                  - checkbox "10:30-19:30" [checked] [ref=e47]
+                  - generic [ref=e48]: 10:30-19:30
+                - generic [ref=e49]:
+                  - generic [ref=e50]: 人数
+                  - spinbutton "遅番" [ref=e51]: "2"
+          - generic [ref=e52]:
+            - generic [ref=e54]:
+              - img [ref=e55]
+              - text: 月選択・表示切替
+            - generic [ref=e58]:
+              - generic [ref=e59]:
+                - generic [ref=e60]: 対象月
+                - generic [ref=e61]:
+                  - button [ref=e62]:
+                    - img
+                  - textbox "対象月" [ref=e64]: 2025-03
+                  - combobox [ref=e65]:
+                    - option "2025年1月"
+                    - option "2025年2月"
+                    - option "2025年3月" [selected]
+                    - option "2025年4月"
+                    - option "2025年5月"
+                    - option "2025年6月"
+                  - button [ref=e66]:
+                    - img
+              - generic [ref=e67]:
+                - generic [ref=e68]: 表示モード
+                - combobox [ref=e69]:
+                  - generic: 現在編集
+                  - img
+              - generic [ref=e70]:
+                - generic [ref=e71]: 対象期間
+                - combobox "対象期間" [ref=e72]:
+                  - option "今月" [selected]
+                  - option "過去3ヶ月"
+                  - option "過去1年"
+          - generic [ref=e73]:
+            - generic [ref=e75]:
+              - generic [ref=e76]:
+                - img [ref=e77]
+                - text: 特別イベント
+              - button "新規登録" [ref=e79]
+            - generic [ref=e82]:
+              - generic [ref=e83]:
+                - generic [ref=e84]:
+                  - generic [ref=e85]: 出張
+                  - generic [ref=e86]: 鈴木一郎 出張
+                - button "削除" [ref=e87]
+              - generic [ref=e88]:
+                - generic [ref=e89]: "期間: 12日 ～ 14日"
+                - generic [ref=e90]: "ルール: 現場配置除外"
+                - generic [ref=e91]: "対象: 鈴木 一郎"
+                - generic [ref=e92]: 出勤状態だが現場配置に含めない、その他の役割に振る
+          - generic [ref=e93]:
+            - generic [ref=e95]:
+              - img [ref=e96]
+              - text: 職員情報
+            - generic [ref=e102]:
+              - generic [ref=e103]: "常勤職員: 12名"
+              - generic [ref=e104]: "非常勤職員: 8名"
+              - generic [ref=e105]: "介護福祉士: 8名"
+              - generic [ref=e106]: "看護師: 3名"
+          - generic [ref=e107]:
+            - generic [ref=e109]:
+              - img [ref=e110]
+              - text: 表示状態
+            - generic [ref=e114]:
+              - generic [ref=e117]: 現在編集中
+              - paragraph [ref=e118]: 現在のシフト編集
+        - generic [ref=e121]: 令和7年3月シフト表 (現在)
+        - table [ref=e122]:
+          - table [ref=e123]:
+            - rowgroup [ref=e124]:
+              - row "編集セル" [ref=e125]:
+                - cell "編集セル" [ref=e126] [cursor=pointer]
+          - table [ref=e127]
+          - generic [ref=e128]:
+            - generic [ref=e129]:
+              - generic [ref=e130]: 職種・氏名
+              - generic [ref=e131]:
+                - generic [ref=e132]: "1"
+                - generic [ref=e133]: 土
+                - generic [ref=e134]: 0/7
+              - generic [ref=e135]:
+                - generic [ref=e136]: "2"
+                - generic [ref=e137]: 日
+                - generic [ref=e138]: 休業
+              - generic [ref=e139]:
+                - generic [ref=e140]: "3"
+                - generic [ref=e141]: 月
+                - generic [ref=e142]: 0/7
+              - generic [ref=e143]:
+                - generic [ref=e144]: "4"
+                - generic [ref=e145]: 火
+                - generic [ref=e146]: 0/7
+              - generic [ref=e147]:
+                - generic [ref=e148]: "5"
+                - generic [ref=e149]: 水
+                - generic [ref=e150]: 0/7
+              - generic [ref=e151]:
+                - generic [ref=e152]: "6"
+                - generic [ref=e153]: 木
+                - generic [ref=e154]: 0/7
+              - generic [ref=e155]:
+                - generic [ref=e156]: "7"
+                - generic [ref=e157]: 金
+                - generic [ref=e158]: 0/7
+              - generic [ref=e159]:
+                - generic [ref=e160]: "8"
+                - generic [ref=e161]: 土
+                - generic [ref=e162]: 0/7
+              - generic [ref=e163]:
+                - generic [ref=e164]: "9"
+                - generic [ref=e165]: 日
+                - generic [ref=e166]: 休業
+              - generic [ref=e167]:
+                - generic [ref=e168]: "10"
+                - generic [ref=e169]: 月
+                - generic [ref=e170]: 0/7
+              - generic [ref=e171]:
+                - generic [ref=e172]: "11"
+                - generic [ref=e173]: 火
+                - generic [ref=e174]: 0/7
+              - generic [ref=e175]:
+                - generic [ref=e176]: "12"
+                - generic [ref=e177]: 水
+                - generic [ref=e178]: 0/7
+              - generic [ref=e180]:
+                - generic [ref=e181]: "13"
+                - generic [ref=e182]: 木
+                - generic [ref=e183]: 0/7
+              - generic [ref=e185]:
+                - generic [ref=e186]: "14"
+                - generic [ref=e187]: 金
+                - generic [ref=e188]: 0/7
+              - generic [ref=e190]:
+                - generic [ref=e191]: "15"
+                - generic [ref=e192]: 土
+                - generic [ref=e193]: 0/7
+                - button "2025-03-15" [ref=e194]
+              - generic [ref=e195]:
+                - generic [ref=e196]: "16"
+                - generic [ref=e197]: 日
+                - generic [ref=e198]: 休業
+              - generic [ref=e199]:
+                - generic [ref=e200]: "17"
+                - generic [ref=e201]: 月
+                - generic [ref=e202]: 0/7
+              - generic [ref=e203]:
+                - generic [ref=e204]: "18"
+                - generic [ref=e205]: 火
+                - generic [ref=e206]: 0/7
+              - generic [ref=e207]:
+                - generic [ref=e208]: "19"
+                - generic [ref=e209]: 水
+                - generic [ref=e210]: 0/7
+              - generic [ref=e211]:
+                - generic [ref=e212]: "20"
+                - generic [ref=e213]: 木
+                - generic [ref=e214]: 0/7
+              - generic [ref=e215]:
+                - generic [ref=e216]: "21"
+                - generic [ref=e217]: 金
+                - generic [ref=e218]: 0/7
+              - generic [ref=e219]:
+                - generic [ref=e220]: "22"
+                - generic [ref=e221]: 土
+                - generic [ref=e222]: 0/7
+              - generic [ref=e223]:
+                - generic [ref=e224]: "23"
+                - generic [ref=e225]: 日
+                - generic [ref=e226]: 休業
+              - generic [ref=e227]:
+                - generic [ref=e228]: "24"
+                - generic [ref=e229]: 月
+                - generic [ref=e230]: 0/7
+              - generic [ref=e231]:
+                - generic [ref=e232]: "25"
+                - generic [ref=e233]: 火
+                - generic [ref=e234]: 0/7
+              - generic [ref=e235]:
+                - generic [ref=e236]: "26"
+                - generic [ref=e237]: 水
+                - generic [ref=e238]: 0/7
+              - generic [ref=e239]:
+                - generic [ref=e240]: "27"
+                - generic [ref=e241]: 木
+                - generic [ref=e242]: 0/7
+              - generic [ref=e243]:
+                - generic [ref=e244]: "28"
+                - generic [ref=e245]: 金
+                - generic [ref=e246]: 0/7
+              - generic [ref=e247]:
+                - generic [ref=e248]: "29"
+                - generic [ref=e249]: 土
+                - generic [ref=e250]: 0/7
+              - generic [ref=e251]:
+                - generic [ref=e252]: "30"
+                - generic [ref=e253]: 日
+                - generic [ref=e254]: 休業
+              - generic [ref=e255]:
+                - generic [ref=e256]: "31"
+                - generic [ref=e257]: 月
+                - generic [ref=e258]: 0/7
+            - generic [ref=e259]:
+              - generic [ref=e260]:
+                - generic [ref=e261]: 相談員集計
+                - generic [ref=e263]: "3"
+                - generic [ref=e265]: "3"
+                - generic [ref=e267]: "3"
+                - generic [ref=e269]: "3"
+                - generic [ref=e271]: "3"
+                - generic [ref=e273]: "3"
+                - generic [ref=e275]: "3"
+                - generic [ref=e277]: "3"
+                - generic [ref=e279]: "3"
+                - generic [ref=e281]: "3"
+                - generic [ref=e283]: "3"
+                - generic [ref=e285]: "3"
+                - generic [ref=e287]: "3"
+                - generic [ref=e289]: "3"
+                - generic [ref=e291]: "3"
+                - generic [ref=e293]: "3"
+                - generic [ref=e295]: "3"
+                - generic [ref=e297]: "3"
+                - generic [ref=e299]: "3"
+                - generic [ref=e301]: "3"
+                - generic [ref=e303]: "3"
+                - generic [ref=e305]: "3"
+                - generic [ref=e307]: "3"
+                - generic [ref=e309]: "3"
+                - generic [ref=e311]: "3"
+                - generic [ref=e313]: "3"
+                - generic [ref=e315]: "3"
+                - generic [ref=e317]: "3"
+                - generic [ref=e319]: "3"
+                - generic [ref=e321]: "3"
+                - generic [ref=e323]: "3"
+              - generic [ref=e324]:
+                - generic [ref=e326]:
+                  - generic [ref=e328]: 田中 太郎
+                  - generic [ref=e329]: 相談員
+                  - generic [ref=e330]:
+                    - generic [ref=e331]: 常勤
+                    - generic [ref=e332]: 介福
+                - generic [ref=e334] [cursor=pointer]: 日
+                - generic [ref=e336]: 休
+                - generic [ref=e338] [cursor=pointer]: 日
+                - generic [ref=e340] [cursor=pointer]: 日
+                - generic [ref=e342] [cursor=pointer]: 日
+                - generic [ref=e344] [cursor=pointer]: 日
+                - generic [ref=e346] [cursor=pointer]: 日
+                - generic [ref=e348] [cursor=pointer]: 日
+                - generic [ref=e350]: 休
+                - generic [ref=e352] [cursor=pointer]: 日
+                - generic [ref=e354] [cursor=pointer]: 日
+                - generic [ref=e356] [cursor=pointer]: 日
+                - generic [ref=e358] [cursor=pointer]: 日
+                - generic [ref=e360] [cursor=pointer]: 日
+                - generic [ref=e362] [cursor=pointer]: 日
+                - generic [ref=e364]: 休
+                - generic [ref=e366] [cursor=pointer]: 日
+                - generic [ref=e368] [cursor=pointer]: 日
+                - generic [ref=e370] [cursor=pointer]: 日
+                - generic [ref=e372] [cursor=pointer]: 日
+                - generic [ref=e374] [cursor=pointer]: 日
+                - generic [ref=e376] [cursor=pointer]: 日
+                - generic [ref=e378]: 休
+                - generic [ref=e380] [cursor=pointer]: 日
+                - generic [ref=e382] [cursor=pointer]: 日
+                - generic [ref=e384] [cursor=pointer]: 日
+                - generic [ref=e386] [cursor=pointer]: 日
+                - generic [ref=e388] [cursor=pointer]: 日
+                - generic [ref=e390] [cursor=pointer]: 日
+                - generic [ref=e392]: 休
+                - generic [ref=e394] [cursor=pointer]: 日
+              - generic [ref=e395]:
+                - generic [ref=e397]:
+                  - generic [ref=e399]: 佐藤 花子
+                  - generic [ref=e400]: 相談員
+                  - generic [ref=e401]:
+                    - generic [ref=e402]: 常勤
+                    - generic [ref=e403]: 介福
+                - generic [ref=e405] [cursor=pointer]: 日
+                - generic [ref=e407]: 休
+                - generic [ref=e409] [cursor=pointer]: 日
+                - generic [ref=e411] [cursor=pointer]: 日
+                - generic [ref=e413] [cursor=pointer]: 日
+                - generic [ref=e415] [cursor=pointer]: 日
+                - generic [ref=e417] [cursor=pointer]: 日
+                - generic [ref=e419] [cursor=pointer]: 日
+                - generic [ref=e421]: 休
+                - generic [ref=e423] [cursor=pointer]: 日
+                - generic [ref=e425] [cursor=pointer]: 日
+                - generic [ref=e427] [cursor=pointer]: 日
+                - generic [ref=e429] [cursor=pointer]: 日
+                - generic [ref=e431] [cursor=pointer]: 日
+                - generic [ref=e433] [cursor=pointer]: 日
+                - generic [ref=e435]: 休
+                - generic [ref=e437] [cursor=pointer]: 日
+                - generic [ref=e439] [cursor=pointer]: 日
+                - generic [ref=e441] [cursor=pointer]: 日
+                - generic [ref=e443] [cursor=pointer]: 日
+                - generic [ref=e445] [cursor=pointer]: 日
+                - generic [ref=e447] [cursor=pointer]: 日
+                - generic [ref=e449]: 休
+                - generic [ref=e451] [cursor=pointer]: 日
+                - generic [ref=e453] [cursor=pointer]: 日
+                - generic [ref=e455] [cursor=pointer]: 日
+                - generic [ref=e457] [cursor=pointer]: 日
+                - generic [ref=e459] [cursor=pointer]: 日
+                - generic [ref=e461] [cursor=pointer]: 日
+                - generic [ref=e463]: 休
+                - generic [ref=e465] [cursor=pointer]: 日
+              - generic [ref=e466]:
+                - generic [ref=e468]:
+                  - generic [ref=e470]: 鈴木 一郎
+                  - generic [ref=e471]: 主任相談員
+                  - generic [ref=e472]:
+                    - generic [ref=e473]: 常勤
+                    - generic [ref=e474]: 介福
+                - generic [ref=e476] [cursor=pointer]: 日
+                - generic [ref=e478]: 休
+                - generic [ref=e480] [cursor=pointer]: 日
+                - generic [ref=e482] [cursor=pointer]: 日
+                - generic [ref=e484] [cursor=pointer]: 日
+                - generic [ref=e486] [cursor=pointer]: 日
+                - generic [ref=e488] [cursor=pointer]: 日
+                - generic [ref=e490] [cursor=pointer]: 日
+                - generic [ref=e492]: 休
+                - generic [ref=e494] [cursor=pointer]: 日
+                - generic [ref=e496] [cursor=pointer]: 日
+                - generic [ref=e498] [cursor=pointer]: 日
+                - generic [ref=e500] [cursor=pointer]: 日
+                - generic [ref=e502] [cursor=pointer]: 日
+                - generic [ref=e504] [cursor=pointer]: 日
+                - generic [ref=e506]: 休
+                - generic [ref=e508] [cursor=pointer]: 日
+                - generic [ref=e510] [cursor=pointer]: 日
+                - generic [ref=e512] [cursor=pointer]: 日
+                - generic [ref=e514] [cursor=pointer]: 日
+                - generic [ref=e516] [cursor=pointer]: 日
+                - generic [ref=e518] [cursor=pointer]: 日
+                - generic [ref=e520]: 休
+                - generic [ref=e522] [cursor=pointer]: 日
+                - generic [ref=e524] [cursor=pointer]: 日
+                - generic [ref=e526] [cursor=pointer]: 日
+                - generic [ref=e528] [cursor=pointer]: 日
+                - generic [ref=e530] [cursor=pointer]: 日
+                - generic [ref=e532] [cursor=pointer]: 日
+                - generic [ref=e534]: 休
+                - generic [ref=e536] [cursor=pointer]: 日
+            - generic [ref=e537]:
+              - generic [ref=e538]:
+                - generic [ref=e539]: 介護職員集計
+                - generic [ref=e541]: "12"
+                - generic [ref=e543]: "12"
+                - generic [ref=e545]: "12"
+                - generic [ref=e547]: "12"
+                - generic [ref=e549]: "12"
+                - generic [ref=e551]: "12"
+                - generic [ref=e553]: "12"
+                - generic [ref=e555]: "12"
+                - generic [ref=e557]: "12"
+                - generic [ref=e559]: "12"
+                - generic [ref=e561]: "12"
+                - generic [ref=e563]: "12"
+                - generic [ref=e565]: "12"
+                - generic [ref=e567]: "12"
+                - generic [ref=e569]: "12"
+                - generic [ref=e571]: "12"
+                - generic [ref=e573]: "12"
+                - generic [ref=e575]: "12"
+                - generic [ref=e577]: "12"
+                - generic [ref=e579]: "12"
+                - generic [ref=e581]: "12"
+                - generic [ref=e583]: "12"
+                - generic [ref=e585]: "12"
+                - generic [ref=e587]: "12"
+                - generic [ref=e589]: "12"
+                - generic [ref=e591]: "12"
+                - generic [ref=e593]: "12"
+                - generic [ref=e595]: "12"
+                - generic [ref=e597]: "12"
+                - generic [ref=e599]: "12"
+                - generic [ref=e601]: "12"
+              - generic [ref=e602]:
+                - generic [ref=e604]:
+                  - generic [ref=e606]: 高橋 美咲
+                  - generic [ref=e607]: 介護職員
+                  - generic [ref=e608]:
+                    - generic [ref=e609]: 常勤
+                    - generic [ref=e610]: 介福
+                - generic [ref=e612] [cursor=pointer]: 日
+                - generic [ref=e614]: 休
+                - generic [ref=e616] [cursor=pointer]: 日
+                - generic [ref=e618] [cursor=pointer]: 日
+                - generic [ref=e620] [cursor=pointer]: 日
+                - generic [ref=e622] [cursor=pointer]: 日
+                - generic [ref=e624] [cursor=pointer]: 日
+                - generic [ref=e626] [cursor=pointer]: 日
+                - generic [ref=e628]: 休
+                - generic [ref=e630] [cursor=pointer]: 日
+                - generic [ref=e632] [cursor=pointer]: 日
+                - generic [ref=e634] [cursor=pointer]: 日
+                - generic [ref=e636] [cursor=pointer]: 日
+                - generic [ref=e638] [cursor=pointer]: 日
+                - generic [ref=e640] [cursor=pointer]: 日
+                - generic [ref=e642]: 休
+                - generic [ref=e644] [cursor=pointer]: 日
+                - generic [ref=e646] [cursor=pointer]: 日
+                - generic [ref=e648] [cursor=pointer]: 日
+                - generic [ref=e650] [cursor=pointer]: 日
+                - generic [ref=e652] [cursor=pointer]: 日
+                - generic [ref=e654] [cursor=pointer]: 日
+                - generic [ref=e656]: 休
+                - generic [ref=e658] [cursor=pointer]: 日
+                - generic [ref=e660] [cursor=pointer]: 日
+                - generic [ref=e662] [cursor=pointer]: 日
+                - generic [ref=e664] [cursor=pointer]: 日
+                - generic [ref=e666] [cursor=pointer]: 日
+                - generic [ref=e668] [cursor=pointer]: 日
+                - generic [ref=e670]: 休
+                - generic [ref=e672] [cursor=pointer]: 日
+              - generic [ref=e673]:
+                - generic [ref=e675]:
+                  - generic [ref=e677]: 伊藤 健太
+                  - generic [ref=e678]: 主任介護職員
+                  - generic [ref=e679]:
+                    - generic [ref=e680]: 常勤
+                    - generic [ref=e681]: 介福
+                - generic [ref=e683] [cursor=pointer]: 日
+                - generic [ref=e685]: 休
+                - generic [ref=e687] [cursor=pointer]: 日
+                - generic [ref=e689] [cursor=pointer]: 日
+                - generic [ref=e691] [cursor=pointer]: 日
+                - generic [ref=e693] [cursor=pointer]: 日
+                - generic [ref=e695] [cursor=pointer]: 日
+                - generic [ref=e697] [cursor=pointer]: 日
+                - generic [ref=e699]: 休
+                - generic [ref=e701] [cursor=pointer]: 日
+                - generic [ref=e703] [cursor=pointer]: 日
+                - generic [ref=e705] [cursor=pointer]: 日
+                - generic [ref=e707] [cursor=pointer]: 日
+                - generic [ref=e709] [cursor=pointer]: 日
+                - generic [ref=e711] [cursor=pointer]: 日
+                - generic [ref=e713]: 休
+                - generic [ref=e715] [cursor=pointer]: 日
+                - generic [ref=e717] [cursor=pointer]: 日
+                - generic [ref=e719] [cursor=pointer]: 日
+                - generic [ref=e721] [cursor=pointer]: 日
+                - generic [ref=e723] [cursor=pointer]: 日
+                - generic [ref=e725] [cursor=pointer]: 日
+                - generic [ref=e727]: 休
+                - generic [ref=e729] [cursor=pointer]: 日
+                - generic [ref=e731] [cursor=pointer]: 日
+                - generic [ref=e733] [cursor=pointer]: 日
+                - generic [ref=e735] [cursor=pointer]: 日
+                - generic [ref=e737] [cursor=pointer]: 日
+                - generic [ref=e739] [cursor=pointer]: 日
+                - generic [ref=e741]: 休
+                - generic [ref=e743] [cursor=pointer]: 日
+              - generic [ref=e744]:
+                - generic [ref=e746]:
+                  - generic [ref=e748]: 渡辺 由美
+                  - generic [ref=e749]: 介護職員
+                  - generic [ref=e750]:
+                    - generic [ref=e751]: 常勤
+                    - generic [ref=e752]: 介福
+                - generic [ref=e754] [cursor=pointer]: 日
+                - generic [ref=e756]: 休
+                - generic [ref=e758] [cursor=pointer]: 日
+                - generic [ref=e760] [cursor=pointer]: 日
+                - generic [ref=e762] [cursor=pointer]: 日
+                - generic [ref=e764] [cursor=pointer]: 日
+                - generic [ref=e766] [cursor=pointer]: 日
+                - generic [ref=e768] [cursor=pointer]: 日
+                - generic [ref=e770]: 休
+                - generic [ref=e772] [cursor=pointer]: 日
+                - generic [ref=e774] [cursor=pointer]: 日
+                - generic [ref=e776] [cursor=pointer]: 日
+                - generic [ref=e778] [cursor=pointer]: 日
+                - generic [ref=e780] [cursor=pointer]: 日
+                - generic [ref=e782] [cursor=pointer]: 日
+                - generic [ref=e784]: 休
+                - generic [ref=e786] [cursor=pointer]: 日
+                - generic [ref=e788] [cursor=pointer]: 日
+                - generic [ref=e790] [cursor=pointer]: 日
+                - generic [ref=e792] [cursor=pointer]: 日
+                - generic [ref=e794] [cursor=pointer]: 日
+                - generic [ref=e796] [cursor=pointer]: 日
+                - generic [ref=e798]: 休
+                - generic [ref=e800] [cursor=pointer]: 日
+                - generic [ref=e802] [cursor=pointer]: 日
+                - generic [ref=e804] [cursor=pointer]: 日
+                - generic [ref=e806] [cursor=pointer]: 日
+                - generic [ref=e808] [cursor=pointer]: 日
+                - generic [ref=e810] [cursor=pointer]: 日
+                - generic [ref=e812]: 休
+                - generic [ref=e814] [cursor=pointer]: 日
+              - generic [ref=e815]:
+                - generic [ref=e817]:
+                  - generic [ref=e819]: 山田 大輔
+                  - generic [ref=e820]: 介護職員
+                  - generic [ref=e821]:
+                    - generic [ref=e822]: 常勤
+                    - generic [ref=e823]: 介福
+                - generic [ref=e825] [cursor=pointer]: 日
+                - generic [ref=e827]: 休
+                - generic [ref=e829] [cursor=pointer]: 日
+                - generic [ref=e831] [cursor=pointer]: 日
+                - generic [ref=e833] [cursor=pointer]: 日
+                - generic [ref=e835] [cursor=pointer]: 日
+                - generic [ref=e837] [cursor=pointer]: 日
+                - generic [ref=e839] [cursor=pointer]: 日
+                - generic [ref=e841]: 休
+                - generic [ref=e843] [cursor=pointer]: 日
+                - generic [ref=e845] [cursor=pointer]: 日
+                - generic [ref=e847] [cursor=pointer]: 日
+                - generic [ref=e849] [cursor=pointer]: 日
+                - generic [ref=e851] [cursor=pointer]: 日
+                - generic [ref=e853] [cursor=pointer]: 日
+                - generic [ref=e855]: 休
+                - generic [ref=e857] [cursor=pointer]: 日
+                - generic [ref=e859] [cursor=pointer]: 日
+                - generic [ref=e861] [cursor=pointer]: 日
+                - generic [ref=e863] [cursor=pointer]: 日
+                - generic [ref=e865] [cursor=pointer]: 日
+                - generic [ref=e867] [cursor=pointer]: 日
+                - generic [ref=e869]: 休
+                - generic [ref=e871] [cursor=pointer]: 日
+                - generic [ref=e873] [cursor=pointer]: 日
+                - generic [ref=e875] [cursor=pointer]: 日
+                - generic [ref=e877] [cursor=pointer]: 日
+                - generic [ref=e879] [cursor=pointer]: 日
+                - generic [ref=e881] [cursor=pointer]: 日
+                - generic [ref=e883]: 休
+                - generic [ref=e885] [cursor=pointer]: 日
+              - generic [ref=e886]:
+                - generic [ref=e888]:
+                  - generic [ref=e890]: 中村 愛子
+                  - generic [ref=e891]: 介護職員
+                  - generic [ref=e893]: 常勤
+                - generic [ref=e895] [cursor=pointer]: 日
+                - generic [ref=e897]: 休
+                - generic [ref=e899] [cursor=pointer]: 日
+                - generic [ref=e901] [cursor=pointer]: 日
+                - generic [ref=e903] [cursor=pointer]: 日
+                - generic [ref=e905] [cursor=pointer]: 日
+                - generic [ref=e907] [cursor=pointer]: 日
+                - generic [ref=e909] [cursor=pointer]: 日
+                - generic [ref=e911]: 休
+                - generic [ref=e913] [cursor=pointer]: 日
+                - generic [ref=e915] [cursor=pointer]: 日
+                - generic [ref=e917] [cursor=pointer]: 日
+                - generic [ref=e919] [cursor=pointer]: 日
+                - generic [ref=e921] [cursor=pointer]: 日
+                - generic [ref=e923] [cursor=pointer]: 日
+                - generic [ref=e925]: 休
+                - generic [ref=e927] [cursor=pointer]: 日
+                - generic [ref=e929] [cursor=pointer]: 日
+                - generic [ref=e931] [cursor=pointer]: 日
+                - generic [ref=e933] [cursor=pointer]: 日
+                - generic [ref=e935] [cursor=pointer]: 日
+                - generic [ref=e937] [cursor=pointer]: 日
+                - generic [ref=e939]: 休
+                - generic [ref=e941] [cursor=pointer]: 日
+                - generic [ref=e943] [cursor=pointer]: 日
+                - generic [ref=e945] [cursor=pointer]: 日
+                - generic [ref=e947] [cursor=pointer]: 日
+                - generic [ref=e949] [cursor=pointer]: 日
+                - generic [ref=e951] [cursor=pointer]: 日
+                - generic [ref=e953]: 休
+                - generic [ref=e955] [cursor=pointer]: 日
+              - generic [ref=e956]:
+                - generic [ref=e958]:
+                  - generic [ref=e960]: 小林 雄介
+                  - generic [ref=e961]: 介護職員
+                  - generic [ref=e963]: 常勤
+                - generic [ref=e965] [cursor=pointer]: 日
+                - generic [ref=e967]: 休
+                - generic [ref=e969] [cursor=pointer]: 日
+                - generic [ref=e971] [cursor=pointer]: 日
+                - generic [ref=e973] [cursor=pointer]: 日
+                - generic [ref=e975] [cursor=pointer]: 日
+                - generic [ref=e977] [cursor=pointer]: 日
+                - generic [ref=e979] [cursor=pointer]: 日
+                - generic [ref=e981]: 休
+                - generic [ref=e983] [cursor=pointer]: 日
+                - generic [ref=e985] [cursor=pointer]: 日
+                - generic [ref=e987] [cursor=pointer]: 日
+                - generic [ref=e989] [cursor=pointer]: 日
+                - generic [ref=e991] [cursor=pointer]: 日
+                - generic [ref=e993] [cursor=pointer]: 日
+                - generic [ref=e995]: 休
+                - generic [ref=e997] [cursor=pointer]: 日
+                - generic [ref=e999] [cursor=pointer]: 日
+                - generic [ref=e1001] [cursor=pointer]: 日
+                - generic [ref=e1003] [cursor=pointer]: 日
+                - generic [ref=e1005] [cursor=pointer]: 日
+                - generic [ref=e1007] [cursor=pointer]: 日
+                - generic [ref=e1009]: 休
+                - generic [ref=e1011] [cursor=pointer]: 日
+                - generic [ref=e1013] [cursor=pointer]: 日
+                - generic [ref=e1015] [cursor=pointer]: 日
+                - generic [ref=e1017] [cursor=pointer]: 日
+                - generic [ref=e1019] [cursor=pointer]: 日
+                - generic [ref=e1021] [cursor=pointer]: 日
+                - generic [ref=e1023]: 休
+                - generic [ref=e1025] [cursor=pointer]: 日
+              - generic [ref=e1026]:
+                - generic [ref=e1028]:
+                  - generic [ref=e1030]: 加藤 真理
+                  - generic [ref=e1031]: 介護職員
+                  - generic [ref=e1033]: 常勤
+                - generic [ref=e1035] [cursor=pointer]: 日
+                - generic [ref=e1037]: 休
+                - generic [ref=e1039] [cursor=pointer]: 日
+                - generic [ref=e1041] [cursor=pointer]: 日
+                - generic [ref=e1043] [cursor=pointer]: 日
+                - generic [ref=e1045] [cursor=pointer]: 日
+                - generic [ref=e1047] [cursor=pointer]: 日
+                - generic [ref=e1049] [cursor=pointer]: 日
+                - generic [ref=e1051]: 休
+                - generic [ref=e1053] [cursor=pointer]: 日
+                - generic [ref=e1055] [cursor=pointer]: 日
+                - generic [ref=e1057] [cursor=pointer]: 日
+                - generic [ref=e1059] [cursor=pointer]: 日
+                - generic [ref=e1061] [cursor=pointer]: 日
+                - generic [ref=e1063] [cursor=pointer]: 日
+                - generic [ref=e1065]: 休
+                - generic [ref=e1067] [cursor=pointer]: 日
+                - generic [ref=e1069] [cursor=pointer]: 日
+                - generic [ref=e1071] [cursor=pointer]: 日
+                - generic [ref=e1073] [cursor=pointer]: 日
+                - generic [ref=e1075] [cursor=pointer]: 日
+                - generic [ref=e1077] [cursor=pointer]: 日
+                - generic [ref=e1079]: 休
+                - generic [ref=e1081] [cursor=pointer]: 日
+                - generic [ref=e1083] [cursor=pointer]: 日
+                - generic [ref=e1085] [cursor=pointer]: 日
+                - generic [ref=e1087] [cursor=pointer]: 日
+                - generic [ref=e1089] [cursor=pointer]: 日
+                - generic [ref=e1091] [cursor=pointer]: 日
+                - generic [ref=e1093]: 休
+                - generic [ref=e1095] [cursor=pointer]: 日
+              - generic [ref=e1096]:
+                - generic [ref=e1098]:
+                  - generic [ref=e1100]: 吉田 春香
+                  - generic [ref=e1101]: 介護職員
+                  - generic [ref=e1102]:
+                    - generic [ref=e1103]: 非常勤
+                    - generic [ref=e1104]: 介福
+                - generic [ref=e1106] [cursor=pointer]: 日
+                - generic [ref=e1108]: 休
+                - generic [ref=e1110] [cursor=pointer]: 日
+                - generic [ref=e1112] [cursor=pointer]: 日
+                - generic [ref=e1114] [cursor=pointer]: 日
+                - generic [ref=e1116] [cursor=pointer]: 日
+                - generic [ref=e1118] [cursor=pointer]: 日
+                - generic [ref=e1120] [cursor=pointer]: 日
+                - generic [ref=e1122]: 休
+                - generic [ref=e1124] [cursor=pointer]: 日
+                - generic [ref=e1126] [cursor=pointer]: 日
+                - generic [ref=e1128] [cursor=pointer]: 日
+                - generic [ref=e1130] [cursor=pointer]: 日
+                - generic [ref=e1132] [cursor=pointer]: 日
+                - generic [ref=e1134] [cursor=pointer]: 日
+                - generic [ref=e1136]: 休
+                - generic [ref=e1138] [cursor=pointer]: 日
+                - generic [ref=e1140] [cursor=pointer]: 日
+                - generic [ref=e1142] [cursor=pointer]: 日
+                - generic [ref=e1144] [cursor=pointer]: 日
+                - generic [ref=e1146] [cursor=pointer]: 日
+                - generic [ref=e1148] [cursor=pointer]: 日
+                - generic [ref=e1150]: 休
+                - generic [ref=e1152] [cursor=pointer]: 日
+                - generic [ref=e1154] [cursor=pointer]: 日
+                - generic [ref=e1156] [cursor=pointer]: 日
+                - generic [ref=e1158] [cursor=pointer]: 日
+                - generic [ref=e1160] [cursor=pointer]: 日
+                - generic [ref=e1162] [cursor=pointer]: 日
+                - generic [ref=e1164]: 休
+                - generic [ref=e1166] [cursor=pointer]: 日
+              - generic [ref=e1167]:
+                - generic [ref=e1169]:
+                  - generic [ref=e1171]: 松本 恵子
+                  - generic [ref=e1172]: 介護職員
+                  - generic [ref=e1174]: 非常勤
+                - generic [ref=e1176] [cursor=pointer]: 日
+                - generic [ref=e1178]: 休
+                - generic [ref=e1180] [cursor=pointer]: 日
+                - generic [ref=e1182] [cursor=pointer]: 日
+                - generic [ref=e1184] [cursor=pointer]: 日
+                - generic [ref=e1186] [cursor=pointer]: 日
+                - generic [ref=e1188] [cursor=pointer]: 日
+                - generic [ref=e1190] [cursor=pointer]: 日
+                - generic [ref=e1192]: 休
+                - generic [ref=e1194] [cursor=pointer]: 日
+                - generic [ref=e1196] [cursor=pointer]: 日
+                - generic [ref=e1198] [cursor=pointer]: 日
+                - generic [ref=e1200] [cursor=pointer]: 日
+                - generic [ref=e1202] [cursor=pointer]: 日
+                - generic [ref=e1204] [cursor=pointer]: 日
+                - generic [ref=e1206]: 休
+                - generic [ref=e1208] [cursor=pointer]: 日
+                - generic [ref=e1210] [cursor=pointer]: 日
+                - generic [ref=e1212] [cursor=pointer]: 日
+                - generic [ref=e1214] [cursor=pointer]: 日
+                - generic [ref=e1216] [cursor=pointer]: 日
+                - generic [ref=e1218] [cursor=pointer]: 日
+                - generic [ref=e1220]: 休
+                - generic [ref=e1222] [cursor=pointer]: 日
+                - generic [ref=e1224] [cursor=pointer]: 日
+                - generic [ref=e1226] [cursor=pointer]: 日
+                - generic [ref=e1228] [cursor=pointer]: 日
+                - generic [ref=e1230] [cursor=pointer]: 日
+                - generic [ref=e1232] [cursor=pointer]: 日
+                - generic [ref=e1234]: 休
+                - generic [ref=e1236] [cursor=pointer]: 日
+              - generic [ref=e1237]:
+                - generic [ref=e1239]:
+                  - generic [ref=e1241]: 井上 理恵
+                  - generic [ref=e1242]: 介護職員
+                  - generic [ref=e1244]: 非常勤
+                - generic [ref=e1246] [cursor=pointer]: 日
+                - generic [ref=e1248]: 休
+                - generic [ref=e1250] [cursor=pointer]: 日
+                - generic [ref=e1252] [cursor=pointer]: 日
+                - generic [ref=e1254] [cursor=pointer]: 日
+                - generic [ref=e1256] [cursor=pointer]: 日
+                - generic [ref=e1258] [cursor=pointer]: 日
+                - generic [ref=e1260] [cursor=pointer]: 日
+                - generic [ref=e1262]: 休
+                - generic [ref=e1264] [cursor=pointer]: 日
+                - generic [ref=e1266] [cursor=pointer]: 日
+                - generic [ref=e1268] [cursor=pointer]: 日
+                - generic [ref=e1270] [cursor=pointer]: 日
+                - generic [ref=e1272] [cursor=pointer]: 日
+                - generic [ref=e1274] [cursor=pointer]: 日
+                - generic [ref=e1276]: 休
+                - generic [ref=e1278] [cursor=pointer]: 日
+                - generic [ref=e1280] [cursor=pointer]: 日
+                - generic [ref=e1282] [cursor=pointer]: 日
+                - generic [ref=e1284] [cursor=pointer]: 日
+                - generic [ref=e1286] [cursor=pointer]: 日
+                - generic [ref=e1288] [cursor=pointer]: 日
+                - generic [ref=e1290]: 休
+                - generic [ref=e1292] [cursor=pointer]: 日
+                - generic [ref=e1294] [cursor=pointer]: 日
+                - generic [ref=e1296] [cursor=pointer]: 日
+                - generic [ref=e1298] [cursor=pointer]: 日
+                - generic [ref=e1300] [cursor=pointer]: 日
+                - generic [ref=e1302] [cursor=pointer]: 日
+                - generic [ref=e1304]: 休
+                - generic [ref=e1306] [cursor=pointer]: 日
+              - generic [ref=e1307]:
+                - generic [ref=e1309]:
+                  - generic [ref=e1311]: 木村 朋子
+                  - generic [ref=e1312]: 介護職員
+                  - generic [ref=e1314]: 非常勤
+                - generic [ref=e1316] [cursor=pointer]: 日
+                - generic [ref=e1318]: 休
+                - generic [ref=e1320] [cursor=pointer]: 日
+                - generic [ref=e1322] [cursor=pointer]: 日
+                - generic [ref=e1324] [cursor=pointer]: 日
+                - generic [ref=e1326] [cursor=pointer]: 日
+                - generic [ref=e1328] [cursor=pointer]: 日
+                - generic [ref=e1330] [cursor=pointer]: 日
+                - generic [ref=e1332]: 休
+                - generic [ref=e1334] [cursor=pointer]: 日
+                - generic [ref=e1336] [cursor=pointer]: 日
+                - generic [ref=e1338] [cursor=pointer]: 日
+                - generic [ref=e1340] [cursor=pointer]: 日
+                - generic [ref=e1342] [cursor=pointer]: 日
+                - generic [ref=e1344] [cursor=pointer]: 日
+                - generic [ref=e1346]: 休
+                - generic [ref=e1348] [cursor=pointer]: 日
+                - generic [ref=e1350] [cursor=pointer]: 日
+                - generic [ref=e1352] [cursor=pointer]: 日
+                - generic [ref=e1354] [cursor=pointer]: 日
+                - generic [ref=e1356] [cursor=pointer]: 日
+                - generic [ref=e1358] [cursor=pointer]: 日
+                - generic [ref=e1360]: 休
+                - generic [ref=e1362] [cursor=pointer]: 日
+                - generic [ref=e1364] [cursor=pointer]: 日
+                - generic [ref=e1366] [cursor=pointer]: 日
+                - generic [ref=e1368] [cursor=pointer]: 日
+                - generic [ref=e1370] [cursor=pointer]: 日
+                - generic [ref=e1372] [cursor=pointer]: 日
+                - generic [ref=e1374]: 休
+                - generic [ref=e1376] [cursor=pointer]: 日
+              - generic [ref=e1377]:
+                - generic [ref=e1379]:
+                  - generic [ref=e1381]: 斉藤 茂雄
+                  - generic [ref=e1382]: 介護職員
+                  - generic [ref=e1384]: 非常勤
+                - generic [ref=e1386] [cursor=pointer]: 日
+                - generic [ref=e1388]: 休
+                - generic [ref=e1390] [cursor=pointer]: 日
+                - generic [ref=e1392] [cursor=pointer]: 日
+                - generic [ref=e1394] [cursor=pointer]: 日
+                - generic [ref=e1396] [cursor=pointer]: 日
+                - generic [ref=e1398] [cursor=pointer]: 日
+                - generic [ref=e1400] [cursor=pointer]: 日
+                - generic [ref=e1402]: 休
+                - generic [ref=e1404] [cursor=pointer]: 日
+                - generic [ref=e1406] [cursor=pointer]: 日
+                - generic [ref=e1408] [cursor=pointer]: 日
+                - generic [ref=e1410] [cursor=pointer]: 日
+                - generic [ref=e1412] [cursor=pointer]: 日
+                - generic [ref=e1414] [cursor=pointer]: 日
+                - generic [ref=e1416]: 休
+                - generic [ref=e1418] [cursor=pointer]: 日
+                - generic [ref=e1420] [cursor=pointer]: 日
+                - generic [ref=e1422] [cursor=pointer]: 日
+                - generic [ref=e1424] [cursor=pointer]: 日
+                - generic [ref=e1426] [cursor=pointer]: 日
+                - generic [ref=e1428] [cursor=pointer]: 日
+                - generic [ref=e1430]: 休
+                - generic [ref=e1432] [cursor=pointer]: 日
+                - generic [ref=e1434] [cursor=pointer]: 日
+                - generic [ref=e1436] [cursor=pointer]: 日
+                - generic [ref=e1438] [cursor=pointer]: 日
+                - generic [ref=e1440] [cursor=pointer]: 日
+                - generic [ref=e1442] [cursor=pointer]: 日
+                - generic [ref=e1444]: 休
+                - generic [ref=e1446] [cursor=pointer]: 日
+            - generic [ref=e1447]:
+              - generic [ref=e1448]:
+                - generic [ref=e1449]: 機能訓練員集計
+                - generic [ref=e1451]: "2"
+                - generic [ref=e1453]: "2"
+                - generic [ref=e1455]: "2"
+                - generic [ref=e1457]: "2"
+                - generic [ref=e1459]: "2"
+                - generic [ref=e1461]: "2"
+                - generic [ref=e1463]: "2"
+                - generic [ref=e1465]: "2"
+                - generic [ref=e1467]: "2"
+                - generic [ref=e1469]: "2"
+                - generic [ref=e1471]: "2"
+                - generic [ref=e1473]: "2"
+                - generic [ref=e1475]: "2"
+                - generic [ref=e1477]: "2"
+                - generic [ref=e1479]: "2"
+                - generic [ref=e1481]: "2"
+                - generic [ref=e1483]: "2"
+                - generic [ref=e1485]: "2"
+                - generic [ref=e1487]: "2"
+                - generic [ref=e1489]: "2"
+                - generic [ref=e1491]: "2"
+                - generic [ref=e1493]: "2"
+                - generic [ref=e1495]: "2"
+                - generic [ref=e1497]: "2"
+                - generic [ref=e1499]: "2"
+                - generic [ref=e1501]: "2"
+                - generic [ref=e1503]: "2"
+                - generic [ref=e1505]: "2"
+                - generic [ref=e1507]: "2"
+                - generic [ref=e1509]: "2"
+                - generic [ref=e1511]: "2"
+              - generic [ref=e1512]:
+                - generic [ref=e1514]:
+                  - generic [ref=e1516]: 清水 太一
+                  - generic [ref=e1517]: 機能訓練員
+                  - generic [ref=e1518]:
+                    - generic [ref=e1519]: 常勤
+                    - generic [ref=e1520]: PT
+                - generic [ref=e1522] [cursor=pointer]: 日
+                - generic [ref=e1524]: 休
+                - generic [ref=e1526] [cursor=pointer]: 日
+                - generic [ref=e1528] [cursor=pointer]: 日
+                - generic [ref=e1530] [cursor=pointer]: 日
+                - generic [ref=e1532] [cursor=pointer]: 日
+                - generic [ref=e1534] [cursor=pointer]: 日
+                - generic [ref=e1536] [cursor=pointer]: 日
+                - generic [ref=e1538]: 休
+                - generic [ref=e1540] [cursor=pointer]: 日
+                - generic [ref=e1542] [cursor=pointer]: 日
+                - generic [ref=e1544] [cursor=pointer]: 日
+                - generic [ref=e1546] [cursor=pointer]: 日
+                - generic [ref=e1548] [cursor=pointer]: 日
+                - generic [ref=e1550] [cursor=pointer]: 日
+                - generic [ref=e1552]: 休
+                - generic [ref=e1554] [cursor=pointer]: 日
+                - generic [ref=e1556] [cursor=pointer]: 日
+                - generic [ref=e1558] [cursor=pointer]: 日
+                - generic [ref=e1560] [cursor=pointer]: 日
+                - generic [ref=e1562] [cursor=pointer]: 日
+                - generic [ref=e1564] [cursor=pointer]: 日
+                - generic [ref=e1566]: 休
+                - generic [ref=e1568] [cursor=pointer]: 日
+                - generic [ref=e1570] [cursor=pointer]: 日
+                - generic [ref=e1572] [cursor=pointer]: 日
+                - generic [ref=e1574] [cursor=pointer]: 日
+                - generic [ref=e1576] [cursor=pointer]: 日
+                - generic [ref=e1578] [cursor=pointer]: 日
+                - generic [ref=e1580]: 休
+                - generic [ref=e1582] [cursor=pointer]: 日
+              - generic [ref=e1583]:
+                - generic [ref=e1585]:
+                  - generic [ref=e1587]: 山本 一夫
+                  - generic [ref=e1588]: 機能訓練員
+                  - generic [ref=e1589]:
+                    - generic [ref=e1590]: 非常勤
+                    - generic [ref=e1591]: PT
+                - generic [ref=e1593] [cursor=pointer]: 日
+                - generic [ref=e1595]: 休
+                - generic [ref=e1597] [cursor=pointer]: 日
+                - generic [ref=e1599] [cursor=pointer]: 日
+                - generic [ref=e1601] [cursor=pointer]: 日
+                - generic [ref=e1603] [cursor=pointer]: 日
+                - generic [ref=e1605] [cursor=pointer]: 日
+                - generic [ref=e1607] [cursor=pointer]: 日
+                - generic [ref=e1609]: 休
+                - generic [ref=e1611] [cursor=pointer]: 日
+                - generic [ref=e1613] [cursor=pointer]: 日
+                - generic [ref=e1615] [cursor=pointer]: 日
+                - generic [ref=e1617] [cursor=pointer]: 日
+                - generic [ref=e1619] [cursor=pointer]: 日
+                - generic [ref=e1621] [cursor=pointer]: 日
+                - generic [ref=e1623]: 休
+                - generic [ref=e1625] [cursor=pointer]: 日
+                - generic [ref=e1627] [cursor=pointer]: 日
+                - generic [ref=e1629] [cursor=pointer]: 日
+                - generic [ref=e1631] [cursor=pointer]: 日
+                - generic [ref=e1633] [cursor=pointer]: 日
+                - generic [ref=e1635] [cursor=pointer]: 日
+                - generic [ref=e1637]: 休
+                - generic [ref=e1639] [cursor=pointer]: 日
+                - generic [ref=e1641] [cursor=pointer]: 日
+                - generic [ref=e1643] [cursor=pointer]: 日
+                - generic [ref=e1645] [cursor=pointer]: 日
+                - generic [ref=e1647] [cursor=pointer]: 日
+                - generic [ref=e1649] [cursor=pointer]: 日
+                - generic [ref=e1651]: 休
+                - generic [ref=e1653] [cursor=pointer]: 日
+            - generic [ref=e1654]:
+              - generic [ref=e1655]:
+                - generic [ref=e1656]: 看護職員集計
+                - generic [ref=e1658]: "3"
+                - generic [ref=e1660]: "3"
+                - generic [ref=e1662]: "3"
+                - generic [ref=e1664]: "3"
+                - generic [ref=e1666]: "3"
+                - generic [ref=e1668]: "3"
+                - generic [ref=e1670]: "3"
+                - generic [ref=e1672]: "3"
+                - generic [ref=e1674]: "3"
+                - generic [ref=e1676]: "3"
+                - generic [ref=e1678]: "3"
+                - generic [ref=e1680]: "3"
+                - generic [ref=e1682]: "3"
+                - generic [ref=e1684]: "3"
+                - generic [ref=e1686]: "3"
+                - generic [ref=e1688]: "3"
+                - generic [ref=e1690]: "3"
+                - generic [ref=e1692]: "3"
+                - generic [ref=e1694]: "3"
+                - generic [ref=e1696]: "3"
+                - generic [ref=e1698]: "3"
+                - generic [ref=e1700]: "3"
+                - generic [ref=e1702]: "3"
+                - generic [ref=e1704]: "3"
+                - generic [ref=e1706]: "3"
+                - generic [ref=e1708]: "3"
+                - generic [ref=e1710]: "3"
+                - generic [ref=e1712]: "3"
+                - generic [ref=e1714]: "3"
+                - generic [ref=e1716]: "3"
+                - generic [ref=e1718]: "3"
+              - generic [ref=e1719]:
+                - generic [ref=e1721]:
+                  - generic [ref=e1723]: 森田 花音
+                  - generic [ref=e1724]: 看護職員
+                  - generic [ref=e1725]:
+                    - generic [ref=e1726]: 常勤
+                    - generic [ref=e1727]: NS
+                - generic [ref=e1729] [cursor=pointer]: 日
+                - generic [ref=e1731]: 休
+                - generic [ref=e1733] [cursor=pointer]: 日
+                - generic [ref=e1735] [cursor=pointer]: 日
+                - generic [ref=e1737] [cursor=pointer]: 日
+                - generic [ref=e1739] [cursor=pointer]: 日
+                - generic [ref=e1741] [cursor=pointer]: 日
+                - generic [ref=e1743] [cursor=pointer]: 日
+                - generic [ref=e1745]: 休
+                - generic [ref=e1747] [cursor=pointer]: 日
+                - generic [ref=e1749] [cursor=pointer]: 日
+                - generic [ref=e1751] [cursor=pointer]: 日
+                - generic [ref=e1753] [cursor=pointer]: 日
+                - generic [ref=e1755] [cursor=pointer]: 日
+                - generic [ref=e1757] [cursor=pointer]: 日
+                - generic [ref=e1759]: 休
+                - generic [ref=e1761] [cursor=pointer]: 日
+                - generic [ref=e1763] [cursor=pointer]: 日
+                - generic [ref=e1765] [cursor=pointer]: 日
+                - generic [ref=e1767] [cursor=pointer]: 日
+                - generic [ref=e1769] [cursor=pointer]: 日
+                - generic [ref=e1771] [cursor=pointer]: 日
+                - generic [ref=e1773]: 休
+                - generic [ref=e1775] [cursor=pointer]: 日
+                - generic [ref=e1777] [cursor=pointer]: 日
+                - generic [ref=e1779] [cursor=pointer]: 日
+                - generic [ref=e1781] [cursor=pointer]: 日
+                - generic [ref=e1783] [cursor=pointer]: 日
+                - generic [ref=e1785] [cursor=pointer]: 日
+                - generic [ref=e1787]: 休
+                - generic [ref=e1789] [cursor=pointer]: 日
+              - generic [ref=e1790]:
+                - generic [ref=e1792]:
+                  - generic [ref=e1794]: 佐々木 有香
+                  - generic [ref=e1795]: 看護職員
+                  - generic [ref=e1796]:
+                    - generic [ref=e1797]: 非常勤
+                    - generic [ref=e1798]: NS
+                - generic [ref=e1800] [cursor=pointer]: 日
+                - generic [ref=e1802]: 休
+                - generic [ref=e1804] [cursor=pointer]: 日
+                - generic [ref=e1806] [cursor=pointer]: 日
+                - generic [ref=e1808] [cursor=pointer]: 日
+                - generic [ref=e1810] [cursor=pointer]: 日
+                - generic [ref=e1812] [cursor=pointer]: 日
+                - generic [ref=e1814] [cursor=pointer]: 日
+                - generic [ref=e1816]: 休
+                - generic [ref=e1818] [cursor=pointer]: 日
+                - generic [ref=e1820] [cursor=pointer]: 日
+                - generic [ref=e1822] [cursor=pointer]: 日
+                - generic [ref=e1824] [cursor=pointer]: 日
+                - generic [ref=e1826] [cursor=pointer]: 日
+                - generic [ref=e1828] [cursor=pointer]: 日
+                - generic [ref=e1830]: 休
+                - generic [ref=e1832] [cursor=pointer]: 日
+                - generic [ref=e1834] [cursor=pointer]: 日
+                - generic [ref=e1836] [cursor=pointer]: 日
+                - generic [ref=e1838] [cursor=pointer]: 日
+                - generic [ref=e1840] [cursor=pointer]: 日
+                - generic [ref=e1842] [cursor=pointer]: 日
+                - generic [ref=e1844]: 休
+                - generic [ref=e1846] [cursor=pointer]: 日
+                - generic [ref=e1848] [cursor=pointer]: 日
+                - generic [ref=e1850] [cursor=pointer]: 日
+                - generic [ref=e1852] [cursor=pointer]: 日
+                - generic [ref=e1854] [cursor=pointer]: 日
+                - generic [ref=e1856] [cursor=pointer]: 日
+                - generic [ref=e1858]: 休
+                - generic [ref=e1860] [cursor=pointer]: 日
+              - generic [ref=e1861]:
+                - generic [ref=e1863]:
+                  - generic [ref=e1865]: 江藤 拓也
+                  - generic [ref=e1866]: 看護職員
+                  - generic [ref=e1867]:
+                    - generic [ref=e1868]: 非常勤
+                    - generic [ref=e1869]: NS
+                - generic [ref=e1871] [cursor=pointer]: 日
+                - generic [ref=e1873]: 休
+                - generic [ref=e1875] [cursor=pointer]: 日
+                - generic [ref=e1877] [cursor=pointer]: 日
+                - generic [ref=e1879] [cursor=pointer]: 日
+                - generic [ref=e1881] [cursor=pointer]: 日
+                - generic [ref=e1883] [cursor=pointer]: 日
+                - generic [ref=e1885] [cursor=pointer]: 日
+                - generic [ref=e1887]: 休
+                - generic [ref=e1889] [cursor=pointer]: 日
+                - generic [ref=e1891] [cursor=pointer]: 日
+                - generic [ref=e1893] [cursor=pointer]: 日
+                - generic [ref=e1895] [cursor=pointer]: 日
+                - generic [ref=e1897] [cursor=pointer]: 日
+                - generic [ref=e1899] [cursor=pointer]: 日
+                - generic [ref=e1901]: 休
+                - generic [ref=e1903] [cursor=pointer]: 日
+                - generic [ref=e1905] [cursor=pointer]: 日
+                - generic [ref=e1907] [cursor=pointer]: 日
+                - generic [ref=e1909] [cursor=pointer]: 日
+                - generic [ref=e1911] [cursor=pointer]: 日
+                - generic [ref=e1913] [cursor=pointer]: 日
+                - generic [ref=e1915]: 休
+                - generic [ref=e1917] [cursor=pointer]: 日
+                - generic [ref=e1919] [cursor=pointer]: 日
+                - generic [ref=e1921] [cursor=pointer]: 日
+                - generic [ref=e1923] [cursor=pointer]: 日
+                - generic [ref=e1925] [cursor=pointer]: 日
+                - generic [ref=e1927] [cursor=pointer]: 日
+                - generic [ref=e1929]: 休
+                - generic [ref=e1931] [cursor=pointer]: 日
+        - generic [ref=e1932]:
+          - generic [ref=e1933]:
+            - generic [ref=e1935]: シフト凡例
+            - generic [ref=e1936]:
+              - generic [ref=e1937]:
+                - generic [ref=e1939]:
+                  - generic [ref=e1940]:
+                    - generic [ref=e1941]: 早
+                    - generic [ref=e1942]: 早番 8:30~17:30
+                  - generic [ref=e1943]:
+                    - generic [ref=e1944]: 日
+                    - generic [ref=e1945]: 日勤 9:00~18:00
+                  - generic [ref=e1946]:
+                    - generic [ref=e1947]: 遅
+                    - generic [ref=e1948]: 遅番 10:30~19:30
+                - generic [ref=e1950]:
+                  - generic [ref=e1951]:
+                    - generic [ref=e1952]: 休
+                    - generic [ref=e1953]: 公休
+                  - generic [ref=e1954]:
+                    - generic [ref=e1955]: 有
+                    - generic [ref=e1956]: 有給
+              - generic [ref=e1958]:
+                - paragraph [ref=e1959]: ※ セルをクリックしてシフトを編集できます（過去分除く）
+                - paragraph [ref=e1960]: ※ 自動生成ボタンで法定基準に基づいたシフトを作成
+                - paragraph [ref=e1961]: ※ 職員共有で全職員にメール通知されます
+          - generic [ref=e1962]:
+            - generic [ref=e1964]: 会議等情報
+            - generic [ref=e1966]:
+              - textbox "会議やイベントの情報を入力してください" [ref=e1967]: 管理者会議：3/22（土）18:00~ 介護職員会議：3/29（土）18:30~
+              - paragraph [ref=e1969]: ※ 会議等の情報はシフト表に自動で反映されます
+  - button "Open Next.js Dev Tools" [ref=e1975] [cursor=pointer]:
+    - img [ref=e1976] [cursor=pointer]
+  - alert [ref=e1979]
+```

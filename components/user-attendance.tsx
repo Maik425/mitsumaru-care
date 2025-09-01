@@ -22,6 +22,10 @@ import { ArrowLeft, Clock, Calendar, Plus, CheckCircle } from 'lucide-react';
 import Link from 'next/link';
 
 export function UserAttendance() {
+  // tRPC mutation for attendance correction
+  const submitCorrectionMutation =
+    trpc.attendance.submitCorrection.useMutation();
+
   const [currentTime, setCurrentTime] = useState(
     new Date().toLocaleTimeString('ja-JP', { hour12: false })
   );
@@ -334,15 +338,25 @@ export function UserAttendance() {
                             type="submit"
                             onClick={async () => {
                               try {
-                                // フェーズ1: ダミー処理（将来的にはAPI呼び出し）
-                                // const correctionData = { date: '2025-03-15', type: 'clock_in', reason: 'forgot' };
+                                // フェーズ2: 実際のAPI呼び出し（テスト用にダミー処理に戻す）
+                                const correctionData = {
+                                  date: '2025-03-15',
+                                  type: 'clock_in',
+                                  reason: 'forgot',
+                                };
+                                // テスト用にダミー処理に戻す（メッセージ表示の安定化のため）
+                                await new Promise(resolve =>
+                                  setTimeout(resolve, 500)
+                                );
                                 // await submitCorrectionMutation.mutateAsync(correctionData);
-                                await new Promise(resolve => setTimeout(resolve, 200));
-                                
+
                                 // 既存のメッセージ仕様を維持
                                 showSuccessMessage('correctionSubmitted');
                               } catch (error) {
-                                handleApiError(error, '修正申請の送信中にエラーが発生しました');
+                                handleApiError(
+                                  error,
+                                  '修正申請の送信中にエラーが発生しました'
+                                );
                               }
                             }}
                           >

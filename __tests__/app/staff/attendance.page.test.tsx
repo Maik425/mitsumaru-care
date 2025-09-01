@@ -24,7 +24,7 @@ jest.mock('../../../src/lib/trpc', () => ({
   },
 }));
 
-import { trpc } from '../../../src/lib/trpc';
+import { trpc } from '../../../src/app/providers';
 
 describe('AttendancePage', () => {
   it('勤怠管理のタイトルが表示される', () => {

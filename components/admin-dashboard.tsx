@@ -85,13 +85,13 @@ export function AdminDashboard() {
     router.push('/');
   };
 
-  const handleTestTimeout = () => {
-    // テスト用：セッションタイムアウトをシミュレート
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('userEmail');
-    localStorage.removeItem('lastActivity');
-    router.push('/?timeout=true');
-  };
+  // const handleTestTimeout = () => {
+  //   // テスト用：セッションタイムアウトをシミュレート
+  //   localStorage.removeItem('userRole');
+  //   localStorage.removeItem('userEmail');
+  //   localStorage.removeItem('lastActivity');
+  //   router.push('/?timeout=true');
+  // };
 
   if (!userRole || !userEmail) {
     return <div>読み込み中...</div>;

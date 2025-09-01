@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { trpc } from '@/src/lib/trpc';
+import { trpc } from '@/src/app/providers';
 import { ShiftForm } from '@/src/components/shifts/shift-form';
 
 export default function ShiftsPage() {

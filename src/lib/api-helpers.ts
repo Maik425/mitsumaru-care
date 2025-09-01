@@ -4,21 +4,30 @@
 /**
  * DOMメッセージを表示する共通関数
  * 既存UIで使われているスタイルと文言を維持
+ * テスト環境での安定性を向上
  */
 export function showDOMMessage(
   message: string,
   type: 'success' | 'error' | 'warning' = 'success',
   duration: number = 3000
 ) {
+  // テスト環境での安定性向上
+  if (typeof document === 'undefined') {
+    console.log(`[${type.toUpperCase()}] ${message}`);
+    return;
+  }
+
   const messageElement = document.createElement('div');
   messageElement.textContent = message;
-  
+  messageElement.setAttribute('data-testid', `message-${type}`);
+  messageElement.setAttribute('data-message', message);
+
   const colors = {
     success: '#10b981', // 緑 - 成功
-    error: '#ef4444',   // 赤 - エラー
+    error: '#ef4444', // 赤 - エラー
     warning: '#f59e0b', // オレンジ - 警告
   };
-  
+
   messageElement.style.cssText = `
     position: fixed;
     top: 20px;
@@ -31,15 +40,46 @@ export function showDOMMessage(
     box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
     font-size: 14px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
   `;
-  
+
+  // 既存のメッセージを削除
+  const existingMessages = document.querySelectorAll(
+    '[data-testid^="message-"]'
+  );
+  existingMessages.forEach(msg => msg.remove());
+
   document.body.appendChild(messageElement);
-  
+
+  // アニメーション効果
   setTimeout(() => {
-    if (document.body.contains(messageElement)) {
-      document.body.removeChild(messageElement);
+    if (messageElement && document.body.contains(messageElement)) {
+      messageElement.style.opacity = '0';
+      setTimeout(() => {
+        if (document.body.contains(messageElement)) {
+          document.body.removeChild(messageElement);
+        }
+      }, 300);
     }
   }, duration);
+}
+
+/**
+ * メッセージが表示されているかチェック（テスト用）
+ */
+export function isMessageVisible(
+  message: string,
+  type?: 'success' | 'error' | 'warning'
+): boolean {
+  if (typeof document === 'undefined') return false;
+
+  const selector = type
+    ? `[data-testid="message-${type}"][data-message="${message}"]`
+    : `[data-message="${message}"]`;
+
+  const element = document.querySelector(selector);
+  return element !== null && element.style.opacity !== '0';
 }
 
 /**
@@ -73,14 +113,17 @@ export function extractErrorMessage(error: any): string {
 /**
  * API呼び出しの共通エラーハンドリング
  */
-export function handleApiError(error: any, defaultMessage: string = 'エラーが発生しました') {
+export function handleApiError(
+  error: any,
+  defaultMessage: string = 'エラーが発生しました'
+) {
   console.error('API Error:', error);
-  
+
   if (isOffline()) {
     showNetworkError();
     return;
   }
-  
+
   const message = extractErrorMessage(error) || defaultMessage;
   showDOMMessage(message, 'error');
 }
@@ -102,5 +145,11 @@ export const successMessages = {
  * 成功メッセージを表示
  */
 export function showSuccessMessage(messageKey: keyof typeof successMessages) {
-  showDOMMessage(successMessages[messageKey], 'success');
+  const message = successMessages[messageKey];
+  showDOMMessage(message, 'success');
+
+  // テスト環境でのデバッグ
+  if (process.env.NODE_ENV === 'test') {
+    console.log(`Success message displayed: ${message}`);
+  }
 }

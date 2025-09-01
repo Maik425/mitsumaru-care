@@ -24,7 +24,7 @@ jest.mock('../../../../src/lib/trpc', () => ({
   },
 }));
 
-import { trpc } from '../../../../src/lib/trpc';
+import { trpc } from '../../../../src/app/providers';
 
 describe('ShiftTypesPage', () => {
   it('シフト形態管理のタイトルが表示される', () => {

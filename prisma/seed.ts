@@ -321,6 +321,24 @@ async function main() {
 
     console.log('✅ ユーザーロールの関連付け完了');
 
+    // シフト交換のテストデータを作成
+    console.log('シフト交換のテストデータを作成中...');
+
+    const shiftExchange = await prisma.shiftExchange.upsert({
+      where: { id: 'test-exchange-001' },
+      update: {},
+      create: {
+        id: 'test-exchange-001',
+        requesterId: staffUser.id,
+        partnerId: facilityAdminUser.id,
+        fromDate: new Date('2025-03-15'),
+        toDate: new Date('2025-03-16'),
+        reason: 'テスト用のシフト交換申請',
+        status: 'pending',
+      },
+    });
+    console.log('✅ シフト交換テストデータ作成完了:', shiftExchange.id);
+
     console.log('🎉 認証システムの初期データ作成完了！');
   } catch (error) {
     console.error('❌ エラーが発生しました:', error);

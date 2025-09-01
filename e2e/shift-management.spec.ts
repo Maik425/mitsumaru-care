@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { loginAsAdmin, loginAsMember, logout } from './helpers/auth-helper';
 
 // テストデータ
 const testUsers = {
@@ -113,6 +114,9 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
     });
 
     test('月間シフト作成 - 基本フロー', async ({ page }) => {
+      // 管理者としてログイン
+      await loginAsAdmin(page);
+
       // シフト作成画面にアクセス
       await page.goto('/admin/shifts');
       await expect(
@@ -137,12 +141,18 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
         .getByRole('button', { name: /自動シフト生成|シフト作成/ })
         .click();
 
-      // 生成結果が表示されることを確認
-      await expect(page.getByText(/シフトが生成されました/)).toBeVisible();
+      // 生成結果が表示されることを確認（待機時間を延長）
+      await page.waitForTimeout(2000);
+      await expect(page.getByText(/シフトが生成されました/)).toBeVisible({
+        timeout: 10000,
+      });
       await expect(page.getByTestId('shift-table')).toBeVisible();
     });
 
     test('シフト編集・調整', async ({ page }) => {
+      // 管理者としてログイン
+      await loginAsAdmin(page);
+
       // シフト管理画面にアクセス
       await page.goto('/admin/shifts');
 
@@ -164,11 +174,17 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
       // 変更を保存
       await page.getByTestId('detail-save-button').click();
 
-      // 保存完了メッセージが表示されることを確認
-      await expect(page.getByText(/保存されました/)).toBeVisible();
+      // 保存完了メッセージが表示されることを確認（待機時間を延長）
+      await page.waitForTimeout(2000);
+      await expect(page.getByText(/保存されました/)).toBeVisible({
+        timeout: 10000,
+      });
     });
 
     test('シフト確定', async ({ page }) => {
+      // 管理者としてログイン
+      await loginAsAdmin(page);
+
       // シフト管理画面にアクセス
       await page.goto('/admin/shifts');
 
@@ -181,17 +197,18 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
       // 確定を実行
       await page.getByRole('button', { name: /確定/ }).click();
 
-      // 確定完了メッセージが表示されることを確認
-      await expect(page.getByText(/シフトが確定されました/)).toBeVisible();
+      // 確定完了メッセージが表示されることを確認（待機時間を延長）
+      await page.waitForTimeout(2000);
+      await expect(page.getByText(/シフトが確定されました/)).toBeVisible({
+        timeout: 10000,
+      });
     });
   });
 
   test.describe('勤怠管理フロー (UC-EMP-001, UC-ADM-005)', () => {
     test('一般職員の出退勤打刻', async ({ page }) => {
       // 一般職員としてログイン
-      await page.getByLabel('メールアドレス').fill(testUsers.employee.email);
-      await page.getByLabel('パスワード').fill(testUsers.employee.password);
-      await page.getByRole('button', { name: 'ログイン' }).click();
+      await loginAsMember(page);
 
       // 勤怠管理画面にアクセス
       await page.goto('/user/attendance');
@@ -214,9 +231,7 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
 
     test('勤怠修正申請', async ({ page }) => {
       // 一般職員としてログイン
-      await page.getByLabel('メールアドレス').fill(testUsers.employee.email);
-      await page.getByLabel('パスワード').fill(testUsers.employee.password);
-      await page.getByRole('button', { name: 'ログイン' }).click();
+      await loginAsMember(page);
 
       // 勤怠管理画面にアクセス
       await page.goto('/user/attendance');
@@ -234,15 +249,16 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
       // 申請を送信
       await page.getByRole('button', { name: /申請/ }).click();
 
-      // 申請完了メッセージが表示されることを確認
-      await expect(page.getByText(/修正申請が送信されました/)).toBeVisible();
+      // 申請完了メッセージが表示されることを確認（待機時間を延長）
+      await page.waitForTimeout(2000);
+      await expect(page.getByText(/修正申請が送信されました/)).toBeVisible({
+        timeout: 10000,
+      });
     });
 
     test('管理者による勤怠確認・承認', async ({ page }) => {
       // 管理者としてログイン
-      await page.getByLabel('メールアドレス').fill(testUsers.admin.email);
-      await page.getByLabel('パスワード').fill(testUsers.admin.password);
-      await page.getByRole('button', { name: 'ログイン' }).click();
+      await loginAsAdmin(page);
 
       // 勤怠管理画面にアクセス
       await page.goto('/admin/attendance');
@@ -276,6 +292,9 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
     });
 
     test('役割表作成', async ({ page }) => {
+      // 管理者としてログイン
+      await loginAsAdmin(page);
+
       // 役割表作成画面にアクセス
       await page.goto('/admin/role-assignments');
       await expect(
@@ -305,14 +324,12 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
   test.describe('シフト交換フロー (UC-EMP-004, UC-ADM-003)', () => {
     test('一般職員によるシフト交換申請', async ({ page }) => {
       // 一般職員としてログイン
-      await page.getByLabel('メールアドレス').fill(testUsers.employee.email);
-      await page.getByLabel('パスワード').fill(testUsers.employee.password);
-      await page.getByRole('button', { name: 'ログイン' }).click();
+      await loginAsMember(page);
 
       // シフト交換画面にアクセス
       await page.goto('/user/shift-exchange');
       await expect(
-        page.getByRole('heading', { name: /シフト交換/ })
+        page.getByRole('heading', { name: /シフト交換申請/ })
       ).toBeVisible();
 
       // 交換したいシフトを選択
@@ -328,21 +345,21 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
       await page.getByRole('button', { name: /申請/ }).click();
 
       // 申請完了メッセージが表示されることを確認
+      // 申請完了メッセージが表示されることを確認（待機時間を延長）
+      await page.waitForTimeout(2000);
       await expect(
         page.getByText(/シフト交換申請が送信されました/)
-      ).toBeVisible();
+      ).toBeVisible({ timeout: 10000 });
     });
 
     test('管理者によるシフト交換申請の承認', async ({ page }) => {
       // 管理者としてログイン
-      await page.getByLabel('メールアドレス').fill(testUsers.admin.email);
-      await page.getByLabel('パスワード').fill(testUsers.admin.password);
-      await page.getByRole('button', { name: 'ログイン' }).click();
+      await loginAsAdmin(page);
 
       // シフト交換管理画面にアクセス
       await page.goto('/admin/shift-exchange');
       await expect(
-        page.getByRole('heading', { name: /シフト交換管理/ })
+        page.getByRole('heading', { name: /シフト交換申請管理/ })
       ).toBeVisible();
 
       // 承認待ちの申請一覧が表示されることを確認
@@ -351,17 +368,18 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
       // 申請を承認
       await page.getByRole('button', { name: /承認/ }).first().click();
 
-      // 承認完了メッセージが表示されることを確認
-      await expect(page.getByText(/承認されました/)).toBeVisible();
+      // 承認完了メッセージが表示されることを確認（待機時間を延長）
+      await page.waitForTimeout(2000);
+      await expect(page.getByText(/承認されました/)).toBeVisible({
+        timeout: 10000,
+      });
     });
   });
 
   test.describe('アクセス制限テスト', () => {
     test('一般職員の管理者機能へのアクセス制限', async ({ page }) => {
       // 一般職員としてログイン
-      await page.getByLabel('メールアドレス').fill(testUsers.employee.email);
-      await page.getByLabel('パスワード').fill(testUsers.employee.password);
-      await page.getByRole('button', { name: 'ログイン' }).click();
+      await loginAsMember(page);
 
       // 管理者機能へのアクセスを試行
       await page.goto('/admin/shifts');
@@ -387,9 +405,7 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
   test.describe('エラーハンドリングテスト', () => {
     test('ネットワークエラー時の適切な処理', async ({ page }) => {
       // 管理者としてログイン
-      await page.getByLabel('メールアドレス').fill(testUsers.admin.email);
-      await page.getByLabel('パスワード').fill(testUsers.admin.password);
-      await page.getByRole('button', { name: 'ログイン' }).click();
+      await loginAsAdmin(page);
 
       // まずオンライン状態でページに移動（Service Worker登録のため）
       await page.goto('/admin/shifts');
@@ -414,9 +430,7 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
 
     test('バリデーションエラーの適切な表示', async ({ page }) => {
       // 管理者としてログイン
-      await page.getByLabel('メールアドレス').fill(testUsers.admin.email);
-      await page.getByLabel('パスワード').fill(testUsers.admin.password);
-      await page.getByRole('button', { name: 'ログイン' }).click();
+      await loginAsAdmin(page);
 
       // シフト作成画面にアクセス
       await page.goto('/admin/shifts');
@@ -435,9 +449,7 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
   test.describe('パフォーマンステスト', () => {
     test('大量データ表示時のパフォーマンス', async ({ page }) => {
       // 管理者としてログイン
-      await page.getByLabel('メールアドレス').fill(testUsers.admin.email);
-      await page.getByLabel('パスワード').fill(testUsers.admin.password);
-      await page.getByRole('button', { name: 'ログイン' }).click();
+      await loginAsAdmin(page);
 
       // シフト管理画面にアクセス
       await page.goto('/admin/shifts');

@@ -91,6 +91,9 @@ model User {
   approvedHolidays Holiday[] @relation("HolidayApprover")
   attendanceRequests AttendanceRequest[]
   approvedAttendanceRequests AttendanceRequest[] @relation("AttendanceRequestApprover")
+  shiftExchangeRequests ShiftExchange[] @relation("ShiftExchangeRequester")
+  shiftExchangePartners ShiftExchange[] @relation("ShiftExchangePartner")
+  approvedShiftExchanges ShiftExchange[] @relation("ShiftExchangeApprover")
 
   @@index([email])
   @@index([employeeNumber])
@@ -490,6 +493,33 @@ model AttendanceRequest {
   @@index([type])
   @@index([status])
   @@map("attendance_requests")
+}
+
+model ShiftExchange {
+  id          String   @id @default(cuid())
+  requesterId String
+  partnerId   String
+  fromDate    DateTime @db.Date
+  toDate      DateTime @db.Date
+  reason      String
+  status      String   @default("pending") // pending, approved, rejected
+  adminNotes  String?
+  approvedBy  String?
+  approvedAt  DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requester   User     @relation("ShiftExchangeRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  partner     User     @relation("ShiftExchangePartner", fields: [partnerId], references: [id], onDelete: Cascade)
+  approver    User?    @relation("ShiftExchangeApprover", fields: [approvedBy], references: [id], onDelete: SetNull)
+
+  @@index([requesterId])
+  @@index([partnerId])
+  @@index([fromDate])
+  @@index([toDate])
+  @@index([status])
+  @@index([approvedBy])
+  @@map("shift_exchanges")
 }
 
 model Holiday {

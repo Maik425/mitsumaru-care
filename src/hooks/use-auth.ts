@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { trpc } from '../lib/trpc';
+import { trpc } from '../app/providers';
 import { useRouter } from 'next/navigation';
 
 export interface User {

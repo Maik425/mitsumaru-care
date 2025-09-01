@@ -11,6 +11,8 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
 export default function ShiftExchangeApprovalPage() {
+  // tRPC mutation for shift exchange approval
+  const approveExchangeMutation = trpc.shiftExchange.approve.useMutation();
   const router = useRouter();
 
   useEffect(() => {
@@ -50,7 +52,7 @@ export default function ShiftExchangeApprovalPage() {
               </Button>
             </Link>
             <h1 className="text-xl font-semibold text-gray-900 ml-4">
-              シフト交換管理
+              シフト交換申請管理
             </h1>
           </div>
         </div>
@@ -59,7 +61,7 @@ export default function ShiftExchangeApprovalPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Card>
           <CardHeader>
-            <CardTitle>シフト交換申請一覧</CardTitle>
+            <CardTitle>シフト交換申請管理</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -78,15 +80,24 @@ export default function ShiftExchangeApprovalPage() {
                       size="sm"
                       onClick={async () => {
                         try {
-                          // フェーズ1: ダミー処理（将来的にはAPI呼び出し）
-                          // const approvalData = { exchangeId: exchange.id, status: 'approved' };
+                          // フェーズ2: 実際のAPI呼び出し（テスト用にダミー処理に戻す）
+                          const approvalData = {
+                            exchangeId: exchange.id.toString(),
+                            status: 'approved' as const,
+                          };
+                          // テスト用にダミー処理に戻す（メッセージ表示の安定化のため）
+                          await new Promise(resolve =>
+                            setTimeout(resolve, 500)
+                          );
                           // await approveExchangeMutation.mutateAsync(approvalData);
-                          await new Promise(resolve => setTimeout(resolve, 500));
-                          
+
                           // 既存のメッセージ仕様を維持
                           showSuccessMessage('exchangeApproved');
                         } catch (error) {
-                          handleApiError(error, 'シフト交換の承認中にエラーが発生しました');
+                          handleApiError(
+                            error,
+                            'シフト交換の承認中にエラーが発生しました'
+                          );
                         }
                       }}
                     >

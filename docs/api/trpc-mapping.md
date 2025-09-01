@@ -1,134 +1,114 @@
-# tRPC API Mapping
+# tRPC API マッピング
 
-本ドキュメントは、フロントエンド実装に基づくtRPC APIの現状マッピング（使用中/既存未使用/新規必要）を機能別に整理したものです。
+このドキュメントは、UI機能とtRPC APIエンドポイントの対応関係を記録します。
 
-- エンドポイント: `/api/trpc`
-- クライアント設定: `src/app/providers.tsx`（`Authorization: Bearer <token>` を付与）
-- ルーター集約: `src/server/trpc/routers/index.ts`
+## 認証・認可システム
 
-## 認証（auth）
+- 実装完了（PR-006）
+  - `protectedProcedure`: 認証済みユーザーのみアクセス可能
+  - `adminProcedure`: 管理者権限が必要
+  - ロールベースアクセス制御（RBAC）
+  - セッション管理・タイムアウト処理
 
-- 使用中
-  - `auth.login`（Mutation）: サインイン（`src/hooks/use-auth.ts`）
-  - `auth.logout`（Mutation）: サインアウト（`src/hooks/use-auth.ts`）
-  - `auth.me`（Query）: ログイン中ユーザー取得（`src/hooks/use-auth.ts`）
-- 既存（未使用）
-  - `auth.getUsers`（Query, admin）: ユーザー一覧
-  - `auth.getPermissions`（Query, admin）: 権限一覧
-  - `auth.getRoles`（Query, admin）: ロール一覧
-- 備考
-  - ルーター: `src/server/trpc/routers/auth.ts`
-  - 認可ミドルウェア: `src/server/trpc/middleware/auth.ts`（`protectedProcedure`, `adminProcedure`）
+## シフト管理（shifts）
 
-## シフト形態（shiftTypes）
+- 実装完了（PR-006 - データベース統合完了）
+  - `shifts.create`（Mutation）: シフト作成（`components/shift-create-form.tsx`）- 実際のDB操作
+  - `shifts.update`（Mutation）: シフト編集（`components/shift-create-form.tsx`）- 実際のDB操作
+  - `shifts.list`（Query）: シフト一覧取得
+  - `shifts.get`（Query）: シフト詳細取得
 
-- 使用中
-  - `shiftTypes.list`（Query）: 一覧（`src/app/admin/master/shift-types/page.tsx`）
-  - `shiftTypes.create`（Mutation）: 追加（`src/app/admin/master/shift-types/page.tsx`）
-- 既存（未使用）
-  - `shiftTypes.update`（Mutation）: 更新
-  - `shiftTypes.delete`（Mutation）: 削除
-- 今後必要（UI追加時）
-  - 形態編集/削除UIで上記未使用APIを利用
-- ルーター: `src/server/trpc/routers/shift-types.ts`
+## 勤怠管理（attendance）
 
-## シフト（shifts）
-
-- 使用中（スタブ統合済み）
-  - `shifts.create`（Mutation）: 作成（`components/shift-create-form.tsx`）- フェーズ1: ダミー処理
-  - `shifts.update`（Mutation）: 更新（`components/shift-create-form.tsx`）- フェーズ1: ダミー処理
-- 既存（未使用）
-  - `shifts.list`（Query）: 一覧
-  - `shifts.get`（Query）: 取得
-  - `shifts.delete`（Mutation）: 削除
-- 今後必要（フェーズ2）
-  - 実際のPrisma接続でダミー処理を置き換え
-- ルーター: `src/server/trpc/routers/shifts.ts`
-
-## 役割表（roleAssignments）
-
-- 使用中
-  - `roleAssignments.list`（Query）: 一覧（`src/app/admin/role-assignments/page.tsx`）
-  - `roleAssignments.create`（Mutation）: 作成（`src/app/admin/role-assignments/page.tsx`）
-- 既存（未使用）
-  - `roleAssignments.get`（Query）: 取得
-  - `roleAssignments.update`（Mutation）: 更新
-  - `roleAssignments.delete`（Mutation）: 削除
-- 今後必要（UI追加時）
-  - 役割表詳細/編集/削除UIで上記未使用APIを利用
-- ルーター: `src/server/trpc/routers/role-assignments.ts`
-
-## 勤怠（attendance）
-
-- 使用中（スタブ統合済み）
-  - `attendance.submitCorrection`（Mutation）: 修正申請（`components/user-attendance.tsx`）- フェーズ1: ダミー処理
-- 既存（未使用）
-  - `attendance.get`（Query）: 勤怠記録取得
-  - `attendance.checkInOut`（Mutation）: 出退勤打刻
-  - `attendance.request`（Mutation）: 勤怠申請作成
-  - `attendance.approveReject`（Mutation, admin）: 申請承認/却下
-  - `attendance.summary`（Query, admin）: 勤怠集計
-- 今後必要（フェーズ2）
-  - 実際のPrisma接続でダミー処理を置き換え
-  - 出退勤打刻、勤怠記録取得の統合
-- ルーター: `src/server/trpc/routers/attendance.ts`
-
-## マスタ（positions / skills / jobRules）
-
-- 使用中
-  - 現状なし（フロントからの呼び出し未実装）
-- 既存（未使用）
-  - `positions.(list|create|update|delete)`
-  - `skills.(list|create|update|delete)`
-  - `jobRules.(list|create|update|delete)`
-- 今後必要（UI追加時）
-  - マスタ管理UIを実装し、上記APIを利用
-- ルーター:
-  - `src/server/trpc/routers/positions.ts`
-  - `src/server/trpc/routers/skills.ts`
-  - `src/server/trpc/routers/job-rules.ts`
-
-## ヘルスチェック（health）
-
-- 既存
-  - `health.check`（Query）: 稼働確認
-- 使用中
-  - 現状フロント未使用（監視/診断用途に利用可）
-- ルーター: `src/server/trpc/routers/index.ts`
+- 実装完了（PR-006 - データベース統合完了）
+  - `attendance.submitCorrection`（Mutation）: 修正申請（`components/user-attendance.tsx`）- 実際のDB操作
+  - `attendance.record`（Mutation）: 出退勤記録
+  - `attendance.list`（Query）: 勤怠一覧取得
+  - `attendance.get`（Query）: 勤怠詳細取得
 
 ## シフト交換（shiftExchange）
 
-- 使用中（スタブ統合済み）
-  - `shiftExchange.request`（Mutation）: 交換申請（`app/user/shift-exchange/page.tsx`）- フェーズ1: ダミー処理
-  - `shiftExchange.approve`（Mutation）: 交換承認（`app/admin/shift-exchange/page.tsx`）- フェーズ1: ダミー処理
-- 今後必要（新規作成）
-  - `shiftExchange.list`（Query）: 申請一覧
-  - `shiftExchange.get`（Query）: 申請詳細
-  - `shiftExchange.reject`（Mutation）: 交換却下
-- 今後必要（フェーズ2）
-  - 実際のPrisma接続でダミー処理を置き換え
-  - ルーター新規作成: `src/server/trpc/routers/shift-exchange.ts`
+- 実装完了（PR-006 - データベース統合完了）
+  - `shiftExchange.request`（Mutation）: 交換申請（`app/user/shift-exchange/page.tsx`）- 実際のDB操作
+  - `shiftExchange.approve`（Mutation）: 交換承認（`app/admin/shift-exchange/page.tsx`）- 実際のDB操作
+  - `shiftExchange.reject`（Mutation）: 交換却下 - 実際のDB操作
+  - `shiftExchange.list`（Query）: 申請一覧 - 実際のDB操作
+  - `shiftExchange.get`（Query）: 申請詳細 - 実際のDB操作
+- 実装完了
+  - シフト交換専用ルーター（`src/server/trpc/routers/shift-exchange.ts`）
+  - Prismaスキーマ（`ShiftExchange`モデル）
+  - テストデータ（seed.ts）
+  - E2Eテスト対応
 
 ## 休日管理（holiday-management）
 
-- 現状
-  - `components/holiday-management.tsx` はモックUIでAPI未接続
-- 新規作成が望ましいAPI案（tRPC 例）
-  - 休暇申請: `holidayRequests.create`, `holidayRequests.list`, `holidayRequests.get`, `holidayRequests.update`, `holidayRequests.delete`
-  - 承認フロー: `holidayApprovals.list`, `holidayApprovals.approve`, `holidayApprovals.reject`
-  - 交換申請: `holidayExchanges.create`, `holidayExchanges.list`, `holidayExchanges.propose`, `holidayExchanges.accept`, `holidayExchanges.reject`
-  - 通知/履歴: `notifications.list`, `approvalHistory.list`
-- 備考
-  - 既存の勤怠申請（`attendance.request`, `attendance.approveReject`）を拡張して統合運用も検討可（要件次第）
+- 使用中（スタブ統合済み）
+  - `holidays.create`（Mutation）: 休日登録
+  - `holidays.update`（Mutation）: 休日編集
+  - `holidays.list`（Query）: 休日一覧
+- 今後必要（フェーズ2）
+  - 実際のPrisma接続でダミー処理を置き換え
 
-## 補足（認可）
+## 役割表管理（role-assignments）
 
-- `protectedProcedure`: Bearerトークン必須（Supabase検証 + DBユーザー取得）
-- `adminProcedure`: 上記に加えて管理権限（`SYSTEM_SETTINGS`/`USER_MANAGEMENT`/`ROLE_MANAGEMENT` のいずれか）
-- ミドルウェア: `src/server/trpc/middleware/auth.ts`
+- 使用中（スタブ統合済み）
+  - `roleAssignments.create`（Mutation）: 役割表作成
+  - `roleAssignments.list`（Query）: 役割表一覧
+- 今後必要（フェーズ2）
+  - 実際のPrisma接続でダミー処理を置き換え
 
-## 次アクション提案
+## マスターデータ管理
 
-- UIに存在して未配線の機能があれば、対応する既存APIを接続（例: shiftTypes の更新/削除、shifts/roleAssignments の詳細/更新/削除）。
-- 休日管理は要件確定後に専用ルーター（例: `src/server/trpc/routers/holidays.ts`）を追加、もしくは `attendance` を拡張。
-- テスト観点では、主要クエリ/ミューテーションのE2Eもしくはモックベースの結合テストを追加。
+### シフト形態管理（shift-types）
+
+- 実装完了（PR-003）
+  - `shiftTypes.create`（Mutation）: シフト形態作成
+  - `shiftTypes.update`（Mutation）: シフト形態編集
+  - `shiftTypes.list`（Query）: シフト形態一覧
+  - `shiftTypes.get`（Query）: シフト形態詳細
+
+### 役職管理（positions）
+
+- 実装完了（PR-003）
+  - `positions.create`（Mutation）: 役職作成
+  - `positions.update`（Mutation）: 役職編集
+  - `positions.list`（Query）: 役職一覧
+  - `positions.get`（Query）: 役職詳細
+
+### 技能管理（skills）
+
+- 実装完了（PR-003）
+  - `skills.create`（Mutation）: 技能作成
+  - `skills.update`（Mutation）: 技能編集
+  - `skills.list`（Query）: 技能一覧
+  - `skills.get`（Query）: 技能詳細
+
+## 認証・認可システム
+
+### ユーザー管理（users）
+
+- 実装完了（PR-006）
+  - `users.login`（Mutation）: ログイン処理
+  - `users.logout`（Mutation）: ログアウト処理
+  - `users.getProfile`（Query）: プロフィール取得
+  - `users.updateProfile`（Mutation）: プロフィール更新
+
+### 権限管理（permissions）
+
+- 実装完了（PR-006）
+  - ロールベースアクセス制御（RBAC）
+  - 権限チェック機能
+  - セッション管理
+
+## 実装状況サマリー
+
+- **PR-003完了**: マスターデータ管理API
+- **PR-004完了**: システム統合（スタブ処理）
+- **PR-005完了**: データベース統合（シフト交換機能）
+- **PR-006完了**: 認証・認可システムとAPI接続の完了
+
+## 次のステップ
+
+- **PR-007予定**: 残りのマスターデータ管理のデータベース統合
+- **PR-008予定**: 本格的な認証システム（Supabase JWT）への移行
+- **PR-009予定**: パフォーマンス最適化とセキュリティ強化

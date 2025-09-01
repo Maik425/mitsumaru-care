@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -36,7 +36,9 @@ export default function RoleManagementPage() {
                 ダッシュボードに戻る
               </Button>
             </Link>
-            <h1 className="text-xl font-semibold text-gray-900 ml-4">役割表管理</h1>
+            <h1 className="text-xl font-semibold text-gray-900 ml-4">
+              役割表管理
+            </h1>
           </div>
         </div>
       </header>

@@ -1,3 +1,8 @@
+---
+description: Always load core context
+alwaysApply: true
+---
+
 # みつまるケア プロジェクトルール
 
 ## 🚀 技術スタック

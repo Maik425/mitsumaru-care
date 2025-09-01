@@ -7,6 +7,8 @@ import { jobRulesRouter } from './job-rules';
 import { shiftsRouter } from './shifts';
 import { roleAssignmentsRouter } from './role-assignments';
 import { attendanceRouter } from './attendance';
+import { shiftExchangeRouter } from './shift-exchange';
+import { holidaysRouter } from './holidays';
 
 // 基本的なヘルスチェックルーター
 export const appRouter = router({
@@ -27,6 +29,8 @@ export const appRouter = router({
   shifts: shiftsRouter,
   roleAssignments: roleAssignmentsRouter,
   attendance: attendanceRouter,
+  shiftExchange: shiftExchangeRouter,
+  holidays: holidaysRouter,
 });
 
 export type AppRouter = typeof appRouter;
