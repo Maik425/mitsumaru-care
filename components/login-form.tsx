@@ -44,6 +44,15 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
+      // 空入力バリデーション
+      const messages: string[] = [];
+      if (!email) messages.push('メールアドレスを入力してください');
+      if (!password) messages.push('パスワードを入力してください');
+      if (messages.length > 0) {
+        setError(messages.join('\n'));
+        setIsLoading(false);
+        return;
+      }
       // アカウントロックチェック
       if (isLocked) {
         if (captchaInput !== captchaAnswer) {
@@ -148,7 +157,9 @@ export function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {error && (
             <div className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md">
-              {error}
+              {error.split('\n').map((line, idx) => (
+                <div key={idx}>{line}</div>
+              ))}
             </div>
           )}
           <div className="space-y-2">
@@ -159,7 +170,6 @@ export function LoginForm() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="example@mitsumaru.com"
-              required
               disabled={isLoading}
             />
           </div>
@@ -171,7 +181,6 @@ export function LoginForm() {
               value={password}
               onChange={e => setPassword(e.target.value)}
               placeholder="パスワードを入力"
-              required
               disabled={isLoading}
             />
           </div>
@@ -207,9 +216,9 @@ export function LoginForm() {
           </Button>
         </form>
         <div className="mt-4 text-sm text-gray-600 text-center">
-          <p>テスト用アカウント:</p>
-          <p>管理者: admin@mitsumaru-care.com / admin123</p>
-          <p>施設長: owner@mitsumaru-care.com / owner123</p>
+          <p>テスト用アカウント</p>
+          <p>システム管理者: admin@mitsumaru-care.com / admin123</p>
+          <p>施設管理者: owner@mitsumaru-care.com / owner123</p>
           <p>一般職員: employee@mitsumaru-care.com / employee123</p>
           <p>看護師: nurse@mitsumaru-care.com / nurse123</p>
         </div>

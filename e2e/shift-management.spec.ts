@@ -125,7 +125,7 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
       await expect(page.getByText(/職員情報/)).toBeVisible();
 
       // 対象月を選択
-      await page.getByLabel(/対象月/).selectOption('2025-03');
+      await page.getByLabel(/対象月/).fill('2025-03');
 
       // 基本要件を設定
       await page.getByLabel(/早番/).fill('2');
@@ -139,7 +139,7 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
 
       // 生成結果が表示されることを確認
       await expect(page.getByText(/シフトが生成されました/)).toBeVisible();
-      await expect(page.locator('table')).toBeVisible();
+      await expect(page.getByTestId('shift-table')).toBeVisible();
     });
 
     test('シフト編集・調整', async ({ page }) => {
@@ -159,10 +159,10 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
       await firstCell.click();
 
       // シフト形態を変更
-      await page.getByRole('combobox').selectOption('遅番');
+      await page.getByTestId('detail-shift-select').selectOption('遅番');
 
       // 変更を保存
-      await page.getByRole('button', { name: /保存/ }).click();
+      await page.getByTestId('detail-save-button').click();
 
       // 保存完了メッセージが表示されることを確認
       await expect(page.getByText(/保存されました/)).toBeVisible();
@@ -391,12 +391,17 @@ test.describe('みつまるケアシステム - E2Eテスト', () => {
       await page.getByLabel('パスワード').fill(testUsers.admin.password);
       await page.getByRole('button', { name: 'ログイン' }).click();
 
+      // まずオンライン状態でページに移動（Service Worker登録のため）
+      await page.goto('/admin/shifts');
+
+      // Service Workerの登録を待つ
+      await page.waitForTimeout(1000);
+
       // ネットワークエラーをシミュレート（オフライン状態）
       await page.context().setOffline(true);
 
-      // シフト作成を試行
-      await page.goto('/admin/shifts');
-      await page.getByRole('button', { name: /シフト作成/ }).click();
+      // オフライン状態でページを再読み込み
+      await page.reload();
 
       // エラーメッセージが適切に表示されることを確認
       await expect(

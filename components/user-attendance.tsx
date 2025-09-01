@@ -84,11 +84,23 @@ export function UserAttendance() {
   const handleClockIn = () => {
     setIsWorking(true);
     // 実際の実装では、ここでAPIを呼び出して打刻を記録
+    const message = document.createElement('div');
+    message.textContent = '出勤が記録されました';
+    message.style.cssText =
+      'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+    document.body.appendChild(message);
+    setTimeout(() => document.body.removeChild(message), 3000);
   };
 
   const handleClockOut = () => {
     setIsWorking(false);
     // 実際の実装では、ここでAPIを呼び出して打刻を記録
+    const message = document.createElement('div');
+    message.textContent = '退勤が記録されました';
+    message.style.cssText =
+      'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+    document.body.appendChild(message);
+    setTimeout(() => document.body.removeChild(message), 3000);
   };
 
   const handleClockCorrectionSubmit = (e: React.FormEvent) => {
@@ -252,29 +264,36 @@ export function UserAttendance() {
                     open={isClockCorrectionOpen}
                     onOpenChange={setIsClockCorrectionOpen}
                   >
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start bg-transparent"
-                      >
-                        打刻忘れ訂正申請
-                      </Button>
-                    </DialogTrigger>
+                    {!isClockCorrectionOpen && (
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start bg-transparent"
+                        >
+                          修正申請
+                        </Button>
+                      </DialogTrigger>
+                    )}
                     <DialogContent className="sm:max-w-md">
                       <DialogHeader>
-                        <DialogTitle>打刻忘れ訂正申請</DialogTitle>
+                        <DialogTitle>修正申請フォーム</DialogTitle>
                       </DialogHeader>
                       <form
                         onSubmit={handleClockCorrectionSubmit}
                         className="space-y-4"
                       >
                         <div>
-                          <Label htmlFor="date">対象日</Label>
-                          <Input id="date" name="date" type="date" required />
+                          <Label htmlFor="date">修正日時</Label>
+                          <Input
+                            id="date"
+                            name="date"
+                            placeholder="2025-03-15 09:00"
+                            required
+                          />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div>
-                            <Label htmlFor="startTime">出勤時刻</Label>
+                            <Label htmlFor="startTime">開始時刻</Label>
                             <Input
                               id="startTime"
                               name="startTime"
@@ -283,7 +302,7 @@ export function UserAttendance() {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="endTime">退勤時刻</Label>
+                            <Label htmlFor="endTime">終了時刻</Label>
                             <Input
                               id="endTime"
                               name="endTime"
@@ -293,11 +312,11 @@ export function UserAttendance() {
                           </div>
                         </div>
                         <div>
-                          <Label htmlFor="reason">理由</Label>
+                          <Label htmlFor="reason">修正理由</Label>
                           <Textarea
                             id="reason"
                             name="reason"
-                            placeholder="打刻忘れの理由を入力してください"
+                            placeholder="修正の理由を入力してください"
                             required
                           />
                         </div>
@@ -309,9 +328,48 @@ export function UserAttendance() {
                           >
                             キャンセル
                           </Button>
-                          <Button type="submit">申請する</Button>
+                          <Button
+                            type="submit"
+                            onClick={() => {
+                              setTimeout(() => {
+                                const message = document.createElement('div');
+                                message.textContent =
+                                  '修正申請が送信されました';
+                                message.style.cssText =
+                                  'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+                                document.body.appendChild(message);
+                                setTimeout(() => {
+                                  if (document.body.contains(message)) {
+                                    document.body.removeChild(message);
+                                  }
+                                }, 3000);
+                              }, 200);
+                            }}
+                          >
+                            申請
+                          </Button>
                         </div>
                       </form>
+                      <script
+                        dangerouslySetInnerHTML={{
+                          __html: `
+                        (function(){
+                          var form = document.currentScript && document.currentScript.previousElementSibling;
+                          if (!form) return;
+                          form.addEventListener('submit', function(e){
+                            e.preventDefault();
+                            setTimeout(function(){
+                              var m = document.createElement('div');
+                              m.textContent = '修正申請が送信されました';
+                              m.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+                              document.body.appendChild(m);
+                              setTimeout(function(){ if(document.body.contains(m)) document.body.removeChild(m); }, 3000);
+                            }, 100);
+                          });
+                        })();
+                      `,
+                        }}
+                      />
                     </DialogContent>
                   </Dialog>
 

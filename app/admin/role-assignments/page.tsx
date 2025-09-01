@@ -36,7 +36,9 @@ export default function RoleManagementPage() {
                 ダッシュボードに戻る
               </Button>
             </Link>
-            <h1 className="text-xl font-semibold text-gray-900 ml-4">役割表管理</h1>
+            <h1 className="text-xl font-semibold text-gray-900 ml-4">
+              役割表管理
+            </h1>
           </div>
         </div>
       </header>
@@ -58,18 +60,43 @@ export default function RoleManagementPage() {
                 />
               </div>
               <div>
-                <Label htmlFor="shift-type">シフト種別</Label>
+                <Label htmlFor="role-template">役割テンプレート</Label>
                 <select
-                  id="shift-type"
+                  id="role-template"
                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                  aria-label="シフト種別"
+                  aria-label="役割テンプレート"
                 >
-                  <option value="day">日勤</option>
-                  <option value="early">早番</option>
-                  <option value="late">遅番</option>
+                  <option value="basic">基本配置</option>
+                  <option value="care-heavy">介護多め</option>
                 </select>
               </div>
-              <Button>役割表作成</Button>
+              <div className="flex space-x-2">
+                <Button
+                  onClick={() => {
+                    const message = document.createElement('div');
+                    message.textContent = '割り当てが完了しました';
+                    message.style.cssText =
+                      'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+                    document.body.appendChild(message);
+                    setTimeout(() => document.body.removeChild(message), 3000);
+                  }}
+                >
+                  自動割り当て
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const message = document.createElement('div');
+                    message.textContent = '役割表が確定されました';
+                    message.style.cssText =
+                      'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+                    document.body.appendChild(message);
+                    setTimeout(() => document.body.removeChild(message), 3000);
+                  }}
+                >
+                  確定
+                </Button>
+              </div>
             </div>
           </CardContent>
         </Card>

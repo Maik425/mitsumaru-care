@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,6 +28,12 @@ import Link from 'next/link';
 export function AttendanceManagement() {
   const [selectedDate, setSelectedDate] = useState('2024-02-01');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [showSummary, setShowSummary] = useState(false);
+
+  useEffect(() => {
+    const id = setTimeout(() => setShowSummary(true), 1500);
+    return () => clearTimeout(id);
+  }, []);
 
   const currentlyWorkingStaff = [
     {
@@ -275,7 +281,7 @@ export function AttendanceManagement() {
               </Button>
             </Link>
             <h1 className="text-xl font-semibold text-gray-900 ml-4">
-              勤怠確認
+              勤怠管理
             </h1>
           </div>
         </div>
@@ -295,7 +301,7 @@ export function AttendanceManagement() {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                <table className="w-full">
+                <table className="w-full" data-testid="attendance-table">
                   <thead>
                     <tr className="border-b">
                       <th className="text-left py-2 px-3 font-medium text-gray-900">
@@ -493,6 +499,7 @@ export function AttendanceManagement() {
                           <Button
                             size="sm"
                             className="bg-green-600 hover:bg-green-700"
+                            onClick={() => alert('承認されました')}
                           >
                             承認
                           </Button>
@@ -500,6 +507,7 @@ export function AttendanceManagement() {
                             size="sm"
                             variant="outline"
                             className="text-red-600 border-red-600 hover:bg-red-50 bg-transparent"
+                            onClick={() => alert('却下しました')}
                           >
                             却下
                           </Button>
@@ -575,115 +583,123 @@ export function AttendanceManagement() {
               </CardContent>
             </Card>
 
-            <Card className="mt-6">
-              <CardHeader>
-                <CardTitle className="flex items-center">
-                  <Users className="h-5 w-5 mr-2" />
-                  職員一覧 - 2024年2月 月次統計
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead>
-                      <tr className="border-b">
-                        <th className="text-left py-3 px-4 font-medium text-gray-900">
-                          職員名
-                        </th>
-                        <th className="text-left py-3 px-4 font-medium text-gray-900">
-                          職種
-                        </th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-900">
-                          総出勤時間
-                        </th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-900">
-                          総残業時間
-                        </th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-900">
-                          公休数
-                        </th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-900">
-                          出勤数
-                        </th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-900">
-                          欠勤数
-                        </th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-900">
-                          残有給数
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {staffMonthlyStats.map(staff => (
-                        <tr
-                          key={staff.id}
-                          className="border-b hover:bg-gray-50"
-                        >
-                          <td className="py-3 px-4">
-                            <div className="flex items-center space-x-3">
-                              <User className="h-4 w-4 text-gray-500" />
-                              <span className="font-medium">{staff.name}</span>
-                            </div>
-                          </td>
-                          <td className="py-3 px-4 text-gray-600">
-                            {staff.position}
-                          </td>
-                          <td className="py-3 px-4 text-center font-medium text-blue-600">
-                            {staff.totalWorkHours}
-                          </td>
-                          <td className="py-3 px-4 text-center font-medium text-orange-600">
-                            {staff.totalOvertimeHours}
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            {staff.publicHolidays}日
-                          </td>
-                          <td className="py-3 px-4 text-center font-medium text-green-600">
-                            {staff.workDays}日
-                          </td>
-                          <td className="py-3 px-4 text-center">
-                            <span
-                              className={
-                                staff.absentDays > 0
-                                  ? 'font-medium text-red-600'
-                                  : 'text-gray-600'
-                              }
-                            >
-                              {staff.absentDays}日
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-center font-medium text-purple-600">
-                            {staff.remainingPaidLeave}日
-                          </td>
+            {showSummary && (
+              <Card className="mt-6">
+                <CardHeader>
+                  <CardTitle className="flex items-center">
+                    <Users className="h-5 w-5 mr-2" />
+                    職員一覧 - 2024年2月 月次統計
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-x-auto">
+                    <table
+                      className="w-full"
+                      data-testid="monthly-summary-table"
+                      aria-hidden="true"
+                    >
+                      <thead>
+                        <tr className="border-b">
+                          <th className="text-left py-3 px-4 font-medium text-gray-900">
+                            職員名
+                          </th>
+                          <th className="text-left py-3 px-4 font-medium text-gray-900">
+                            職種
+                          </th>
+                          <th className="text-center py-3 px-4 font-medium text-gray-900">
+                            総出勤時間
+                          </th>
+                          <th className="text-center py-3 px-4 font-medium text-gray-900">
+                            総残業時間
+                          </th>
+                          <th className="text-center py-3 px-4 font-medium text-gray-900">
+                            公休数
+                          </th>
+                          <th className="text-center py-3 px-4 font-medium text-gray-900">
+                            出勤数
+                          </th>
+                          <th className="text-center py-3 px-4 font-medium text-gray-900">
+                            欠勤数
+                          </th>
+                          <th className="text-center py-3 px-4 font-medium text-gray-900">
+                            残有給数
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {staffMonthlyStats.map(staff => (
+                          <tr
+                            key={staff.id}
+                            className="border-b hover:bg-gray-50"
+                          >
+                            <td className="py-3 px-4">
+                              <div className="flex items-center space-x-3">
+                                <User className="h-4 w-4 text-gray-500" />
+                                <span className="font-medium">
+                                  {staff.name}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="py-3 px-4 text-gray-600">
+                              {staff.position}
+                            </td>
+                            <td className="py-3 px-4 text-center font-medium text-blue-600">
+                              {staff.totalWorkHours}
+                            </td>
+                            <td className="py-3 px-4 text-center font-medium text-orange-600">
+                              {staff.totalOvertimeHours}
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              {staff.publicHolidays}日
+                            </td>
+                            <td className="py-3 px-4 text-center font-medium text-green-600">
+                              {staff.workDays}日
+                            </td>
+                            <td className="py-3 px-4 text-center">
+                              <span
+                                className={
+                                  staff.absentDays > 0
+                                    ? 'font-medium text-red-600'
+                                    : 'text-gray-600'
+                                }
+                              >
+                                {staff.absentDays}日
+                              </span>
+                            </td>
+                            <td className="py-3 px-4 text-center font-medium text-purple-600">
+                              {staff.remainingPaidLeave}日
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-                <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center p-3 bg-blue-50 rounded">
-                    <p className="text-xl font-bold text-blue-600">
-                      824時間50分
-                    </p>
-                    <p className="text-sm text-blue-600">総出勤時間</p>
+                  <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-3 bg-blue-50 rounded">
+                      <p className="text-xl font-bold text-blue-600">
+                        824時間50分
+                      </p>
+                      <p className="text-sm text-blue-600">総出勤時間</p>
+                    </div>
+                    <div className="text-center p-3 bg-orange-50 rounded">
+                      <p className="text-xl font-bold text-orange-600">
+                        53時間20分
+                      </p>
+                      <p className="text-sm text-orange-600">総残業時間</p>
+                    </div>
+                    <div className="text-center p-3 bg-green-50 rounded">
+                      <p className="text-xl font-bold text-green-600">99日</p>
+                      <p className="text-sm text-green-600">総出勤日数</p>
+                    </div>
+                    <div className="text-center p-3 bg-purple-50 rounded">
+                      <p className="text-xl font-bold text-purple-600">75日</p>
+                      <p className="text-sm text-purple-600">総残有給数</p>
+                    </div>
                   </div>
-                  <div className="text-center p-3 bg-orange-50 rounded">
-                    <p className="text-xl font-bold text-orange-600">
-                      53時間20分
-                    </p>
-                    <p className="text-sm text-orange-600">総残業時間</p>
-                  </div>
-                  <div className="text-center p-3 bg-green-50 rounded">
-                    <p className="text-xl font-bold text-green-600">99日</p>
-                    <p className="text-sm text-green-600">総出勤日数</p>
-                  </div>
-                  <div className="text-center p-3 bg-purple-50 rounded">
-                    <p className="text-xl font-bold text-purple-600">75日</p>
-                    <p className="text-sm text-purple-600">総残有給数</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </main>

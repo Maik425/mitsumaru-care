@@ -226,17 +226,16 @@ export function AdminDashboard() {
             ダッシュボード
           </h1>
           <div className="ml-auto">
-            <Link href="/" data-testid="header-logout">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex items-center gap-2 bg-transparent"
-                onClick={handleLogout}
-              >
-                <LogOut className="h-4 w-4" />
-                ログアウト
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 bg-transparent"
+              data-testid="header-logout"
+              onClick={handleLogout}
+            >
+              <LogOut className="h-4 w-4" />
+              ログアウト
+            </Button>
           </div>
         </header>
 

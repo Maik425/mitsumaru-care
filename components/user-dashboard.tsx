@@ -80,10 +80,11 @@ export function UserDashboard() {
     return <div>読み込み中...</div>;
   }
 
-  const menuItems = [
-    { name: '勤怠管理', href: '/user/attendance', icon: Clock },
-    { name: '希望休管理', href: '/user/holidays', icon: Calendar },
-  ];
+        const menuItems = [
+        { name: '勤怠管理', href: '/user/attendance', icon: Clock },
+        { name: '希望休管理', href: '/user/holidays', icon: Calendar },
+        { name: 'シフト交換', href: '/user/shift-exchange', icon: Calendar },
+      ];
 
   return (
     <SidebarProvider>
@@ -133,10 +134,15 @@ export function UserDashboard() {
                 </SidebarMenuItem>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild>
-                    <Link href="/">
+                    <Button
+                      variant="ghost"
+                      onClick={handleLogout}
+                      data-testid="header-logout"
+                      className="w-full justify-start"
+                    >
                       <LogOut className="h-4 w-4" />
                       <span>ログアウト</span>
-                    </Link>
+                    </Button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -158,7 +164,7 @@ export function UserDashboard() {
         <main className="flex-1 p-6">
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              一般職ダッシュボード
+              一般職員ダッシュボード
             </h2>
             <p className="text-gray-600">
               お疲れ様です！今日も一日頑張りましょう

@@ -27,6 +27,17 @@ html {
         `}</style>
       </head>
       <body>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+          if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+              navigator.serviceWorker.register('/sw.js').catch(function(){});
+            });
+          }
+        `,
+          }}
+        />
         <Providers>{children}</Providers>
       </body>
     </html>

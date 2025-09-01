@@ -1135,6 +1135,11 @@ export function RoleManagement() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-900">役割表作成</h2>
+          <p className="text-gray-600 mt-1">日別の職員役割表を作成・編集します</p>
+        </div>
+        
         {notification && (
           <div className="mb-6">
             <Alert

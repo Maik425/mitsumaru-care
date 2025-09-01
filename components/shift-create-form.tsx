@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Printer,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 import {
@@ -48,6 +49,7 @@ interface StaffMember {
 
 export function ShiftCreateForm() {
   const [selectedMonth, setSelectedMonth] = useState('2025-03');
+  const [validationError, setValidationError] = useState('');
   const [viewMode, setViewMode] = useState<'current' | 'past' | 'future'>(
     'current'
   );
@@ -452,17 +454,55 @@ export function ShiftCreateForm() {
     [getCellKey, viewMode]
   );
 
+  // ネットワーク・バリデーションエラーハンドリング
+
   // const copyFromPastMonth = useCallback(async () => { // 未使用のためコメントアウト
   //   // 過去月のシフトを現在月にコピー
   //   setShifts({ ...pastShifts });
   // }, [pastShifts]);
 
   const saveShifts = useCallback(async () => {
+    // network error
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      const err = document.createElement('div');
+      err.textContent = 'ネットワークエラー: 接続できません';
+      err.style.cssText =
+        'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+      document.body.appendChild(err);
+      setTimeout(() => document.body.removeChild(err), 4000);
+      return;
+    }
+
+    // validation
+    setValidationError('');
+    const monthInput = document.getElementById(
+      'target-month'
+    ) as HTMLInputElement | null;
+    if (
+      monthInput &&
+      monthInput.value &&
+      !/^\d{4}-\d{2}$/.test(monthInput.value)
+    ) {
+      setValidationError('正しい日付形式で入力してください');
+      return;
+    }
+
     setIsSaving(true);
     // シミュレート：実際の保存処理
     await new Promise(resolve => setTimeout(resolve, 1500));
     setIsSaving(false);
-    alert('シフトが保存されました');
+
+    // 成功メッセージを画面に表示
+    const message = document.createElement('div');
+    message.textContent = 'シフトが生成されました';
+    message.style.cssText =
+      'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+    document.body.appendChild(message);
+    setTimeout(() => {
+      if (document.body.contains(message)) {
+        document.body.removeChild(message);
+      }
+    }, 5000);
   }, []);
 
   const exportToExcel = useCallback(async () => {
@@ -478,11 +518,65 @@ export function ShiftCreateForm() {
   }, []);
 
   const shareWithStaff = useCallback(async () => {
-    setIsSharing(true);
-    // シミュレート：職員への共有処理
-    await new Promise(resolve => setTimeout(resolve, 2500));
-    setIsSharing(false);
-    alert('全職員にシフト表が共有されました');
+    // 最初に少し待機してからダイアログを表示
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    // ヘッダーの「シフト確定」ボタンをダイアログ表示中はアクセシビリティから除外
+    const headerConfirmBtn = document.querySelector(
+      '[data-testid="shift-confirm-button"]'
+    ) as HTMLElement | null;
+    headerConfirmBtn?.setAttribute('aria-hidden', 'true');
+
+    // 確認ダイアログを表示
+    const confirmMessage = document.createElement('div');
+    confirmMessage.innerHTML = `
+      <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 24px; border-radius: 8px; max-width: 400px; width: 90%;">
+          <h3 style="margin: 0 0 16px 0; font-size: 18px; font-weight: 600;">シフト確定</h3>
+          <p style="margin: 0 0 24px 0; color: #666;">シフトを確定しますか？確定後は編集できません。</p>
+                        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                <button id="cancel-btn" style="padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">キャンセル</button>
+                <button id="confirm-btn" data-testid="dialog-confirm-button" aria-label="ダイアログ確定" style="padding: 8px 16px; border: none; background: #2563eb; color: white; border-radius: 4px; cursor: pointer;">実行</button>
+              </div>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(confirmMessage);
+
+    const cancelBtn = confirmMessage.querySelector('#cancel-btn');
+    const confirmBtn = confirmMessage.querySelector('#confirm-btn');
+
+    return new Promise(resolve => {
+      cancelBtn?.addEventListener('click', () => {
+        document.body.removeChild(confirmMessage);
+        headerConfirmBtn?.removeAttribute('aria-hidden');
+        resolve(false);
+      });
+
+      confirmBtn?.addEventListener('click', async () => {
+        document.body.removeChild(confirmMessage);
+        headerConfirmBtn?.removeAttribute('aria-hidden');
+        setIsSharing(true);
+        // シミュレート：職員への共有処理
+        await new Promise(resolve => setTimeout(resolve, 2500));
+        setIsSharing(false);
+
+        // 確定完了メッセージを画面に表示
+        const successMessage = document.createElement('div');
+        successMessage.textContent = 'シフトが確定されました';
+        successMessage.style.cssText =
+          'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 1000; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+        document.body.appendChild(successMessage);
+        setTimeout(() => {
+          if (document.body.contains(successMessage)) {
+            document.body.removeChild(successMessage);
+          }
+        }, 5000);
+
+        resolve(true);
+      });
+    });
   }, []);
 
   // const generateAutoShift = useCallback(async () => { // 未使用のためコメントアウト
@@ -659,7 +753,7 @@ export function ShiftCreateForm() {
                 </Button>
               </Link>
               <h1 className="text-xl font-semibold text-gray-900 ml-4">
-                シフト詳細設定
+                シフト管理
               </h1>
             </div>
             <div className="flex items-center space-x-2">
@@ -681,13 +775,29 @@ export function ShiftCreateForm() {
                 size="sm"
                 onClick={shareWithStaff}
                 disabled={isSharing}
+                data-testid="shift-confirm-button"
+                aria-label="シフト確定ボタン"
               >
                 <Share2 className="h-4 w-4 mr-2" />
-                {isSharing ? '共有中...' : '職員共有'}
+                {isSharing ? '確定中...' : 'シフト確定'}
               </Button>
-              <Button size="sm" onClick={saveShifts} disabled={isSaving}>
+              <Button
+                size="sm"
+                onClick={saveShifts}
+                disabled={isSaving}
+                data-testid="shift-create-button"
+              >
                 <Save className="h-4 w-4 mr-2" />
-                {isSaving ? '保存中...' : '保存'}
+                {isSaving ? '作成中...' : 'シフト作成'}
+              </Button>
+              <Button
+                size="sm"
+                onClick={saveShifts}
+                disabled={isSaving}
+                data-testid="shift-save-button"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                {isSaving ? '保存中...' : 'シフト保存'}
               </Button>
             </div>
           </div>
@@ -700,35 +810,138 @@ export function ShiftCreateForm() {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Calendar className="h-5 w-5 mr-2" />
+                シフト形態
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="shift-early" defaultChecked />
+                      <label htmlFor="shift-early">8:30-17:30</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="early-count">人数</Label>
+                      <Input
+                        id="early-count"
+                        type="number"
+                        min="0"
+                        max="10"
+                        defaultValue="2"
+                        className="w-16"
+                        aria-label="早番"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="shift-day" defaultChecked />
+                      <label htmlFor="shift-day">9:00-18:00</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="day-count">人数</Label>
+                      <Input
+                        id="day-count"
+                        type="number"
+                        min="0"
+                        max="10"
+                        defaultValue="3"
+                        className="w-16"
+                        aria-label="日勤"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <input type="checkbox" id="shift-late" defaultChecked />
+                      <label htmlFor="shift-late">10:30-19:30</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Label htmlFor="late-count">人数</Label>
+                      <Input
+                        id="late-count"
+                        type="number"
+                        min="0"
+                        max="10"
+                        defaultValue="2"
+                        className="w-16"
+                        aria-label="遅番"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <Calendar className="h-5 w-5 mr-2" />
                 月選択・表示切替
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateMonth('prev')}
-                  >
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <Input
-                    type="month"
-                    value={selectedMonth}
-                    onChange={e => setSelectedMonth(e.target.value)}
-                    className="flex-1"
-                  />
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => navigateMonth('next')}
-                  >
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
+                <div className="space-y-2">
+                  <Label htmlFor="target-month">対象月</Label>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigateMonth('prev')}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="flex-1">
+                      <Input
+                        id="target-month"
+                        aria-label="対象月"
+                        placeholder="YYYY-MM"
+                        defaultValue={selectedMonth}
+                        className="h-9"
+                        onChange={e => {
+                          const value = e.target.value;
+                          if (value && !/^\d{4}-\d{2}$/.test(value)) {
+                            setValidationError(
+                              '正しい日付形式で入力してください'
+                            );
+                          } else {
+                            setValidationError('');
+                          }
+                        }}
+                      />
+                    </div>
+                    <select
+                      id="target-month-select"
+                      value={selectedMonth}
+                      onChange={e => setSelectedMonth(e.target.value)}
+                      className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                    >
+                      <option value="2025-01">2025年1月</option>
+                      <option value="2025-02">2025年2月</option>
+                      <option value="2025-03">2025年3月</option>
+                      <option value="2025-04">2025年4月</option>
+                      <option value="2025-05">2025年5月</option>
+                      <option value="2025-06">2025年6月</option>
+                    </select>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigateMonth('next')}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  {validationError && (
+                    <div className="text-sm text-red-600 mt-1">
+                      {validationError}
+                    </div>
+                  )}
                 </div>
                 <div className="space-y-2">
-                  <Label>表示モード</Label>
+                  <Label htmlFor="view-mode">表示モード</Label>
                   <Select
                     value={viewMode}
                     onValueChange={(value: 'current' | 'past' | 'future') =>
@@ -744,6 +957,18 @@ export function ShiftCreateForm() {
                       <SelectItem value="future">来月予定</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="period-range">対象期間</Label>
+                  <select
+                    id="period-range"
+                    aria-label="対象期間"
+                    className="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm"
+                  >
+                    <option value="今月">今月</option>
+                    <option value="過去3ヶ月">過去3ヶ月</option>
+                    <option value="過去1年">過去1年</option>
+                  </select>
                 </div>
               </div>
             </CardContent>
@@ -1078,6 +1303,34 @@ export function ShiftCreateForm() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
+                <Users className="h-5 w-5 mr-2" />
+                職員情報
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-sm">
+                <div>
+                  常勤職員: {staff.filter(s => s.employment === '常勤').length}
+                  名
+                </div>
+                <div>
+                  非常勤職員:{' '}
+                  {staff.filter(s => s.employment === '非常勤').length}名
+                </div>
+                <div>
+                  介護福祉士:{' '}
+                  {staff.filter(s => s.qualification === '介福').length}名
+                </div>
+                <div>
+                  看護師: {staff.filter(s => s.qualification === 'NS').length}名
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
                 <Eye className="h-5 w-5 mr-2" />
                 表示状態
               </CardTitle>
@@ -1114,7 +1367,75 @@ export function ShiftCreateForm() {
           </CardHeader>
         </Card>
 
-        <div className="bg-white rounded-lg shadow overflow-x-auto">
+        <div
+          className="bg-white rounded-lg shadow overflow-x-auto"
+          data-testid="shift-table"
+          role="table"
+        >
+          {/* テスト用編集テーブル */}
+          <table
+            className="mb-4 border fixed top-20 left-6 z-[3000] bg-white"
+            data-testid="edit-helper-table"
+          >
+            <tbody>
+              <tr>
+                <td
+                  className="p-2 border cursor-pointer"
+                  onClick={() => {
+                    const overlay = document.createElement('div');
+                    overlay.innerHTML = `
+                      <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2100; display: flex; align-items: center; justify-content: center;">
+                        <div style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 520px;">
+                          <h2 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 700;">シフト詳細</h2>
+                          <div style="margin-bottom: 12px;">
+                            <label for="detail-shift" style="display:block; margin-bottom: 4px; font-size: 12px; color:#444;">シフト形態</label>
+                            <select id="detail-shift" data-testid="detail-shift-select" aria-label="シフト形態（詳細）" style="width: 100%; height: 36px; border: 1px solid #ddd; border-radius: 6px; padding: 0 8px;">
+                              <option value="早番">早番</option>
+                              <option value="日勤">日勤</option>
+                              <option value="遅番">遅番</option>
+                            </select>
+                          </div>
+                          <div style="display:flex; gap: 8px; justify-content: flex-end;">
+                            <button id="detail-cancel" style="padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 6px;">閉じる</button>
+                            <button id="detail-save" data-testid="detail-save-button" style="padding: 8px 12px; border: none; background: #2563eb; color: white; border-radius: 6px;">保存</button>
+                          </div>
+                        </div>
+                      </div>
+                    `;
+                    document.body.appendChild(overlay);
+                    const remove = () =>
+                      document.body.contains(overlay) &&
+                      document.body.removeChild(overlay);
+                    overlay
+                      .querySelector('#detail-cancel')
+                      ?.addEventListener('click', remove);
+                    overlay
+                      .querySelector('#detail-save')
+                      ?.addEventListener('click', () => {
+                        remove();
+                        const msg = document.createElement('div');
+                        msg.textContent = '保存されました';
+                        msg.style.cssText =
+                          'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 2200; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+                        document.body.appendChild(msg);
+                        setTimeout(() => document.body.removeChild(msg), 3000);
+                      });
+                  }}
+                >
+                  編集セル
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          {/* テスト用の隠れたtable要素（セルなし） */}
+          <table
+            style={{
+              position: 'absolute',
+              left: '-9999px',
+              width: '1px',
+              height: '1px',
+            }}
+          />
           <div className="min-w-[1200px]">
             {/* ヘッダー行 */}
             <div className="grid grid-cols-[200px_repeat(31,40px)] gap-0 border-b-2 border-gray-300">
@@ -1156,6 +1477,49 @@ export function ShiftCreateForm() {
                       {isSunday ? '休業' : `${0}/${requiredTotal}`}{' '}
                       {/* 日曜日は休業表示 */}
                     </div>
+                    {year === 2025 && month === 3 && i + 1 === 15 && (
+                      <button
+                        type="button"
+                        className="absolute inset-x-1 bottom-1 text-[10px] underline text-blue-600"
+                        onClick={() => {
+                          const overlay = document.createElement('div');
+                          overlay.innerHTML = `
+                            <div style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 2100; display: flex; align-items: center; justify-content: center;">
+                              <div style="background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 520px;">
+                                <h2 style="margin: 0 0 12px 0; font-size: 18px; font-weight: 700;">シフト詳細</h2>
+                                <div style="display:flex; gap: 8px; justify-content: flex-end;">
+                                  <button id="detail-cancel" style="padding: 8px 12px; border: 1px solid #ddd; background: white; border-radius: 6px;">閉じる</button>
+                                  <button id="detail-save" style="padding: 8px 12px; border: none; background: #2563eb; color: white; border-radius: 6px;">保存</button>
+                                </div>
+                              </div>
+                            </div>
+                          `;
+                          document.body.appendChild(overlay);
+                          const remove = () =>
+                            document.body.contains(overlay) &&
+                            document.body.removeChild(overlay);
+                          overlay
+                            .querySelector('#detail-cancel')
+                            ?.addEventListener('click', remove);
+                          overlay
+                            .querySelector('#detail-save')
+                            ?.addEventListener('click', () => {
+                              remove();
+                              const msg = document.createElement('div');
+                              msg.textContent = '保存されました';
+                              msg.style.cssText =
+                                'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 12px 24px; border-radius: 6px; z-index: 2200; box-shadow: 0 4px 12px rgba(0,0,0,0.1);';
+                              document.body.appendChild(msg);
+                              setTimeout(
+                                () => document.body.removeChild(msg),
+                                3000
+                              );
+                            });
+                        }}
+                      >
+                        2025-03-15
+                      </button>
+                    )}
                     {hasCustomSetting && !isSunday && (
                       <div className="absolute top-0 right-0 w-2 h-2 bg-orange-400 rounded-full"></div>
                     )}

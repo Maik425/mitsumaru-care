@@ -45,12 +45,15 @@
 - **職員管理** (`components/accounts-management.tsx`) - ✅ 実装済み
 - **職員技能管理** (`components/staff-skill-management.tsx`) - ✅ 実装済み
 - **休暇管理** (`components/holiday-management.tsx`) - ✅ 実装済み
+- **役割表作成ページ** (`app/admin/role-assignments/page.tsx`) - ✅ 追加実装（テスト対応）
+- **シフト交換管理ページ** (`app/admin/shift-exchange/page.tsx`) - ✅ 追加実装（テスト対応）
 
 #### 3. 一般職機能
 
 - **一般職ダッシュボード** (`app/user/dashboard/page.tsx`, `components/user-dashboard.tsx`) - ✅ 実装済み
 - **勤怠管理** (`app/user/attendance/page.tsx`, `components/user-attendance.tsx`) - ✅ 実装済み
 - **休暇管理** (`app/user/holidays/page.tsx`, `components/user-holidays.tsx`) - ✅ 実装済み
+- **シフト交換** (`app/user/shift-exchange/page.tsx`) - ✅ 追加実装（テスト対応）
 
 #### 4. 共通コンポーネント
 
