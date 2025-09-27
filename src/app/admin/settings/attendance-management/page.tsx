@@ -1,5 +1,5 @@
-import { AttendanceManagementSettings } from "@/components/attendance-management-settings"
+import { AttendanceManagementSettings } from '@/components/attendance-management-settings';
 
 export default function AttendanceManagementPage() {
-  return <AttendanceManagementSettings />
+  return <AttendanceManagementSettings />;
 }

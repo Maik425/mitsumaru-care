@@ -42,6 +42,7 @@ pnpm exec tsc
 ### 推奨される作業手順
 
 1. **修正前の確認**
+
    ```bash
    pnpm exec tsc
    ```
@@ -52,6 +53,7 @@ pnpm exec tsc
    - 既存コンポーネントの修正
 
 3. **修正後の確認**
+
    ```bash
    pnpm exec tsc
    ```
@@ -64,14 +66,17 @@ pnpm exec tsc
 ## 重要な設定
 
 ### TypeScript設定
+
 - `@/*` エイリアスは `./src/*` を指します
 - 厳密な型チェックが有効になっています
 
 ### Next.js設定
+
 - App Routerを使用
 - TypeScriptエラーは無視されません（開発時は確認が重要）
 
 ### コンポーネント
+
 - shadcn/ui を使用
 - カスタムコンポーネントは `src/components/` に配置
 - UIコンポーネントは `src/components/ui/` に配置
@@ -100,12 +105,14 @@ src/
 ## トラブルシューティング
 
 ### TypeScriptエラーが発生した場合
+
 1. `pnpm exec tsc` でエラーを確認
 2. エラーメッセージを読んで問題を特定
 3. 型定義やインポートパスを修正
 4. 再度 `pnpm exec tsc` で確認
 
 ### ビルドエラーが発生した場合
+
 1. `.next` ディレクトリを削除: `rm -rf .next`
 2. `pnpm exec tsc` で型エラーを確認
 3. エラーを修正後、再度ビルドを試行
