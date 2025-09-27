@@ -1407,7 +1407,7 @@ export default function HolidayManagement() {
                 </div>
                 <div className="grid grid-cols-7 gap-1">
                   {calendarDays.map((day, index) => {
-                    const dayHolidays = holidays.filter((h) => isSameDay(new Date(h.date), day))
+                    const dayHolidays = holidays.filter((h) => isSameDay(new Date(h.date), day)).map(h => ({ ...h, isRequest: false }))
 
                     // 希望休情報も統合
                     const dayRequests = holidayRequests

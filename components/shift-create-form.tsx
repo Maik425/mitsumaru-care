@@ -69,13 +69,21 @@ export function ShiftCreateForm() {
     },
   ])
   const [showEventForm, setShowEventForm] = useState(false)
-  const [newEvent, setNewEvent] = useState({
-    type: "meeting" as const,
+  const [newEvent, setNewEvent] = useState<{
+    type: "meeting" | "business_trip" | "training" | "other";
+    title: string;
+    startDate: number;
+    endDate: number;
+    targetStaff: string[];
+    rule: "increase_regular" | "exclude_from_floor" | "custom";
+    description: string;
+  }>({
+    type: "meeting",
     title: "",
     startDate: 1,
     endDate: 1,
-    targetStaff: [] as string[],
-    rule: "increase_regular" as const,
+    targetStaff: [],
+    rule: "increase_regular",
     description: "",
   })
 

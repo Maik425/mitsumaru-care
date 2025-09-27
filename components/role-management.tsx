@@ -1067,10 +1067,11 @@ export function RoleManagement() {
                   </tr>
                 </thead>
                 <tbody>
-                  {Object.entries(scheduleData).map(([staffIdStr, staff]) => {
+                  {Object.entries(scheduleData).map(([staffIdStr, scheduleStaff]) => {
                     const staffId = Number.parseInt(staffIdStr, 10)
                     const isAttending = attendingStaff.includes(staffId)
                     const unavailabilityInfo = staffAvailability[staffId]
+                    const staffInfo = staff.find(s => s.id === staffId)
 
                     return (
                       <React.Fragment key={staffId}>
@@ -1080,7 +1081,7 @@ export function RoleManagement() {
                               onClick={() => toggleWorkTypeRow(staffIdStr)}
                               className="w-full text-left hover:bg-blue-50 p-1 rounded flex items-center justify-between"
                             >
-                              <span className="text-xs">{selectedWorkTypes[staffIdStr] || staff.workType}</span>
+                              <span className="text-xs">{selectedWorkTypes[staffIdStr] || staffInfo?.workType || ""}</span>
                               <ChevronDown
                                 className={`h-3 w-3 transition-transform ${
                                   expandedWorkTypeRows.has(staffIdStr) ? "rotate-180" : ""
@@ -1106,7 +1107,7 @@ export function RoleManagement() {
                               onClick={() => toggleStaffRow(staffIdStr)}
                               className="w-full text-left hover:bg-blue-50 p-1 rounded flex items-center justify-between"
                             >
-                              <span className="text-xs">{selectedStaffNames[staffIdStr] || staff.name}</span>
+                              <span className="text-xs">{selectedStaffNames[staffIdStr] || staffInfo?.name || ""}</span>
                               <ChevronDown
                                 className={`h-3 w-3 transition-transform ${
                                   expandedStaffRows.has(staffIdStr) ? "rotate-180" : ""
@@ -1119,7 +1120,7 @@ export function RoleManagement() {
                               onClick={() => togglePositionRow(staffIdStr)}
                               className="w-full text-left hover:bg-blue-50 p-1 rounded flex items-center justify-between"
                             >
-                              <span className="text-xs">{selectedPositions[staffIdStr] || staff.position}</span>
+                              <span className="text-xs">{selectedPositions[staffIdStr] || staffInfo?.position || ""}</span>
                               <ChevronDown
                                 className={`h-3 w-3 transition-transform ${
                                   expandedPositionRows.has(staffIdStr) ? "rotate-180" : ""
@@ -1140,8 +1141,8 @@ export function RoleManagement() {
                               </div>
                             )}
                           </td>
-                          {staff.schedule.map((task, timeIndex) => {
-                            const isOffDuty = staff.isOffDuty?.[timeIndex] || false
+                          {scheduleStaff.schedule.map((task: string, timeIndex: number) => {
+                            const isOffDuty = scheduleStaff.isOffDuty?.[timeIndex] || false
 
                             return (
                               <td
@@ -1346,7 +1347,6 @@ export function RoleManagement() {
                                   value={unavailabilityInfo?.reason || ""}
                                   onChange={(e) => handleUnavailabilityReasonChange(member.id, e.target.value)}
                                   className="mt-2 text-xs"
-                                  size="sm"
                                 />
                               )}
                             </div>
@@ -1375,7 +1375,7 @@ export function RoleManagement() {
               <div className="text-sm text-gray-600">
                 {selectedCell && (
                   <>
-                    職員: {scheduleData[selectedCell.staffId as keyof typeof scheduleData]?.name} | 時間:{" "}
+                    職員: {staff.find(s => s.id === selectedCell.staffId)?.name} | 時間:{" "}
                     {timeSlots[selectedCell.timeIndex]}
                   </>
                 )}

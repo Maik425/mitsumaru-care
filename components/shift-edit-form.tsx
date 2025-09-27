@@ -297,7 +297,7 @@ export function ShiftEditForm(props: {
     if (rule) {
       setEditingRule(rule)
       setRuleFormData({ ...rule })
-      setSelectedDates(rule.dates || [])
+      setSelectedDates(rule.dates ? rule.dates.map(d => Number.parseInt(d.split('-')[2])) : [])
     } else {
       setEditingRule(null)
       setRuleFormData({
@@ -323,7 +323,7 @@ export function ShiftEditForm(props: {
       description: ruleFormData.description || "",
       requirements: ruleFormData.requirements!,
       dayOfWeek: ruleFormData.dayOfWeek,
-      dates: ruleFormData.type === "specific_dates" ? selectedDates : undefined,
+      dates: ruleFormData.type === "specific_dates" ? selectedDates.map(d => `${year}-${month.toString().padStart(2, "0")}-${d.toString().padStart(2, "0")}`) : undefined,
       isActive: ruleFormData.isActive!,
     }
 
@@ -357,7 +357,8 @@ export function ShiftEditForm(props: {
   }
 
   const toggleDateSelection = (date: string) => {
-    setSelectedDates((prev) => (prev.includes(date) ? prev.filter((d) => d !== date) : [...prev, date].sort()))
+    const dayNumber = Number.parseInt(date.split('-')[2])
+    setSelectedDates((prev) => (prev.includes(dayNumber) ? prev.filter((d) => d !== dayNumber) : [...prev, dayNumber].sort()))
   }
 
   const formatDateForDisplay = (dateStr: string) => {
