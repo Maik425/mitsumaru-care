@@ -2,8 +2,9 @@ import { GeistMono } from 'geist/font/mono';
 import { GeistSans } from 'geist/font/sans';
 import type { Metadata } from 'next';
 
-import './globals.css';
 import { TRPCProvider } from '@/components/trpc-provider';
+import { AuthProvider } from '@/contexts/auth-context';
+import './globals.css';
 
 export const metadata: Metadata = {
   title: 'v0 App',
@@ -28,7 +29,9 @@ html {
         `}</style>
       </head>
       <body>
-        <TRPCProvider>{children}</TRPCProvider>
+        <TRPCProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </TRPCProvider>
       </body>
     </html>
   );

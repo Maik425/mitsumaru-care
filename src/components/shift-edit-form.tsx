@@ -1049,7 +1049,7 @@ export function ShiftEditForm(props: {
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex items-center justify-between h-16'>
             <div className='flex items-center'>
-              <Link href='/admin/dashboard'>
+              <Link href='/facility/dashboard'>
                 <Button variant='ghost' size='sm'>
                   <ArrowLeft className='h-4 w-4 mr-2' />
                   ダッシュボードに戻る
@@ -1065,7 +1065,7 @@ export function ShiftEditForm(props: {
                   <Badge className='bg-green-100 text-green-800'>
                     {selectedPattern.name} 選択済み
                   </Badge>
-                  <Link href='/admin/shift/edit'>
+                  <Link href='/facility/shift/edit'>
                     <Button variant='outline' size='sm'>
                       シフト詳細設定へ
                     </Button>

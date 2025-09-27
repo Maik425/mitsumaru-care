@@ -438,7 +438,7 @@ export function StaffSkillManagement() {
       <header className='bg-white shadow-sm border-b'>
         <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
           <div className='flex items-center h-16'>
-            <Link href='/admin/dashboard'>
+            <Link href='/facility/dashboard'>
               <Button variant='ghost' size='sm'>
                 <ArrowLeft className='h-4 w-4 mr-2' />
                 ダッシュボードに戻る

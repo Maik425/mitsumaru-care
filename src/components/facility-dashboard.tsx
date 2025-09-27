@@ -32,7 +32,7 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 
-export function AdminDashboard() {
+export function FacilityDashboard() {
   const menuItems = [
     {
       title: 'シフト管理',
