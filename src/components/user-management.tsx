@@ -27,8 +27,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import type { UserResponseDto } from '@/lib/dto/user.dto';
 import { trpc } from '@/lib/trpc';
-import { ROLE_LABELS, type User, type UserRole } from '@/lib/types/auth';
+import { ROLE_LABELS, type UserRole } from '@/lib/types/auth';
 import { Edit, Plus, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -36,7 +37,7 @@ export function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<UserRole | 'all'>('all');
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<UserResponseDto | null>(null);
 
   // tRPCクエリ
   const {
@@ -74,7 +75,7 @@ export function UserManagement() {
 
   // フィルタリングされたユーザー
   const filteredUsers =
-    users?.filter(
+    users?.users?.filter(
       user =>
         user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -323,7 +324,7 @@ function UserEditForm({
   onSubmit,
   isLoading,
 }: {
-  user: User;
+  user: UserResponseDto;
   onSubmit: (data: {
     name?: string;
     role?: UserRole;

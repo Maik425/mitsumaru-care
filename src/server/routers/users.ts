@@ -1,8 +1,17 @@
-import { supabaseAdmin } from '@/lib/supabase';
-import type { RegisterData, User } from '@/lib/types/auth';
+import type {
+  CreateUserDto,
+  DeleteUserDto,
+  GetUserDto,
+  GetUsersDto,
+  ResetPasswordDto,
+  UpdateUserDto,
+} from '@/lib/dto/user.dto';
+import { UserRepository } from '@/lib/repositories/user.repository';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
+
+const userRepository = new UserRepository();
 
 export const usersRouter = router({
   // ユーザー一覧取得
@@ -17,37 +26,23 @@ export const usersRouter = router({
     )
     .query(async ({ input }) => {
       try {
-        let query = supabaseAdmin
-          .from('users')
-          .select('*')
-          .order('created_at', { ascending: false })
-          .range(input.offset, input.offset + input.limit - 1);
+        const dto: GetUsersDto = {
+          limit: input.limit,
+          offset: input.offset,
+          role: input.role,
+          facility_id: input.facility_id,
+        };
 
-        if (input.role) {
-          query = query.eq('role', input.role);
-        }
-
-        if (input.facility_id) {
-          query = query.eq('facility_id', input.facility_id);
-        }
-
-        const { data, error } = await query;
-
-        if (error) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'ユーザー一覧の取得に失敗しました',
-          });
-        }
-
-        return data as User[];
+        const result = await userRepository.getUsers(dto);
+        return result;
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
+        console.error('Get users error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'ユーザー一覧の取得中にエラーが発生しました',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'ユーザー一覧の取得中にエラーが発生しました',
         });
       }
     }),
@@ -57,27 +52,17 @@ export const usersRouter = router({
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       try {
-        const { data, error } = await supabaseAdmin
-          .from('users')
-          .select('*')
-          .eq('id', input.id)
-          .single();
-
-        if (error) {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'ユーザーが見つかりません',
-          });
-        }
-
-        return data as User;
+        const dto: GetUserDto = { id: input.id };
+        const result = await userRepository.getUser(dto);
+        return result;
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
+        console.error('Get user error:', error);
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'ユーザー情報の取得中にエラーが発生しました',
+          code: 'NOT_FOUND',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'ユーザー情報の取得中にエラーが発生しました',
         });
       }
     }),
@@ -93,60 +78,26 @@ export const usersRouter = router({
         facility_id: z.string().optional(),
       })
     )
-    .mutation(async ({ input }: { input: RegisterData }) => {
+    .mutation(async ({ input }) => {
       try {
-        // Supabaseでユーザー作成
-        const { data: authData, error: authError } =
-          await supabaseAdmin.auth.admin.createUser({
-            email: input.email,
-            password: input.password,
-            email_confirm: true,
-          });
+        const dto: CreateUserDto = {
+          email: input.email,
+          password: input.password,
+          name: input.name,
+          role: input.role,
+          facility_id: input.facility_id,
+        };
 
-        if (authError) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: 'ユーザー作成に失敗しました: ' + authError.message,
-          });
-        }
-
-        if (!authData.user) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'ユーザー作成に失敗しました',
-          });
-        }
-
-        // ユーザー情報をデータベースに保存
-        const { data: userData, error: userError } = await supabaseAdmin
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            name: input.name,
-            role: input.role,
-            facility_id: input.facility_id,
-            is_active: true,
-          } as any)
-          .select()
-          .single();
-
-        if (userError) {
-          // 作成したユーザーを削除
-          await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'ユーザー情報の保存に失敗しました',
-          });
-        }
-
-        return userData as User;
+        const result = await userRepository.createUser(dto);
+        return result;
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
+        console.error('Create user error:', error);
         throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'ユーザー作成中にエラーが発生しました',
+          code: 'BAD_REQUEST',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'ユーザー作成中にエラーが発生しました',
         });
       }
     }),
@@ -164,37 +115,24 @@ export const usersRouter = router({
     )
     .mutation(async ({ input }) => {
       try {
-        const updateData: Partial<User> = {};
+        const dto: UpdateUserDto = {
+          id: input.id,
+          name: input.name,
+          role: input.role,
+          facility_id: input.facility_id,
+          is_active: input.is_active,
+        };
 
-        if (input.name !== undefined) updateData.name = input.name;
-        if (input.role !== undefined) updateData.role = input.role;
-        if (input.facility_id !== undefined)
-          updateData.facility_id = input.facility_id;
-        if (input.is_active !== undefined)
-          updateData.is_active = input.is_active;
-
-        const { data, error } = await (supabaseAdmin as any)
-          .from('users')
-          .update(updateData)
-          .eq('id', input.id)
-          .select()
-          .single();
-
-        if (error) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'ユーザー情報の更新に失敗しました',
-          });
-        }
-
-        return data as User;
+        const result = await userRepository.updateUser(dto);
+        return result;
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
+        console.error('Update user error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'ユーザー更新中にエラーが発生しました',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'ユーザー更新中にエラーが発生しました',
         });
       }
     }),
@@ -204,39 +142,17 @@ export const usersRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       try {
-        // データベースからユーザー情報を削除
-        const { error: userError } = await supabaseAdmin
-          .from('users')
-          .delete()
-          .eq('id', input.id);
-
-        if (userError) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'ユーザー情報の削除に失敗しました',
-          });
-        }
-
-        // Supabaseからユーザーを削除
-        const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(
-          input.id
-        );
-
-        if (authError) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'ユーザーアカウントの削除に失敗しました',
-          });
-        }
-
+        const dto: DeleteUserDto = { id: input.id };
+        await userRepository.deleteUser(dto);
         return { success: true };
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
+        console.error('Delete user error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'ユーザー削除中にエラーが発生しました',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'ユーザー削除中にエラーが発生しました',
         });
       }
     }),
@@ -246,28 +162,17 @@ export const usersRouter = router({
     .input(z.object({ email: z.string().email() }))
     .mutation(async ({ input }) => {
       try {
-        const { error } = await supabaseAdmin.auth.resetPasswordForEmail(
-          input.email,
-          {
-            redirectTo: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/reset-password`,
-          }
-        );
-
-        if (error) {
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-            message: 'パスワードリセットメールの送信に失敗しました',
-          });
-        }
-
+        const dto: ResetPasswordDto = { email: input.email };
+        await userRepository.resetPassword(dto);
         return { success: true };
       } catch (error) {
-        if (error instanceof TRPCError) {
-          throw error;
-        }
+        console.error('Reset password error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'パスワードリセット処理中にエラーが発生しました',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'パスワードリセット処理中にエラーが発生しました',
         });
       }
     }),

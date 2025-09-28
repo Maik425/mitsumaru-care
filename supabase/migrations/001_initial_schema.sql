@@ -435,3 +435,43 @@ CREATE TRIGGER update_facilities_updated_at BEFORE UPDATE ON facilities
 
 CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users
     FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- ユーザー一覧取得用RPC関数（email付き）
+CREATE OR REPLACE FUNCTION get_users_with_email(
+  limit_count INTEGER DEFAULT 10,
+  offset_count INTEGER DEFAULT 0,
+  role_filter TEXT DEFAULT NULL,
+  facility_filter UUID DEFAULT NULL
+)
+RETURNS TABLE(
+  id UUID,
+  email TEXT,
+  name TEXT,
+  role TEXT,
+  facility_id UUID,
+  is_active BOOLEAN,
+  created_at TIMESTAMP WITH TIME ZONE,
+  updated_at TIMESTAMP WITH TIME ZONE
+)
+LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  RETURN QUERY
+    SELECT
+      u.id,
+      au.email::TEXT,
+      u.name,
+      u.role,
+      u.facility_id,
+      u.is_active,
+      u.created_at,
+      u.updated_at
+    FROM public.users u
+    LEFT JOIN auth.users au ON u.id = au.id
+    WHERE
+      (role_filter IS NULL OR u.role = role_filter)
+      AND (facility_filter IS NULL OR u.facility_id = facility_filter)
+    ORDER BY u.created_at DESC
+    LIMIT limit_count
+    OFFSET offset_count;
+END;
+$$;
