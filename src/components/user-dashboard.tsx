@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Clock, HelpCircle, Building2, LogOut } from 'lucide-react';
+import { Building2, Calendar, Clock, HelpCircle, LogOut } from 'lucide-react';
 import Link from 'next/link';
 
 import { ClockWidget } from './clock-widget';
@@ -23,8 +23,15 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { useAuthContext } from '@/contexts/auth-context';
 
 export function UserDashboard() {
+  const { signOut } = useAuthContext();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   const menuItems = [
     { name: '勤怠管理', href: '/user/attendance', icon: Clock },
     { name: '希望休管理', href: '/user/holidays', icon: Calendar },
@@ -77,11 +84,9 @@ export function UserDashboard() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href='/'>
-                      <LogOut className='h-4 w-4' />
-                      <span>ログアウト</span>
-                    </Link>
+                  <SidebarMenuButton onClick={handleLogout} type='button'>
+                    <LogOut className='h-4 w-4' />
+                    <span>ログアウト</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

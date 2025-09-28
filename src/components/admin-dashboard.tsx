@@ -31,8 +31,15 @@ import {
   SidebarRail,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+import { useAuthContext } from '@/contexts/auth-context';
 
 export function AdminDashboard() {
+  const { signOut } = useAuthContext();
+
+  const handleLogout = async () => {
+    await signOut();
+  };
+
   const menuItems = [
     {
       title: 'シフト管理',
@@ -141,11 +148,9 @@ export function AdminDashboard() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href='/'>
-                      <LogOut className='h-4 w-4' />
-                      <span>ログアウト</span>
-                    </Link>
+                  <SidebarMenuButton onClick={handleLogout} type='button'>
+                    <LogOut className='h-4 w-4' />
+                    <span>ログアウト</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -163,16 +168,16 @@ export function AdminDashboard() {
             ダッシュボード
           </h1>
           <div className='ml-auto'>
-            <Link href='/'>
-              <Button
-                variant='outline'
-                size='sm'
-                className='flex items-center gap-2 bg-transparent'
-              >
-                <LogOut className='h-4 w-4' />
-                ログアウト
-              </Button>
-            </Link>
+            <Button
+              variant='outline'
+              size='sm'
+              className='flex items-center gap-2 bg-transparent'
+              onClick={handleLogout}
+              type='button'
+            >
+              <LogOut className='h-4 w-4' />
+              ログアウト
+            </Button>
           </div>
         </header>
 

@@ -1,24 +1,24 @@
 'use client';
 
 import { Clock } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export function ClockWidget() {
-  const [currentTime, setCurrentTime] = useState(
-    new Date().toLocaleTimeString('ja-JP', { hour12: false })
-  );
+  const [currentTime, setCurrentTime] = useState('');
   const [isWorking, setIsWorking] = useState(false);
 
   // 現在時刻を更新
-  useState(() => {
-    const timer = setInterval(() => {
+  useEffect(() => {
+    const updateTime = () => {
       setCurrentTime(new Date().toLocaleTimeString('ja-JP', { hour12: false }));
-    }, 1000);
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
-  });
+  }, []);
 
   const todaySchedule = {
     shift: '日勤',
@@ -47,7 +47,9 @@ export function ClockWidget() {
       </CardHeader>
       <CardContent className='text-center'>
         <div className='mb-6'>
-          <p className='text-3xl font-bold text-gray-900 mb-2'>{currentTime}</p>
+          <p className='text-3xl font-bold text-gray-900 mb-2'>
+            {currentTime || '--:--:--'}
+          </p>
           <p className='text-gray-600'>
             {new Date().toLocaleDateString('ja-JP')}
           </p>
