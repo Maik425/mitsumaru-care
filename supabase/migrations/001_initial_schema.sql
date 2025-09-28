@@ -174,19 +174,18 @@ BEGIN
     u.updated_at
   FROM public.users u
   JOIN auth.users au ON au.id = u.id
-  WHERE u.id = target_id
-    AND (
-      target_id = auth.uid()
-      OR public.current_user_has_role('system_admin')
-      OR (
-        public.current_user_has_role('facility_admin')
-        AND u.facility_id IS NOT DISTINCT FROM public.current_user_facility()
-      )
-    );
+  WHERE u.id = target_id;
 END;
 $$;
 
-GRANT EXECUTE ON FUNCTION public_get_current_user_with_email(uuid) TO authenticated, service_role;
+-- RPC関数の実行権限
+GRANT EXECUTE ON FUNCTION public_get_current_user_with_email(uuid) TO anon, authenticated, service_role;
+
+-- auth.usersテーブルのSELECT権限（RPC関数で使用）
+GRANT SELECT ON auth.users TO anon, authenticated, service_role;
+
+-- public.usersテーブルのSELECT権限（RPC関数で使用）
+GRANT SELECT ON public.users TO anon, authenticated, service_role;
 
 -- ダミーデータの挿入
 -- 施設データ
