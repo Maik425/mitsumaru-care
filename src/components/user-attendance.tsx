@@ -1,9 +1,10 @@
 'use client';
 
-import { ArrowLeft, Clock, Calendar, Plus, CheckCircle } from 'lucide-react';
+import { api } from '@/lib/trpc';
+import { ArrowLeft, Calendar, CheckCircle, Clock, Plus } from 'lucide-react';
 import Link from 'next/link';
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -28,13 +29,51 @@ export function UserAttendance() {
   const [isOvertimeOpen, setIsOvertimeOpen] = useState(false);
   const [isWorkTimeChangeOpen, setIsWorkTimeChangeOpen] = useState(false);
 
+  // 現在のユーザーID（実際の実装では認証コンテキストから取得）
+  const currentUserId = '00000000-0000-0000-0000-000000000004'; // ダミーID
+
+  // API呼び出し
+  const { data: todayRecord } = api.attendance.getAttendanceRecords.useQuery({
+    user_id: currentUserId,
+    date: new Date().toISOString().split('T')[0],
+    limit: 1,
+  });
+
+  const { data: recentRecords = [] } =
+    api.attendance.getAttendanceRecords.useQuery({
+      user_id: currentUserId,
+      limit: 10,
+    });
+
+  const { data: pendingRequests = [] } =
+    api.attendance.getAttendanceRequests.useQuery({
+      user_id: currentUserId,
+      status: 'pending',
+      limit: 10,
+    });
+
+  const createRecordMutation =
+    api.attendance.createAttendanceRecord.useMutation();
+  const updateRecordMutation =
+    api.attendance.updateAttendanceRecord.useMutation();
+  const createRequestMutation =
+    api.attendance.createAttendanceRequest.useMutation();
+
   // 現在時刻を更新
-  useState(() => {
+  useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString('ja-JP', { hour12: false }));
     }, 1000);
     return () => clearInterval(timer);
-  });
+  }, []);
+
+  // 今日の勤怠記録の状態を確認
+  useEffect(() => {
+    if (todayRecord && todayRecord.length > 0) {
+      const record = todayRecord[0];
+      setIsWorking(!!record.actual_start_time && !record.actual_end_time);
+    }
+  }, [todayRecord]);
 
   const todaySchedule = {
     shift: '日勤',
@@ -43,96 +82,104 @@ export function UserAttendance() {
     breakTime: '12:00-13:00',
   };
 
-  const recentAttendance = [
-    {
-      date: '2024-01-31',
-      shift: '日勤',
-      startTime: '08:55',
-      endTime: '18:10',
-      status: 'approved',
-      overtime: '10分',
-    },
-    {
-      date: '2024-01-30',
-      shift: '早番',
-      startTime: '07:00',
-      endTime: '16:00',
-      status: 'approved',
-      overtime: '0分',
-    },
-    {
-      date: '2024-01-29',
-      shift: '日勤',
-      startTime: '09:05',
-      endTime: '18:00',
-      status: 'pending',
-      overtime: '0分',
-    },
-  ];
+  // recentAttendanceは既にAPIから取得しているため、ダミーデータを削除
 
-  const pendingRequests = [
-    {
-      id: 1,
-      type: 'correction',
-      date: '2024-01-28',
-      reason: '打刻忘れ',
-      status: 'pending',
-      submittedAt: '2024-01-29 10:30',
-    },
-  ];
+  // pendingRequestsは既にAPIから取得しているため、ダミーデータを削除
 
-  const handleClockIn = () => {
-    setIsWorking(true);
-    // 実際の実装では、ここでAPIを呼び出して打刻を記録
+  const handleClockIn = async () => {
+    try {
+      const currentTime = new Date().toTimeString().slice(0, 8);
+      const today = new Date().toISOString().split('T')[0];
+
+      if (todayRecord && todayRecord.length > 0) {
+        // 既存の記録を更新
+        await updateRecordMutation.mutateAsync({
+          id: todayRecord[0].id,
+          actual_start_time: currentTime,
+        });
+      } else {
+        // 新しい記録を作成
+        await createRecordMutation.mutateAsync({
+          user_id: currentUserId,
+          date: today,
+          actual_start_time: currentTime,
+        });
+      }
+      setIsWorking(true);
+    } catch (error) {
+      console.error('Failed to clock in:', error);
+    }
   };
 
-  const handleClockOut = () => {
-    setIsWorking(false);
-    // 実際の実装では、ここでAPIを呼び出して打刻を記録
+  const handleClockOut = async () => {
+    try {
+      if (todayRecord && todayRecord.length > 0) {
+        const currentTime = new Date().toTimeString().slice(0, 8);
+        await updateRecordMutation.mutateAsync({
+          id: todayRecord[0].id,
+          actual_end_time: currentTime,
+        });
+        setIsWorking(false);
+      }
+    } catch (error) {
+      console.error('Failed to clock out:', error);
+    }
   };
 
-  const handleClockCorrectionSubmit = (e: React.FormEvent) => {
+  const handleClockCorrectionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const data = {
-      date: formData.get('date'),
-      startTime: formData.get('startTime'),
-      endTime: formData.get('endTime'),
-      reason: formData.get('reason'),
-    };
-    console.log('打刻忘れ訂正申請:', data);
-    setIsClockCorrectionOpen(false);
-    // 実際の実装では、ここでAPIを呼び出して申請を送信
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      await createRequestMutation.mutateAsync({
+        user_id: currentUserId,
+        type: 'clock_correction',
+        target_date: formData.get('date') as string,
+        requested_start_time: formData.get('startTime') as string,
+        requested_end_time: formData.get('endTime') as string,
+        reason: formData.get('reason') as string,
+      });
+      setIsClockCorrectionOpen(false);
+    } catch (error) {
+      console.error('Failed to submit clock correction request:', error);
+    }
   };
 
-  const handleOvertimeSubmit = (e: React.FormEvent) => {
+  const handleOvertimeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const data = {
-      date: formData.get('date'),
-      startTime: formData.get('startTime'),
-      endTime: formData.get('endTime'),
-      reason: formData.get('reason'),
-    };
-    console.log('残業申請:', data);
-    setIsOvertimeOpen(false);
-    // 実際の実装では、ここでAPIを呼び出して申請を送信
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      await createRequestMutation.mutateAsync({
+        user_id: currentUserId,
+        type: 'overtime',
+        target_date: formData.get('date') as string,
+        requested_start_time: formData.get('startTime') as string,
+        requested_end_time: formData.get('endTime') as string,
+        reason: formData.get('reason') as string,
+      });
+      setIsOvertimeOpen(false);
+    } catch (error) {
+      console.error('Failed to submit overtime request:', error);
+    }
   };
 
-  const handleWorkTimeChangeSubmit = (e: React.FormEvent) => {
+  const handleWorkTimeChangeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = new FormData(e.target as HTMLFormElement);
-    const data = {
-      date: formData.get('date'),
-      originalStartTime: formData.get('originalStartTime'),
-      originalEndTime: formData.get('originalEndTime'),
-      newStartTime: formData.get('newStartTime'),
-      newEndTime: formData.get('newEndTime'),
-      reason: formData.get('reason'),
-    };
-    console.log('勤務時間変更申請:', data);
-    setIsWorkTimeChangeOpen(false);
-    // 実際の実装では、ここでAPIを呼び出して申請を送信
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      await createRequestMutation.mutateAsync({
+        user_id: currentUserId,
+        type: 'work_time_change',
+        target_date: formData.get('date') as string,
+        original_start_time: formData.get('originalStartTime') as string,
+        original_end_time: formData.get('originalEndTime') as string,
+        requested_start_time: formData.get('newStartTime') as string,
+        requested_end_time: formData.get('newEndTime') as string,
+        reason: formData.get('reason') as string,
+      });
+      setIsWorkTimeChangeOpen(false);
+    } catch (error) {
+      console.error('Failed to submit work time change request:', error);
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -517,7 +564,7 @@ export function UserAttendance() {
                 {pendingRequests.length > 0 && (
                   <div className='mt-4'>
                     <h4 className='font-medium mb-2'>申請中の項目</h4>
-                    {pendingRequests.map(request => (
+                    {pendingRequests.map((request: any) => (
                       <div
                         key={request.id}
                         className='p-3 bg-yellow-50 border border-yellow-200 rounded'
@@ -528,7 +575,7 @@ export function UserAttendance() {
                               {request.reason}
                             </p>
                             <p className='text-sm text-yellow-600'>
-                              {request.date}
+                              {request.target_date}
                             </p>
                           </div>
                           <Badge className='bg-yellow-100 text-yellow-800'>
@@ -554,32 +601,30 @@ export function UserAttendance() {
               </CardHeader>
               <CardContent>
                 <div className='space-y-3'>
-                  {recentAttendance.map((record, index) => (
+                  {recentRecords.map((record: any) => (
                     <div
-                      key={index}
+                      key={record.id}
                       className='p-3 border border-gray-200 rounded'
                     >
                       <div className='flex items-center justify-between mb-2'>
                         <div>
                           <p className='font-medium'>{record.date}</p>
-                          <p className='text-sm text-gray-600'>
-                            {record.shift}
-                          </p>
+                          <p className='text-sm text-gray-600'>勤怠記録</p>
                         </div>
                         {getStatusBadge(record.status)}
                       </div>
                       <div className='grid grid-cols-2 gap-2 text-sm'>
                         <div>
                           <p className='text-gray-600'>
-                            出勤: {record.startTime}
+                            出勤: {record.actual_start_time || '未打刻'}
                           </p>
                           <p className='text-gray-600'>
-                            退勤: {record.endTime}
+                            退勤: {record.actual_end_time || '未打刻'}
                           </p>
                         </div>
                         <div>
                           <p className='text-gray-600'>
-                            残業: {record.overtime}
+                            残業: {record.overtime_duration}分
                           </p>
                         </div>
                       </div>

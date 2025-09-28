@@ -116,14 +116,20 @@ export function useAuth() {
 
   const signOut = async () => {
     try {
+      console.log('ログアウト開始');
       const { error } = await supabase.auth.signOut();
       if (error) {
+        console.error('Supabaseログアウトエラー:', error);
         throw error;
       }
+      console.log('ログアウト成功');
       setUser(null);
-      router.push('/');
+      router.push('/login');
     } catch (error) {
       console.error('ログアウトエラー:', error);
+      // エラーが発生してもユーザー状態をクリアしてログインページにリダイレクト
+      setUser(null);
+      router.push('/login');
     }
   };
 

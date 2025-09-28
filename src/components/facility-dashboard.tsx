@@ -12,6 +12,7 @@ import {
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,9 +36,18 @@ import { useAuthContext } from '@/contexts/auth-context';
 
 export function FacilityDashboard() {
   const { signOut } = useAuthContext();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const handleLogout = async () => {
-    await signOut();
+    try {
+      setIsLoggingOut(true);
+      console.log('ログアウトボタンがクリックされました');
+      await signOut();
+    } catch (error) {
+      console.error('ログアウト処理でエラーが発生しました:', error);
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   const menuItems = [
@@ -148,9 +158,15 @@ export function FacilityDashboard() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
                 <SidebarMenuItem>
-                  <SidebarMenuButton onClick={handleLogout} type='button'>
+                  <SidebarMenuButton
+                    onClick={handleLogout}
+                    type='button'
+                    disabled={isLoggingOut}
+                  >
                     <LogOut className='h-4 w-4' />
-                    <span>ログアウト</span>
+                    <span>
+                      {isLoggingOut ? 'ログアウト中...' : 'ログアウト'}
+                    </span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
@@ -174,9 +190,10 @@ export function FacilityDashboard() {
               className='flex items-center gap-2 bg-transparent'
               onClick={handleLogout}
               type='button'
+              disabled={isLoggingOut}
             >
               <LogOut className='h-4 w-4' />
-              ログアウト
+              {isLoggingOut ? 'ログアウト中...' : 'ログアウト'}
             </Button>
           </div>
         </header>
