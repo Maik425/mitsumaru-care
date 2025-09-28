@@ -49,6 +49,12 @@ CREATE TABLE users (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
+-- service_roleへの明示的な権限付与（テーブル作成後に実行する必要がある）
+GRANT ALL ON TABLE facilities TO service_role;
+GRANT ALL ON TABLE users TO service_role;
+
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO service_role;
+
 -- RLS内で利用する権限チェック用関数（SECURITY DEFINERで再帰を回避）
 CREATE OR REPLACE FUNCTION public.current_user_has_role(target_role text)
 RETURNS boolean
@@ -99,28 +105,45 @@ CREATE INDEX idx_facilities_name ON facilities(name);
 ALTER TABLE facilities ENABLE ROW LEVEL SECURITY;
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT ALL ON TABLES TO service_role;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
+  GRANT USAGE, SELECT ON SEQUENCES TO service_role;
+
 -- 施設テーブルのRLSポリシー
 CREATE POLICY facilities_select_all ON facilities
-  FOR SELECT USING (true);
+  FOR SELECT TO public USING (true);
 
 CREATE POLICY facilities_manage_system_admin ON facilities
-  FOR ALL USING (public.current_user_has_role('system_admin'));
+  FOR ALL TO public USING (current_user_has_role('system_admin'::text))
+  WITH CHECK (current_user_has_role('system_admin'::text));
+
+CREATE POLICY facilities_service_role_all ON facilities
+  FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- ユーザーテーブルのRLSポリシー
 CREATE POLICY users_select_self ON users
-  FOR SELECT USING (id = auth.uid());
+  FOR SELECT TO public USING (id = auth.uid()::uuid);
 
 CREATE POLICY users_select_system_admin ON users
-  FOR SELECT USING (public.current_user_has_role('system_admin'));
+  FOR SELECT TO public USING (current_user_has_role('system_admin'::text));
 
 CREATE POLICY users_select_facility_admin ON users
-  FOR SELECT USING (
-    public.current_user_has_role('facility_admin')
-    AND facility_id IS NOT DISTINCT FROM public.current_user_facility()
+  FOR SELECT TO public USING (
+    current_user_has_role('facility_admin'::text)
+    AND (NOT (facility_id IS DISTINCT FROM current_user_facility()))
   );
 
 CREATE POLICY users_manage_system_admin ON users
-  FOR ALL USING (public.current_user_has_role('system_admin'));
+  FOR ALL TO public USING (current_user_has_role('system_admin'::text))
+  WITH CHECK (current_user_has_role('system_admin'::text));
+
+CREATE POLICY users_service_role_all ON users
+  FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+CREATE POLICY facilities_service_role_all_update ON facilities
+  FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- 認証済みユーザー情報取得用RPC
 CREATE OR REPLACE FUNCTION public_get_current_user_with_email(target_id uuid)
@@ -446,8 +469,8 @@ CREATE OR REPLACE FUNCTION get_users_with_email(
 RETURNS TABLE(
   id UUID,
   email TEXT,
-  name TEXT,
-  role TEXT,
+  name VARCHAR(255),
+  role VARCHAR(50),
   facility_id UUID,
   is_active BOOLEAN,
   created_at TIMESTAMP WITH TIME ZONE,

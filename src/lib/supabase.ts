@@ -39,22 +39,27 @@ export const supabase = (() => {
 let supabaseAdminInstance: ReturnType<typeof createClient> | null = null;
 
 export const supabaseAdmin = (() => {
-  // Only create admin client on server side
-  if (typeof window === 'undefined' && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+  // Always create admin client on server side
+  if (typeof window === 'undefined') {
     if (!supabaseAdminInstance) {
-      supabaseAdminInstance = createClient(
-        supabaseUrl,
-        process.env.SUPABASE_SERVICE_ROLE_KEY,
-        {
-          auth: {
-            autoRefreshToken: false,
-            persistSession: false,
-          },
-        }
-      );
+      const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      console.log('Creating supabaseAdmin with service role key');
+      console.log('Service role key present:', !!serviceRoleKey);
+
+      if (!serviceRoleKey) {
+        throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
+      }
+
+      supabaseAdminInstance = createClient(supabaseUrl, serviceRoleKey, {
+        auth: {
+          autoRefreshToken: false,
+          persistSession: false,
+        },
+      });
     }
     return supabaseAdminInstance;
   }
+  console.log('Using regular supabase client (client side)');
   // Return the same singleton instance on client side
   return supabaseInstance;
 })();

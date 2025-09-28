@@ -103,6 +103,7 @@ export class UserRepository {
         });
 
       if (authError) {
+        console.error('Auth user creation error:', authError);
         throw new Error(`ユーザー作成に失敗しました: ${authError.message}`);
       }
 
@@ -110,20 +111,27 @@ export class UserRepository {
         throw new Error('ユーザー作成に失敗しました');
       }
 
+      console.log('Auth user created successfully:', authData.user.id);
+
       // ユーザー情報をデータベースに保存
+      const insertData = {
+        id: authData.user.id,
+        name: dto.name,
+        role: dto.role,
+        facility_id: dto.facility_id,
+        is_active: true,
+      };
+
+      console.log('Inserting user data:', insertData);
+
       const { data: userData, error: userError } = await supabaseAdmin
         .from('users')
-        .insert({
-          id: authData.user.id,
-          name: dto.name,
-          role: dto.role,
-          facility_id: dto.facility_id,
-          is_active: true,
-        } as any)
+        .insert(insertData as any)
         .select()
         .single();
 
       if (userError) {
+        console.error('Database insert error:', userError);
         // 作成したユーザーを削除
         await supabaseAdmin.auth.admin.deleteUser(authData.user.id);
         throw new Error(
