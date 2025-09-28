@@ -110,7 +110,7 @@ export class AttendanceRepository {
   async getAttendanceRequests(
     dto: GetAttendanceRequestsDto
   ): Promise<AttendanceRequest[]> {
-    let query = supabase
+    let query = this.supabaseClient
       .from('attendance_requests')
       .select('*')
       .order('created_at', { ascending: false });
@@ -137,7 +137,7 @@ export class AttendanceRepository {
   }
 
   async getAttendanceRequest(id: string): Promise<AttendanceRequest | null> {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabaseClient
       .from('attendance_requests')
       .select('*')
       .eq('id', id)
@@ -150,7 +150,7 @@ export class AttendanceRepository {
   async createAttendanceRequest(
     dto: CreateAttendanceRequestDto
   ): Promise<AttendanceRequest> {
-    const { data, error } = await supabase
+    const { data, error } = await this.supabaseClient
       .from('attendance_requests')
       .insert(dto as any)
       .select()
@@ -164,7 +164,7 @@ export class AttendanceRepository {
     dto: UpdateAttendanceRequestDto
   ): Promise<AttendanceRequest> {
     const { id, ...updateData } = dto;
-    const { data, error } = await (supabase as any)
+    const { data, error } = await (this.supabaseClient as any)
       .from('attendance_requests')
       .update({
         ...updateData,
@@ -179,7 +179,7 @@ export class AttendanceRepository {
   }
 
   async deleteAttendanceRequest(id: string): Promise<void> {
-    const { error } = await supabase
+    const { error } = await this.supabaseClient
       .from('attendance_requests')
       .delete()
       .eq('id', id);

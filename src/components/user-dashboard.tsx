@@ -1,29 +1,12 @@
 'use client';
 
-import { Building2, Calendar, Clock, HelpCircle, LogOut } from 'lucide-react';
-import Link from 'next/link';
+import { Calendar, Clock } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
 import { ClockWidget } from './clock-widget';
 
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarInset,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarRail,
-  SidebarTrigger,
-} from '@/components/ui/sidebar';
+import { UserShell } from '@/components/user-shell';
 import { useAuthContext } from '@/contexts/auth-context';
 import type { AttendanceRecord } from '@/lib/dto/attendance.dto';
 import { api } from '@/lib/trpc';
@@ -169,94 +152,25 @@ export function UserDashboard() {
   ];
 
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <SidebarHeader>
-          <div className='flex items-center gap-2 px-4 py-2'>
-            <Building2 className='h-6 w-6' />
-            <div className='flex flex-col'>
-              <span className='font-semibold'>みつまるケア</span>
-              <span className='text-xs text-muted-foreground'>一般職画面</span>
-            </div>
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <SidebarGroup>
-            <SidebarGroupLabel>メニュー</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {menuItems.map(item => {
-                  const Icon = item.icon;
-                  return (
-                    <SidebarMenuItem key={item.name}>
-                      <SidebarMenuButton asChild>
-                        <Link href={item.href}>
-                          <Icon className='h-4 w-4' />
-                          <span>{item.name}</span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+    <UserShell
+      title='ダッシュボード'
+      description='日々の勤怠状況を確認できます'
+    >
+      <div className='flex flex-col gap-6'>
+        <div className='mb-8'>
+          <h2 className='text-2xl font-bold text-gray-900 mb-2'>
+            一般職ダッシュボード
+          </h2>
+          <p className='text-gray-600'>
+            お疲れ様です！今日も一日頑張りましょう
+          </p>
+        </div>
 
-          <SidebarGroup>
-            <SidebarGroupLabel>その他</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                <SidebarMenuItem>
-                  <SidebarMenuButton asChild>
-                    <Link href='/faq'>
-                      <HelpCircle className='h-4 w-4' />
-                      <span>FAQ</span>
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-                <SidebarMenuItem>
-                  <SidebarMenuButton
-                    onClick={handleLogout}
-                    type='button'
-                    disabled={isLoggingOut}
-                  >
-                    <LogOut className='h-4 w-4' />
-                    <span>
-                      {isLoggingOut ? 'ログアウト中...' : 'ログアウト'}
-                    </span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        </SidebarContent>
-        <SidebarRail />
-      </Sidebar>
+        <div className='mb-6'>
+          <ClockWidget />
+        </div>
 
-      <SidebarInset>
-        <header className='flex h-16 shrink-0 items-center gap-2 border-b px-4'>
-          <SidebarTrigger className='-ml-1' />
-          <Separator orientation='vertical' className='mr-2 h-4' />
-          <h1 className='text-xl font-semibold text-gray-900'>
-            ダッシュボード
-          </h1>
-        </header>
-
-        <main className='flex-1 p-6'>
-          <div className='mb-8'>
-            <h2 className='text-2xl font-bold text-gray-900 mb-2'>
-              一般職ダッシュボード
-            </h2>
-            <p className='text-gray-600'>
-              お疲れ様です！今日も一日頑張りましょう
-            </p>
-          </div>
-
-          <div className='mb-6'>
-            <ClockWidget />
-          </div>
-
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
+        {/* <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
             <Card>
               <CardHeader>
                 <CardTitle className='flex items-center'>
@@ -290,85 +204,82 @@ export function UserDashboard() {
                 </Link>
               </CardContent>
             </Card>
-          </div>
+          </div> */}
 
-          <Card className='mt-6'>
-            <CardHeader>
-              <CardTitle>今月のシフト</CardTitle>
-              <p className='text-sm text-muted-foreground'>
-                {monthLabel}の勤怠状況
-              </p>
-            </CardHeader>
-            <CardContent>
-              {isLoadingMonthlyRecords ? (
-                <p className='text-sm text-muted-foreground'>
-                  読み込み中です...
-                </p>
-              ) : (
-                <div className='overflow-x-auto'>
-                  <table className='min-w-full border border-border text-sm'>
-                    <thead className='bg-muted/30'>
-                      <tr>
-                        <th className='border border-border px-3 py-2 text-left font-medium'>
-                          日付
-                        </th>
-                        <th className='border border-border px-3 py-2 text-left font-medium'>
-                          出勤
-                        </th>
-                        <th className='border border-border px-3 py-2 text-left font-medium'>
-                          退勤
-                        </th>
-                        <th className='border border-border px-3 py-2 text-right font-medium'>
-                          休憩
-                        </th>
-                        <th className='border border-border px-3 py-2 text-right font-medium'>
-                          勤務時間
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {dailyRows.map(row => (
-                        <tr key={row.key}>
-                          <td className='border border-border px-3 py-2'>
-                            {row.label}
-                          </td>
-                          <td className='border border-border px-3 py-2'>
-                            {formatTimeDisplay(row.actualStart)}
-                          </td>
-                          <td className='border border-border px-3 py-2'>
-                            {formatTimeDisplay(row.actualEnd)}
-                          </td>
-                          <td className='border border-border px-3 py-2 text-right'>
-                            {row.breakMinutes == null
-                              ? '-'
-                              : formatDurationDisplay(row.breakMinutes)}
-                          </td>
-                          <td className='border border-border px-3 py-2 text-right'>
-                            {formatDurationDisplay(row.workedMinutes)}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                    <tfoot>
-                      <tr className='bg-muted/20 font-medium'>
-                        <td className='border border-border px-3 py-2'>合計</td>
-                        <td className='border border-border px-3 py-2'>-</td>
-                        <td className='border border-border px-3 py-2'>-</td>
-                        <td className='border border-border px-3 py-2 text-right'>
-                          {formatDurationDisplay(totalBreakMinutes)}
+        <Card className='mt-6'>
+          <CardHeader>
+            <CardTitle>今月のシフト</CardTitle>
+            <p className='text-sm text-muted-foreground'>
+              {monthLabel}の勤怠状況
+            </p>
+          </CardHeader>
+          <CardContent>
+            {isLoadingMonthlyRecords ? (
+              <p className='text-sm text-muted-foreground'>読み込み中です...</p>
+            ) : (
+              <div className='overflow-x-auto'>
+                <table className='min-w-full border border-border text-sm'>
+                  <thead className='bg-muted/30'>
+                    <tr>
+                      <th className='border border-border px-3 py-2 text-left font-medium'>
+                        日付
+                      </th>
+                      <th className='border border-border px-3 py-2 text-left font-medium'>
+                        出勤
+                      </th>
+                      <th className='border border-border px-3 py-2 text-left font-medium'>
+                        退勤
+                      </th>
+                      <th className='border border-border px-3 py-2 text-right font-medium'>
+                        休憩
+                      </th>
+                      <th className='border border-border px-3 py-2 text-right font-medium'>
+                        勤務時間
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {dailyRows.map(row => (
+                      <tr key={row.key}>
+                        <td className='border border-border px-3 py-2'>
+                          {row.label}
+                        </td>
+                        <td className='border border-border px-3 py-2'>
+                          {formatTimeDisplay(row.actualStart)}
+                        </td>
+                        <td className='border border-border px-3 py-2'>
+                          {formatTimeDisplay(row.actualEnd)}
                         </td>
                         <td className='border border-border px-3 py-2 text-right'>
-                          {formatDurationDisplay(totalWorkedMinutes)}
+                          {row.breakMinutes == null
+                            ? '-'
+                            : formatDurationDisplay(row.breakMinutes)}
+                        </td>
+                        <td className='border border-border px-3 py-2 text-right'>
+                          {formatDurationDisplay(row.workedMinutes)}
                         </td>
                       </tr>
-                    </tfoot>
-                  </table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className='bg-muted/20 font-medium'>
+                      <td className='border border-border px-3 py-2'>合計</td>
+                      <td className='border border-border px-3 py-2'>-</td>
+                      <td className='border border-border px-3 py-2'>-</td>
+                      <td className='border border-border px-3 py-2 text-right'>
+                        {formatDurationDisplay(totalBreakMinutes)}
+                      </td>
+                      <td className='border border-border px-3 py-2 text-right'>
+                        {formatDurationDisplay(totalWorkedMinutes)}
+                      </td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </UserShell>
   );
 }

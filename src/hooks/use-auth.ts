@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import type { AuthUser, UserRole } from '@/lib/types/auth';
 import type { PostgrestError } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 type RpcUserRecord = {
   id: string;
@@ -15,12 +15,28 @@ type RpcUserRecord = {
   is_active: boolean;
 };
 
+const STORAGE_KEY = 'auth:user';
+
 export function useAuth() {
-  const [user, setUser] = useState<AuthUser | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const stored = window.localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        return JSON.parse(stored) as AuthUser;
+      }
+    } catch (error) {
+      console.warn('Failed to parse stored auth user', error);
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(true);
+  const sessionChecked = useRef(false);
   const router = useRouter();
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -28,19 +44,21 @@ export function useAuth() {
       if (session?.user) {
         await fetchUserData(session.user.id);
       } else {
-        setUser(null);
+        clearAuthUser();
       }
-      setLoading(false);
     });
 
     const checkInitialSession = async () => {
+      if (sessionChecked.current) return;
+      sessionChecked.current = true;
+      setLoading(true);
       const {
         data: { session },
       } = await supabase.auth.getSession();
       if (session?.user) {
         await fetchUserData(session.user.id);
       } else {
-        setUser(null);
+        clearAuthUser();
       }
       setLoading(false);
     };
@@ -49,6 +67,22 @@ export function useAuth() {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if (user) {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    } else {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [user]);
+
+  const clearAuthUser = () => {
+    setUser(null);
+    if (typeof window !== 'undefined') {
+      window.localStorage.removeItem(STORAGE_KEY);
+    }
+  };
 
   const fetchUserData = async (userId: string) => {
     try {
@@ -64,7 +98,7 @@ export function useAuth() {
 
       if (error) {
         console.error('ユーザーデータ取得エラー:', error);
-        setUser(null);
+        clearAuthUser();
         return;
       }
 
@@ -80,11 +114,11 @@ export function useAuth() {
         };
         setUser(authUser);
       } else {
-        setUser(null);
+        clearAuthUser();
       }
     } catch (error) {
       console.error('ユーザーデータ取得中にエラー:', error);
-      setUser(null);
+      clearAuthUser();
     }
   };
 
@@ -102,15 +136,16 @@ export function useAuth() {
 
       if (data.user) {
         await fetchUserData(data.user.id);
-        return { success: true, user };
+        setLoading(false);
+        return { success: true, user: data.user };
       }
 
+      setLoading(false);
       return { success: false, error: 'ログインに失敗しました' };
     } catch (error: any) {
       console.error('Sign in error:', error);
-      return { success: false, error: error.message };
-    } finally {
       setLoading(false);
+      return { success: false, error: error.message };
     }
   };
 
@@ -123,12 +158,11 @@ export function useAuth() {
         throw error;
       }
       console.log('ログアウト成功');
-      setUser(null);
+      clearAuthUser();
       router.push('/login');
     } catch (error) {
       console.error('ログアウトエラー:', error);
-      // エラーが発生してもユーザー状態をクリアしてログインページにリダイレクト
-      setUser(null);
+      clearAuthUser();
       router.push('/login');
     }
   };

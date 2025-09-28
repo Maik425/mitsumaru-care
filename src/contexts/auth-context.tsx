@@ -1,8 +1,11 @@
 'use client';
 
-import { useAuth } from '@/hooks/use-auth';
+import {
+  AuthProvider as InternalAuthProvider,
+  useAuthState,
+} from '@/components/auth-provider';
 import type { AuthUser } from '@/lib/types/auth';
-import { createContext, ReactNode, useContext } from 'react';
+import { createContext, ReactNode } from 'react';
 
 interface AuthContextType {
   user: AuthUser | null;
@@ -18,15 +21,9 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const auth = useAuth();
-
-  return <AuthContext.Provider value={auth}>{children}</AuthContext.Provider>;
+  return <InternalAuthProvider>{children}</InternalAuthProvider>;
 }
 
 export function useAuthContext() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuthContext must be used within an AuthProvider');
-  }
-  return context;
+  return useAuthState();
 }
