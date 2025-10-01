@@ -2,7 +2,7 @@
 
 import { supabase } from '@/lib/supabase';
 import type { AuthUser, UserRole } from '@/lib/types/auth';
-import type { PostgrestError } from '@supabase/supabase-js';
+import type { PostgrestError, Session } from '@supabase/supabase-js';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 
@@ -18,6 +18,30 @@ type RpcUserRecord = {
 const STORAGE_KEY = 'auth:user';
 
 export function useAuth() {
+  const getStoredSession = (): Session | null => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const storageKey = (supabase as any)?.auth?.storageKey as
+        | string
+        | undefined;
+      if (!storageKey) return null;
+      const raw = window.localStorage.getItem(storageKey);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as {
+        currentSession?: Session | null;
+        session?: Session | null;
+      } | null;
+      const session = parsed?.currentSession ?? parsed?.session ?? null;
+      return session ?? null;
+    } catch (error) {
+      console.warn('Failed to parse stored auth session', error);
+      return null;
+    }
+  };
+
+  const [session, setSession] = useState<Session | null>(() =>
+    getStoredSession()
+  );
   const [user, setUser] = useState<AuthUser | null>(() => {
     if (typeof window === 'undefined') return null;
     try {
@@ -41,6 +65,7 @@ export function useAuth() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log('Auth state change:', event, session?.user?.id);
+      setSession(session ?? null);
       if (session?.user) {
         await fetchUserData(session.user.id);
       } else {
@@ -55,6 +80,7 @@ export function useAuth() {
       const {
         data: { session },
       } = await supabase.auth.getSession();
+      setSession(session ?? null);
       if (session?.user) {
         await fetchUserData(session.user.id);
       } else {
@@ -79,6 +105,7 @@ export function useAuth() {
 
   const clearAuthUser = () => {
     setUser(null);
+    setSession(null);
     if (typeof window !== 'undefined') {
       window.localStorage.removeItem(STORAGE_KEY);
     }
@@ -134,6 +161,10 @@ export function useAuth() {
         throw error;
       }
 
+      if (data.session) {
+        setSession(data.session);
+      }
+
       if (data.user) {
         await fetchUserData(data.user.id);
         setLoading(false);
@@ -174,9 +205,15 @@ export function useAuth() {
     return true;
   };
 
+  const accessToken = session?.access_token ?? null;
+  const refreshToken = session?.refresh_token ?? null;
+
   return {
     user,
     loading,
+    session,
+    accessToken,
+    refreshToken,
     signIn,
     signOut,
     requireAuth,

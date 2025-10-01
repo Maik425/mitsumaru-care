@@ -124,6 +124,54 @@ src/
 2. マイグレーションを実行（自動的にリセットとセットアップが実行されます）
 3. データの確認
 
+#### ローカル/リモート環境でのマイグレーション実行例
+
+```bash
+# .envに定義されたURLを使ってSupabaseにマイグレーションを反映
+pnpm exec supabase db push --db-url "postgresql://postgres:Rn1jsdnsEnYKABV5@db.xuojlhzkzzjgguacmdly.supabase.co:5432/postgres"
+```
+
+#### tRPC APIのcurlテスト手順
+
+1. `.env` から Supabase 認証用の変数を読み込む（`NEXT_PUBLIC_SUPABASE_*` など）
+
+   ```bash
+   export $(cat .env | xargs)
+   ```
+
+2. Supabase 認証APIからアクセス・リフレッシュトークンを取得
+
+   ```bash
+   curl -s -H "Content-Type: application/json" \
+     -H "apikey: $NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+     -d '{"email":"user@mitsumaru.com","password":"asdfasdf"}' \
+     "${NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password" \
+     > /tmp/supabase_session.json
+   export ACCESS_TOKEN=$(jq -r '.access_token' /tmp/supabase_session.json)
+   ```
+
+3. `holidays.list` の取得
+
+   ```bash
+   curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+     "http://localhost:3000/api/trpc/holidays.list?batch=1&input=%7B%7D"
+   ```
+
+4. `holidays.create` で新規申請を作成（`reason` は未入力時 `null` を許容）
+
+   ```bash
+   curl -s -X POST "http://localhost:3000/api/trpc/holidays.create" \
+     -H "Authorization: Bearer $ACCESS_TOKEN" \
+     -H "Content-Type: application/json" \
+     --data '{"type":"regular","dates":["2025-12-01","2025-12-02"],"reason":null}'
+   ```
+
+5. 作成後に再度 `holidays.list` を実行して反映を確認
+   ```bash
+   curl -s -H "Authorization: Bearer $ACCESS_TOKEN" \
+     "http://localhost:3000/api/trpc/holidays.list?batch=1&input=%7B%7D"
+   ```
+
 **注意**: `001_initial_schema.sql`には完全なリセット機能が含まれています：
 
 - 既存テーブルの削除

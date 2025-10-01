@@ -17,7 +17,13 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { useAuthContext } from '@/contexts/auth-context';
-import { Building2, Calendar, Clock, HelpCircle, LogOut } from 'lucide-react';
+import {
+  Building2,
+  Calendar,
+  ClipboardList,
+  HelpCircle,
+  LogOut,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { PropsWithChildren, useState } from 'react';
@@ -29,8 +35,8 @@ interface UserShellProps extends PropsWithChildren {
 
 const primaryMenu = [
   { name: 'ダッシュボード', href: '/user/dashboard', icon: Building2 },
-  { name: '勤怠管理', href: '/user/attendance', icon: Clock },
-  { name: '希望休管理', href: '/user/holidays', icon: Calendar },
+  { name: '勤怠申請', href: '/user/attendance', icon: ClipboardList },
+  { name: '希望休申請', href: '/user/holidays', icon: Calendar },
 ];
 
 const secondaryMenu = [{ name: 'FAQ', href: '/faq', icon: HelpCircle }];

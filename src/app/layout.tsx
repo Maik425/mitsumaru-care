@@ -34,9 +34,9 @@ html {
         `}</style>
       </head>
       <body>
-        <TRPCProvider>
-          <AuthProvider>{children}</AuthProvider>
-        </TRPCProvider>
+        <AuthProvider>
+          <TRPCProvider>{children}</TRPCProvider>
+        </AuthProvider>
       </body>
     </html>
   );

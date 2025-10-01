@@ -217,7 +217,7 @@ export function UserAttendance() {
 
   return (
     <UserShell
-      title='勤怠管理'
+      title='勤怠申請'
       description='打刻申請と最近の勤怠を確認できます'
     >
       <div className='grid grid-cols-1 lg:grid-cols-2 gap-6'>

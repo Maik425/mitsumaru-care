@@ -1,17 +1,15 @@
 'use client';
 
 import {
-  ArrowLeft,
-  Calendar,
-  Plus,
-  CheckCircle,
-  XCircle,
-  Clock,
   AlertTriangle,
+  Calendar,
+  CheckCircle,
+  Clock,
+  Plus,
+  XCircle,
 } from 'lucide-react';
-import Link from 'next/link';
 import type React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -19,36 +17,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-
-const myRequests = [
-  {
-    id: 1,
-    dates: ['2023-10-01', '2023-10-02'],
-    submittedAt: '2023-09-15',
-    status: 'approved',
-    type: 'regular',
-    approvedAt: '2023-09-20',
-    reason: '',
-    rejectReason: '',
-  },
-  {
-    id: 2,
-    dates: ['2023-11-01'],
-    submittedAt: '2023-10-10',
-    status: 'pending',
-    type: 'exchange',
-    approvedAt: '',
-    reason: '家族訪問',
-    rejectReason: '',
-  },
-  // Add more requests as needed
-];
+import { UserShell } from '@/components/user-shell';
+import { useAuthContext } from '@/contexts/auth-context';
+import { api } from '@/lib/trpc';
 
 export function UserHolidays() {
   const [selectedDates, setSelectedDates] = useState<string[]>([]);
   const [exchangeDates, setExchangeDates] = useState<string[]>([]);
   const [reason, setReason] = useState('');
   const [exchangeReason, setExchangeReason] = useState('');
+  const [hasHydrated, setHasHydrated] = useState(false);
+  const { user } = useAuthContext();
+
+  useEffect(() => {
+    setHasHydrated(true);
+  }, []);
 
   const getCurrentDeadline = () => {
     const now = new Date();
@@ -125,26 +108,49 @@ export function UserHolidays() {
     setExchangeDates(exchangeDates.filter(d => d !== date));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const utils = api.useContext();
+  const listQuery = api.holidays.list.useQuery(undefined, {
+    enabled: Boolean(user?.id),
+  });
+  const regularRequests = listQuery.data?.filter(
+    request => request.type === 'regular'
+  );
+  const exchangeRequests = listQuery.data?.filter(
+    request => request.type === 'exchange'
+  );
+
+  const createMutation = api.holidays.create.useMutation({
+    onSuccess: async () => {
+      await utils.holidays.list.invalidate();
+      setSelectedDates([]);
+      setExchangeDates([]);
+      setReason('');
+      setExchangeReason('');
+    },
+  });
+
+  const mutationLoading = createMutation.isPending;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('休暇申請:', {
-      dates: selectedDates,
-      reason,
+    if (!user?.id || selectedDates.length === 0) return;
+
+    await createMutation.mutateAsync({
       type: 'regular',
+      dates: selectedDates,
+      reason: reason.trim() === '' ? null : reason.trim(),
     });
-    setSelectedDates([]);
-    setReason('');
   };
 
-  const handleExchangeSubmit = (e: React.FormEvent) => {
+  const handleExchangeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('交換希望申請:', {
-      dates: exchangeDates,
-      reason: exchangeReason,
+    if (!user?.id || exchangeDates.length === 0) return;
+
+    await createMutation.mutateAsync({
       type: 'exchange',
+      dates: exchangeDates,
+      reason: exchangeReason.trim() === '' ? null : exchangeReason.trim(),
     });
-    setExchangeDates([]);
-    setExchangeReason('');
   };
 
   const getStatusBadge = (status: string) => {
@@ -192,24 +198,11 @@ export function UserHolidays() {
   };
 
   return (
-    <div className='min-h-screen bg-gray-50'>
-      <header className='bg-white shadow-sm border-b'>
-        <div className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='flex items-center h-16'>
-            <Link href='/user/dashboard'>
-              <Button variant='ghost' size='sm'>
-                <ArrowLeft className='h-4 w-4 mr-2' />
-                ダッシュボードに戻る
-              </Button>
-            </Link>
-            <h1 className='text-xl font-semibold text-gray-900 ml-4'>
-              希望休入力
-            </h1>
-          </div>
-        </div>
-      </header>
-
-      <main className='max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
+    <UserShell
+      title='希望休申請'
+      description='希望休や交換希望の申請・履歴を確認できます'
+    >
+      <div className='space-y-6'>
         {isPastDeadline && (
           <div className='mb-6'>
             <Card className='border-orange-200 bg-orange-50'>
@@ -321,9 +314,9 @@ export function UserHolidays() {
                   <Button
                     type='submit'
                     className='w-full'
-                    disabled={selectedDates.length === 0}
+                    disabled={selectedDates.length === 0 || mutationLoading}
                   >
-                    申請を送信
+                    {mutationLoading ? '送信中...' : '申請を送信'}
                   </Button>
                 </form>
 
@@ -432,9 +425,9 @@ export function UserHolidays() {
                   <Button
                     type='submit'
                     className='w-full'
-                    disabled={exchangeDates.length === 0}
+                    disabled={exchangeDates.length === 0 || mutationLoading}
                   >
-                    交換希望申請を送信
+                    {mutationLoading ? '送信中...' : '交換希望申請を送信'}
                   </Button>
                 </form>
 
@@ -465,65 +458,174 @@ export function UserHolidays() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className='space-y-4'>
-                  {myRequests.map(request => (
-                    <div
-                      key={request.id}
-                      className='p-4 border border-gray-200 rounded-lg'
-                    >
-                      <div className='flex items-center justify-between mb-3'>
+                {!hasHydrated || listQuery.isLoading ? (
+                  <p className='text-sm text-muted-foreground'>
+                    読み込み中です...
+                  </p>
+                ) : !listQuery.data || listQuery.data.length === 0 ? (
+                  <p className='text-sm text-muted-foreground'>
+                    申請履歴はまだありません
+                  </p>
+                ) : (
+                  <div className='space-y-6'>
+                    {regularRequests && regularRequests.length > 0 && (
+                      <div className='space-y-4 rounded-lg border border-border/80 bg-muted/10 p-4'>
                         <div>
-                          <h3 className='font-medium'>
-                            {request.dates
-                              .map(date =>
-                                new Date(date).toLocaleDateString('ja-JP', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                })
-                              )
-                              .join(', ')}
+                          <h3 className='text-sm font-semibold text-muted-foreground'>
+                            希望休申請
                           </h3>
-                          <p className='text-sm text-gray-600'>
-                            申請日: {request.submittedAt}
+                          <p className='text-xs text-muted-foreground'>
+                            来月以降の希望休に関する申請履歴です。
                           </p>
                         </div>
-                        <div className='flex flex-col items-end space-y-1'>
-                          {getStatusBadge(request.status)}
-                          {getRequestTypeBadge(request.type)}
+                        <div className='space-y-4'>
+                          {regularRequests.map(request => (
+                            <div
+                              key={request.id}
+                              className='rounded-md border border-border/60 bg-background/95 p-4 shadow-sm'
+                            >
+                              <div className='flex items-center justify-between mb-3'>
+                                <div>
+                                  <h4 className='font-medium'>
+                                    {request.dates
+                                      .map(date =>
+                                        new Date(date).toLocaleDateString(
+                                          'ja-JP',
+                                          {
+                                            month: 'short',
+                                            day: 'numeric',
+                                          }
+                                        )
+                                      )
+                                      .join(', ')}
+                                  </h4>
+                                  <p className='text-sm text-gray-600'>
+                                    申請日:{' '}
+                                    {new Date(
+                                      request.submitted_at
+                                    ).toLocaleDateString('ja-JP')}
+                                  </p>
+                                </div>
+                                <div className='flex flex-col items-end space-y-1'>
+                                  {getStatusBadge(request.status)}
+                                </div>
+                              </div>
+
+                              {request.status === 'approved' &&
+                                request.approved_at && (
+                                  <p className='text-sm text-green-600'>
+                                    承認日:{' '}
+                                    {new Date(
+                                      request.approved_at
+                                    ).toLocaleDateString('ja-JP')}
+                                  </p>
+                                )}
+
+                              {request.status === 'rejected' &&
+                                request.reject_reason && (
+                                  <div className='mt-2 rounded-md border border-red-200 bg-red-50 p-2'>
+                                    <p className='text-sm text-red-800 font-medium'>
+                                      却下理由
+                                    </p>
+                                    <p className='text-sm text-red-600'>
+                                      {request.reject_reason}
+                                    </p>
+                                  </div>
+                                )}
+                            </div>
+                          ))}
                         </div>
                       </div>
+                    )}
 
-                      {request.type === 'exchange' && (
-                        <div className='mb-3'>
-                          <p className='text-sm text-gray-600 mb-1'>理由</p>
-                          <p className='text-sm'>{request.reason}</p>
-                        </div>
-                      )}
-
-                      {request.status === 'approved' && request.approvedAt && (
-                        <p className='text-sm text-green-600'>
-                          承認日: {request.approvedAt}
-                        </p>
-                      )}
-
-                      {request.status === 'rejected' && (
-                        <div className='mt-2 p-2 bg-red-50 border border-red-200 rounded'>
-                          <p className='text-sm text-red-800 font-medium'>
-                            却下理由
-                          </p>
-                          <p className='text-sm text-red-600'>
-                            {request.rejectReason}
+                    {exchangeRequests && exchangeRequests.length > 0 && (
+                      <div className='space-y-4 rounded-lg border border-border/80 bg-muted/10 p-4'>
+                        <div>
+                          <h3 className='text-sm font-semibold text-muted-foreground'>
+                            交換希望申請
+                          </h3>
+                          <p className='text-xs text-muted-foreground'>
+                            今月（期限超過時は来月分も）の交換希望の申請履歴です。
                           </p>
                         </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
+                        <div className='space-y-4'>
+                          {exchangeRequests.map(request => (
+                            <div
+                              key={request.id}
+                              className='rounded-md border border-border/60 bg-background/95 p-4 shadow-sm'
+                            >
+                              <div className='flex items-center justify-between mb-3'>
+                                <div>
+                                  <h4 className='font-medium'>
+                                    {request.dates
+                                      .map(date =>
+                                        new Date(date).toLocaleDateString(
+                                          'ja-JP',
+                                          {
+                                            month: 'short',
+                                            day: 'numeric',
+                                          }
+                                        )
+                                      )
+                                      .join(', ')}
+                                  </h4>
+                                  <p className='text-sm text-gray-600'>
+                                    申請日:{' '}
+                                    {new Date(
+                                      request.submitted_at
+                                    ).toLocaleDateString('ja-JP')}
+                                  </p>
+                                </div>
+                                <div className='flex flex-col items-end space-y-1'>
+                                  {getStatusBadge(request.status)}
+                                </div>
+                              </div>
+
+                              <div className='mb-3'>
+                                <p className='text-sm text-gray-600 mb-1'>
+                                  理由
+                                </p>
+                                <p className='text-sm'>
+                                  {request.reason &&
+                                  request.reason.trim().length > 0
+                                    ? request.reason
+                                    : '理由は入力されていません'}
+                                </p>
+                              </div>
+
+                              {request.status === 'approved' &&
+                                request.approved_at && (
+                                  <p className='text-sm text-green-600'>
+                                    承認日:{' '}
+                                    {new Date(
+                                      request.approved_at
+                                    ).toLocaleDateString('ja-JP')}
+                                  </p>
+                                )}
+
+                              {request.status === 'rejected' &&
+                                request.reject_reason && (
+                                  <div className='mt-2 rounded-md border border-red-200 bg-red-50 p-2'>
+                                    <p className='text-sm text-red-800 font-medium'>
+                                      却下理由
+                                    </p>
+                                    <p className='text-sm text-red-600'>
+                                      {request.reject_reason}
+                                    </p>
+                                  </div>
+                                )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
         </div>
-      </main>
+      </div>
 
       <style jsx global>{`
         input[type='date']::-webkit-calendar-picker-indicator {
@@ -548,6 +650,6 @@ export function UserHolidays() {
           z-index: 9999;
         }
       `}</style>
-    </div>
+    </UserShell>
   );
 }
