@@ -1,23 +1,23 @@
 ## 1. データベース設計・実装
 
-- [ ] 1.1 職種マスターテーブルの設計・作成
-  - [ ] 1.1.1 job_typesテーブルの作成（id, name, description, facility_id, is_active）
-  - [ ] 1.1.2 インデックスと制約の設定
-  - [ ] 1.1.3 RLSポリシーの設定
-- [ ] 1.2 エリアマスターテーブルの設計・作成
-  - [ ] 1.2.1 areasテーブルの作成（id, name, description, facility_id, is_active）
-  - [ ] 1.2.2 インデックスと制約の設定
-  - [ ] 1.2.3 RLSポリシーの設定
-- [ ] 1.3 配置ルールテンプレートテーブルの設計・作成
-  - [ ] 1.3.1 job_rule_templatesテーブルの作成（id, name, description, facility_id, is_active）
-  - [ ] 1.3.2 インデックスと制約の設定
-  - [ ] 1.3.3 RLSポリシーの設定
-- [ ] 1.4 配置ルールセットテーブルの設計・作成
-  - [ ] 1.4.1 job_rule_setsテーブルの作成（template_id, job_type_id, area_id, min_assignment, max_assignment）
-  - [ ] 1.4.2 外部キー制約の設定
-  - [ ] 1.4.3 RLSポリシーの設定
-- [ ] 1.5 マイグレーションファイルの作成・実行
-- [ ] 1.6 ダミーデータの挿入
+- [x] 1.1 職種マスターテーブルの設計・作成
+  - [x] 1.1.1 job_typesテーブルの作成（id, name, description, facility_id, is_active）
+  - [x] 1.1.2 インデックスと制約の設定
+  - [x] 1.1.3 RLSポリシーの設定
+- [x] 1.2 エリアマスターテーブルの設計・作成
+  - [x] 1.2.1 areasテーブルの作成（id, name, description, facility_id, is_active）
+  - [x] 1.2.2 インデックスと制約の設定
+  - [x] 1.2.3 RLSポリシーの設定
+- [x] 1.3 配置ルールテンプレートテーブルの設計・作成
+  - [x] 1.3.1 job_rule_templatesテーブルの作成（id, name, description, facility_id, is_active）
+  - [x] 1.3.2 インデックスと制約の設定
+  - [x] 1.3.3 RLSポリシーの設定
+- [x] 1.4 配置ルールセットテーブルの設計・作成
+  - [x] 1.4.1 job_rule_setsテーブルの作成（template_id, job_type_id, area_id, min_assignment, max_assignment）
+  - [x] 1.4.2 外部キー制約の設定
+  - [x] 1.4.3 RLSポリシーの設定
+- [x] 1.5 マイグレーションファイルの作成・実行
+- [x] 1.6 ダミーデータの挿入
 
 ## 2. バックエンド実装
 

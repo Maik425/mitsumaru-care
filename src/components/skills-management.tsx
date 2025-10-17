@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, Edit, Trash2, Award } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { useAuth } from '@/components/auth/auth-provider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,58 +18,43 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { trpc } from '@/lib/trpc';
 
 export function SkillsManagement() {
-  const [skills, setSkills] = useState([
-    {
-      id: 1,
-      name: '入浴介助',
-      category: '身体介護',
-      level: 1,
-      description: '利用者の入浴をサポートする技能',
-    },
-    {
-      id: 2,
-      name: '食事介助',
-      category: '身体介護',
-      level: 1,
-      description: '食事の際の介助を行う技能',
-    },
-    {
-      id: 3,
-      name: '移乗介助',
-      category: '身体介護',
-      level: 3,
-      description: '車椅子やベッドへの移乗をサポート',
-    },
-    {
-      id: 4,
-      name: '服薬管理',
-      category: '医療',
-      level: 5,
-      description: '薬の管理・服薬確認を行う技能',
-    },
-    {
-      id: 5,
-      name: '記録業務',
-      category: '事務',
-      level: 1,
-      description: '介護記録の作成・管理',
-    },
-    {
-      id: 6,
-      name: 'レクリエーション',
-      category: '生活支援',
-      level: 3,
-      description: '利用者向けの活動企画・実施',
-    },
-  ]);
-
+  const { user } = useAuth();
+  const [isEditing, setIsEditing] = useState(false);
+  const [editingSkill, setEditingSkill] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
     category: '',
     level: 1,
     description: '',
+  });
+
+  // tRPC queries and mutations
+  const { data: skills = [], refetch } = trpc.skills.getSkills.useQuery({
+    facility_id: user?.facility_id,
+    is_active: true,
+  });
+
+  const createSkillMutation = trpc.skills.createSkill.useMutation({
+    onSuccess: () => {
+      refetch();
+      resetForm();
+    },
+  });
+
+  const updateSkillMutation = trpc.skills.updateSkill.useMutation({
+    onSuccess: () => {
+      refetch();
+      resetForm();
+    },
+  });
+
+  const deleteSkillMutation = trpc.skills.deleteSkill.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
   });
 
   const categories = ['身体介護', '医療', '事務', '生活支援', 'その他'];
@@ -123,9 +109,57 @@ export function SkillsManagement() {
     return labels[level as keyof typeof labels] || '不明';
   };
 
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      category: '',
+      level: 1,
+      description: '',
+    });
+    setIsEditing(false);
+    setEditingSkill(null);
+  };
+
+  const handleEdit = (skill: any) => {
+    setEditingSkill(skill);
+    setFormData({
+      name: skill.name,
+      category: skill.category,
+      level: skill.level,
+      description: skill.description || '',
+    });
+    setIsEditing(true);
+  };
+
   const handleSave = () => {
-    // 実際の実装では、ここでAPIを呼び出してデータを保存
-    setFormData({ name: '', category: '', level: 1, description: '' });
+    if (!user?.facility_id) return;
+
+    const skillData = {
+      name: formData.name,
+      category: formData.category,
+      level: formData.level,
+      description: formData.description || undefined,
+      facility_id: user.facility_id,
+    };
+
+    if (isEditing && editingSkill) {
+      updateSkillMutation.mutate({
+        id: editingSkill.id,
+        ...skillData,
+      });
+    } else {
+      createSkillMutation.mutate(skillData);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('この技能を削除しますか？')) {
+      deleteSkillMutation.mutate({ id });
+    }
+  };
+
+  const handleCancel = () => {
+    resetForm();
   };
 
   return (
@@ -229,9 +263,24 @@ export function SkillsManagement() {
                       placeholder='技能の詳細説明を入力してください'
                     />
                   </div>
-                  <Button onClick={handleSave} className='w-full'>
-                    追加
-                  </Button>
+                  <div className='flex space-x-2'>
+                    <Button 
+                      onClick={handleSave} 
+                      className='flex-1'
+                      disabled={createSkillMutation.isPending || updateSkillMutation.isPending}
+                    >
+                      {isEditing ? '更新' : '追加'}
+                    </Button>
+                    {isEditing && (
+                      <Button
+                        onClick={handleCancel}
+                        variant='outline'
+                        className='flex-1 bg-transparent'
+                      >
+                        キャンセル
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -263,13 +312,19 @@ export function SkillsManagement() {
                           </Badge>
                         </div>
                         <div className='flex space-x-1'>
-                          <Button size='sm' variant='ghost'>
+                          <Button 
+                            size='sm' 
+                            variant='ghost'
+                            onClick={() => handleEdit(skill)}
+                          >
                             <Edit className='h-3 w-3' />
                           </Button>
                           <Button
                             size='sm'
                             variant='ghost'
                             className='text-red-600'
+                            onClick={() => handleDelete(skill.id)}
+                            disabled={deleteSkillMutation.isPending}
                           >
                             <Trash2 className='h-3 w-3' />
                           </Button>

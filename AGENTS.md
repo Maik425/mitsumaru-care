@@ -1,14 +1,17 @@
 <!-- OPENSPEC:START -->
+
 # OpenSpec Instructions
 
 These instructions are for AI assistants working in this project.
 
 Always open `@/openspec/AGENTS.md` when the request:
+
 - Mentions planning or proposals (words like proposal, spec, change, plan)
 - Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
 - Sounds ambiguous and you need the authoritative spec before coding
 
 Use `@/openspec/AGENTS.md` to learn:
+
 - How to create and apply change proposals
 - Spec format and conventions
 - Project structure and guidelines
@@ -108,6 +111,7 @@ pnpm exec tsc
 3. **エラーハンドリング**: TypeScriptエラーは必ず修正してください
 4. **ファイル構造**: 新しいファイルは適切なディレクトリに配置してください
 5. **ドキュメント更新**: 機能実装後は必ず `docs/PR/` ディレクトリのドキュメントを更新してください
+6. **tasks.md更新**: 実装完了後は必ず `openspec/changes/*/tasks.md` を更新して完了タスクをマークしてください
 
 ## データアクセス層の方針
 
@@ -238,3 +242,20 @@ cat confidential/supabase-connection.env
 ---
 
 **重要**: すべてのコード修正後は必ず `pnpm exec tsc` を実行して、TypeScriptエラーがないことを確認してください。
+
+## OpenSpec コマンド（ショートカット）
+
+以下のコマンドは、このプロジェクトでのOpenSpec運用における作業ショートカットです。
+
+```bash
+# 変更提案（プロポーザル）の作成・検証
+/openspec-proposal
+
+# 提案の適用（実装開始・タスク着手）
+/openspec-apply
+
+# 提案のアーカイブ（デプロイ後の整理）
+/openspec-archive
+```
+
+実際のCLI操作は `openspec/AGENTS.md` を参照してください（`openspec list`, `openspec validate --strict`, `openspec archive` など）。

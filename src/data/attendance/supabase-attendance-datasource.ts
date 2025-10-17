@@ -225,6 +225,7 @@ export class SupabaseAttendanceDataSource implements AttendanceDataSource {
   async getShifts(dto: GetShiftsDto): Promise<Shift[]> {
     let query = this.from('shifts')
       .select('*')
+      .order('sort_order', { ascending: true })
       .order('start_time', { ascending: true });
 
     if (dto.facility_id) {
@@ -257,6 +258,10 @@ export class SupabaseAttendanceDataSource implements AttendanceDataSource {
       break_duration: dto.break_duration ?? 0,
       facility_id: dto.facility_id,
       is_active: true,
+      color_code: dto.color_code ?? null,
+      description: dto.description ?? null,
+      is_night_shift: dto.is_night_shift ?? false,
+      sort_order: dto.sort_order ?? 0,
     };
 
     const { data, error } = await this.from('shifts')
@@ -276,6 +281,10 @@ export class SupabaseAttendanceDataSource implements AttendanceDataSource {
       end_time: updateData.end_time,
       break_duration: updateData.break_duration ?? 0,
       is_active: updateData.is_active,
+      color_code: updateData.color_code ?? null,
+      description: updateData.description ?? null,
+      is_night_shift: updateData.is_night_shift ?? false,
+      sort_order: updateData.sort_order ?? 0,
     };
 
     const { data, error } = await this.from('shifts')

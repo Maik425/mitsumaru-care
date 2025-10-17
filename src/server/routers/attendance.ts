@@ -352,6 +352,10 @@ export const attendanceRouter = router({
         end_time: z.string(),
         break_duration: z.number().optional(),
         facility_id: z.string(),
+        color_code: z.string().max(20).optional(),
+        description: z.string().max(1000).optional(),
+        is_night_shift: z.boolean().optional(),
+        sort_order: z.number().min(0).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
@@ -380,6 +384,10 @@ export const attendanceRouter = router({
         end_time: z.string().optional(),
         break_duration: z.number().optional(),
         is_active: z.boolean().optional(),
+        color_code: z.string().max(20).optional(),
+        description: z.string().max(1000).optional(),
+        is_night_shift: z.boolean().optional(),
+        sort_order: z.number().min(0).optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {

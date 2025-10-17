@@ -4,6 +4,7 @@ import { ArrowLeft, Plus, Edit, Trash2, Settings, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { useAuth } from '@/components/auth/auth-provider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,6 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { trpc } from '@/lib/trpc';
 
 interface JobAreaSet {
   id: string;
@@ -35,66 +37,51 @@ interface JobRuleTemplate {
 }
 
 export function JobRulesManagement() {
-  const [jobRuleTemplates, setJobRuleTemplates] = useState<JobRuleTemplate[]>([
-    {
-      id: 1,
-      templateName: '平日日勤シフト',
-      description: '平日の日勤時間帯の基本配置ルール',
-      jobAreaSets: [
-        {
-          id: '1-1',
-          jobType: '介護福祉士',
-          area: '1階フロア',
-          minAssignment: 2,
-          maxAssignment: 4,
-        },
-        {
-          id: '1-2',
-          jobType: '看護師',
-          area: '全フロア',
-          minAssignment: 1,
-          maxAssignment: 2,
-        },
-        {
-          id: '1-3',
-          jobType: '介護士',
-          area: '2階フロア',
-          minAssignment: 1,
-          maxAssignment: 3,
-        },
-      ],
-      createdAt: '2024-01-15',
+  const { user } = useAuth();
+  
+  // tRPC queries and mutations
+  const { data: jobTypes = [], refetch: refetchJobTypes } = trpc.jobRules.getJobTypes.useQuery({
+    facility_id: user?.facility_id,
+    is_active: true,
+  });
+
+  const { data: areas = [], refetch: refetchAreas } = trpc.jobRules.getAreas.useQuery({
+    facility_id: user?.facility_id,
+    is_active: true,
+  });
+
+  const { data: jobRuleTemplates = [], refetch: refetchTemplates } = trpc.jobRules.getJobRuleTemplates.useQuery({
+    facility_id: user?.facility_id,
+    is_active: true,
+  });
+
+  const { data: jobRuleSets = [], refetch: refetchRuleSets } = trpc.jobRules.getJobRuleSets.useQuery({
+    is_active: true,
+  });
+
+  const createJobTypeMutation = trpc.jobRules.createJobType.useMutation({
+    onSuccess: () => {
+      refetchJobTypes();
     },
-    {
-      id: 2,
-      templateName: '夜勤シフト',
-      description: '夜勤時間帯の最小限配置ルール',
-      jobAreaSets: [
-        {
-          id: '2-1',
-          jobType: '介護福祉士',
-          area: '1階フロア',
-          minAssignment: 1,
-          maxAssignment: 2,
-        },
-        {
-          id: '2-2',
-          jobType: '看護師',
-          area: '全フロア',
-          minAssignment: 1,
-          maxAssignment: 1,
-        },
-        {
-          id: '2-3',
-          jobType: '介護士',
-          area: '2階フロア',
-          minAssignment: 1,
-          maxAssignment: 2,
-        },
-      ],
-      createdAt: '2024-01-16',
+  });
+
+  const createAreaMutation = trpc.jobRules.createArea.useMutation({
+    onSuccess: () => {
+      refetchAreas();
     },
-  ]);
+  });
+
+  const createTemplateMutation = trpc.jobRules.createJobRuleTemplate.useMutation({
+    onSuccess: () => {
+      refetchTemplates();
+    },
+  });
+
+  const createRuleSetMutation = trpc.jobRules.createJobRuleSet.useMutation({
+    onSuccess: () => {
+      refetchRuleSets();
+    },
+  });
 
   const [formData, setFormData] = useState({
     templateName: '',

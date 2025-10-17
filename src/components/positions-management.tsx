@@ -4,55 +4,103 @@ import { ArrowLeft, Plus, Edit, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { useAuth } from '@/components/auth/auth-provider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { trpc } from '@/lib/trpc';
 
 export function PositionsManagement() {
-  const [positions, setPositions] = useState([
-    {
-      id: 1,
-      name: '介護福祉士',
-      description: '介護業務全般を担当する国家資格保有者',
-      level: '上級',
-      color: 'bg-blue-100 text-blue-800',
-    },
-    {
-      id: 2,
-      name: '看護師',
-      description: '医療処置・服薬管理を担当する医療従事者',
-      level: '専門職',
-      color: 'bg-green-100 text-green-800',
-    },
-    {
-      id: 3,
-      name: '介護士',
-      description: '基本的な介護業務を担当するスタッフ',
-      level: '一般',
-      color: 'bg-orange-100 text-orange-800',
-    },
-    {
-      id: 4,
-      name: '管理者',
-      description: '施設運営・スタッフ管理を担当する責任者',
-      level: '管理職',
-      color: 'bg-purple-100 text-purple-800',
-    },
-  ]);
-
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [editingPosition, setEditingPosition] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    level: '',
+    level: 1,
+    colorCode: '',
   });
 
+  // tRPC queries and mutations
+  const { data: positions = [], refetch } = trpc.positions.getPositions.useQuery({
+    facility_id: user?.facility_id,
+    is_active: true,
+  });
+
+  const createPositionMutation = trpc.positions.createPosition.useMutation({
+    onSuccess: () => {
+      refetch();
+      resetForm();
+    },
+  });
+
+  const updatePositionMutation = trpc.positions.updatePosition.useMutation({
+    onSuccess: () => {
+      refetch();
+      resetForm();
+    },
+  });
+
+  const deletePositionMutation = trpc.positions.deletePosition.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      description: '',
+      level: 1,
+      colorCode: '',
+    });
+    setIsEditing(false);
+    setEditingPosition(null);
+  };
+
+  const handleEdit = (position: any) => {
+    setEditingPosition(position);
+    setFormData({
+      name: position.name,
+      description: position.description || '',
+      level: position.level,
+      colorCode: position.color_code || '',
+    });
+    setIsEditing(true);
+  };
+
   const handleSave = () => {
-    // 実際の実装では、ここでAPIを呼び出してデータを保存
-    setFormData({ name: '', description: '', level: '' });
+    if (!user?.facility_id) return;
+
+    const positionData = {
+      name: formData.name,
+      description: formData.description || undefined,
+      level: formData.level,
+      color_code: formData.colorCode || undefined,
+      facility_id: user.facility_id,
+    };
+
+    if (isEditing && editingPosition) {
+      updatePositionMutation.mutate({
+        id: editingPosition.id,
+        ...positionData,
+      });
+    } else {
+      createPositionMutation.mutate(positionData);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('この役職を削除しますか？')) {
+      deletePositionMutation.mutate({ id });
+    }
+  };
+
+  const handleCancel = () => {
+    resetForm();
   };
 
   return (
@@ -114,16 +162,45 @@ export function PositionsManagement() {
                     <Label htmlFor='level'>レベル</Label>
                     <Input
                       id='level'
+                      type='number'
+                      min='1'
+                      max='10'
                       value={formData.level}
                       onChange={e =>
-                        setFormData({ ...formData, level: e.target.value })
+                        setFormData({ ...formData, level: parseInt(e.target.value) || 1 })
                       }
-                      placeholder='例: 上級、一般、管理職'
+                      placeholder='1-10の数値'
                     />
                   </div>
-                  <Button onClick={handleSave} className='w-full'>
-                    追加
-                  </Button>
+                  <div>
+                    <Label htmlFor='colorCode'>色コード</Label>
+                    <Input
+                      id='colorCode'
+                      value={formData.colorCode}
+                      onChange={e =>
+                        setFormData({ ...formData, colorCode: e.target.value })
+                      }
+                      placeholder='例: bg-blue-100 text-blue-800'
+                    />
+                  </div>
+                  <div className='flex space-x-2'>
+                    <Button 
+                      onClick={handleSave} 
+                      className='flex-1'
+                      disabled={createPositionMutation.isPending || updatePositionMutation.isPending}
+                    >
+                      {isEditing ? '更新' : '追加'}
+                    </Button>
+                    {isEditing && (
+                      <Button
+                        onClick={handleCancel}
+                        variant='outline'
+                        className='flex-1 bg-transparent'
+                      >
+                        キャンセル
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -146,19 +223,25 @@ export function PositionsManagement() {
                     >
                       <div className='flex items-center justify-between mb-2'>
                         <div className='flex items-center space-x-2'>
-                          <Badge className={position.color}>
+                          <Badge className={position.color_code || 'bg-gray-100 text-gray-800'}>
                             {position.name}
                           </Badge>
-                          <Badge variant='outline'>{position.level}</Badge>
+                          <Badge variant='outline'>レベル {position.level}</Badge>
                         </div>
                         <div className='flex space-x-1'>
-                          <Button size='sm' variant='ghost'>
+                          <Button 
+                            size='sm' 
+                            variant='ghost'
+                            onClick={() => handleEdit(position)}
+                          >
                             <Edit className='h-3 w-3' />
                           </Button>
                           <Button
                             size='sm'
                             variant='ghost'
                             className='text-red-600'
+                            onClick={() => handleDelete(position.id)}
+                            disabled={deletePositionMutation.isPending}
                           >
                             <Trash2 className='h-3 w-3' />
                           </Button>

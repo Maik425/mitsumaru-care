@@ -45,6 +45,11 @@ export interface Shift {
   break_duration: number;
   facility_id: string;
   is_active: boolean;
+  // Extensions
+  color_code?: string;
+  description?: string;
+  is_night_shift?: boolean;
+  sort_order?: number;
   created_at: string;
   updated_at: string;
 }
@@ -131,6 +136,10 @@ export interface CreateShiftDto {
   end_time: string;
   break_duration?: number;
   facility_id: string;
+  color_code?: string;
+  description?: string;
+  is_night_shift?: boolean;
+  sort_order?: number;
 }
 
 export interface UpdateShiftDto {
@@ -140,6 +149,10 @@ export interface UpdateShiftDto {
   end_time?: string;
   break_duration?: number;
   is_active?: boolean;
+  color_code?: string;
+  description?: string;
+  is_night_shift?: boolean;
+  sort_order?: number;
 }
 
 export interface CreateUserShiftDto {

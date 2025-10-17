@@ -1,17 +1,17 @@
 ## 1. データベース設計・実装
 
-- [ ] 1.1 役職マスターテーブルの設計・作成
-  - [ ] 1.1.1 positionsテーブルの作成（id, name, description, level, color_code, facility_id, is_active）
-  - [ ] 1.1.2 インデックスと制約の設定
-  - [ ] 1.1.3 RLSポリシーの設定
-- [ ] 1.2 職員役職関連テーブルの設計・作成
-  - [ ] 1.2.1 user_positionsテーブルの作成（user_id, position_id, assigned_at, assigned_by）
-  - [ ] 1.2.2 外部キー制約の設定
-  - [ ] 1.2.3 RLSポリシーの設定
-- [ ] 1.3 既存usersテーブルの拡張
-  - [ ] 1.3.1 position_idカラムの追加（現在の役職を保持）
-- [ ] 1.4 マイグレーションファイルの作成・実行
-- [ ] 1.5 ダミーデータの挿入
+- [x] 1.1 役職マスターテーブルの設計・作成
+  - [x] 1.1.1 positionsテーブルの作成（id, name, description, level, color_code, facility_id, is_active）
+  - [x] 1.1.2 インデックスと制約の設定
+  - [x] 1.1.3 RLSポリシーの設定
+- [x] 1.2 職員役職関連テーブルの設計・作成
+  - [x] 1.2.1 user_positionsテーブルの作成（user_id, position_id, assigned_at, assigned_by）
+  - [x] 1.2.2 外部キー制約の設定
+  - [x] 1.2.3 RLSポリシーの設定
+- [x] 1.3 既存usersテーブルの拡張
+  - [x] 1.3.1 position_idカラムの追加（現在の役職を保持）
+- [x] 1.4 マイグレーションファイルの作成・実行
+- [x] 1.5 ダミーデータの挿入
 
 ## 2. バックエンド実装
 

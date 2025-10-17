@@ -1,82 +1,122 @@
 'use client';
 
-import { ArrowLeft, Plus, Edit, Trash2, Clock } from 'lucide-react';
+import { ArrowLeft, Clock, Edit, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
+import { useAuth } from '@/components/auth/auth-provider';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { trpc } from '@/lib/trpc';
 
 export function AttendanceTypesManagement() {
-  const [attendanceTypes, setAttendanceTypes] = useState([
-    {
-      id: 1,
-      name: '早番',
-      startTime: '07:00',
-      endTime: '16:00',
-      breakTime: 60,
-      color: 'bg-blue-100 text-blue-800',
-    },
-    {
-      id: 2,
-      name: '日勤',
-      startTime: '09:00',
-      endTime: '18:00',
-      breakTime: 60,
-      color: 'bg-green-100 text-green-800',
-    },
-    {
-      id: 3,
-      name: '遅番',
-      startTime: '11:00',
-      endTime: '20:00',
-      breakTime: 60,
-      color: 'bg-orange-100 text-orange-800',
-    },
-    {
-      id: 4,
-      name: '夜勤',
-      startTime: '20:00',
-      endTime: '09:00',
-      breakTime: 120,
-      color: 'bg-purple-100 text-purple-800',
-    },
-  ]);
-
+  const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [editingType, setEditingType] = useState(null);
+  const [editingType, setEditingType] = useState<any>(null);
   const [formData, setFormData] = useState({
     name: '',
     startTime: '',
     endTime: '',
     breakTime: '',
+    colorCode: '',
+    description: '',
+    isNightShift: false,
+    sortOrder: 0,
   });
+
+  // tRPC queries and mutations
+  const { data: attendanceTypes = [], refetch } =
+    trpc.attendance.getShifts.useQuery({
+      facility_id: user?.facility_id,
+      is_active: true,
+    });
+
+  const createShiftMutation = trpc.attendance.createShift.useMutation({
+    onSuccess: () => {
+      refetch();
+      resetForm();
+    },
+  });
+
+  const updateShiftMutation = trpc.attendance.updateShift.useMutation({
+    onSuccess: () => {
+      refetch();
+      resetForm();
+    },
+  });
+
+  const deleteShiftMutation = trpc.attendance.deleteShift.useMutation({
+    onSuccess: () => {
+      refetch();
+    },
+  });
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      startTime: '',
+      endTime: '',
+      breakTime: '',
+      colorCode: '',
+      description: '',
+      isNightShift: false,
+      sortOrder: 0,
+    });
+    setIsEditing(false);
+    setEditingType(null);
+  };
 
   const handleEdit = (type: any) => {
     setEditingType(type);
     setFormData({
       name: type.name,
-      startTime: type.startTime,
-      endTime: type.endTime,
-      breakTime: type.breakTime.toString(),
+      startTime: type.start_time,
+      endTime: type.end_time,
+      breakTime: type.break_duration.toString(),
+      colorCode: type.color_code || '',
+      description: type.description || '',
+      isNightShift: type.is_night_shift || false,
+      sortOrder: type.sort_order || 0,
     });
     setIsEditing(true);
   };
 
   const handleSave = () => {
-    // 実際の実装では、ここでAPIを呼び出してデータを保存
-    setIsEditing(false);
-    setEditingType(null);
-    setFormData({ name: '', startTime: '', endTime: '', breakTime: '' });
+    if (!user?.facility_id) return;
+
+    const shiftData = {
+      name: formData.name,
+      start_time: formData.startTime,
+      end_time: formData.endTime,
+      break_duration: parseInt(formData.breakTime) || 60,
+      facility_id: user.facility_id,
+      color_code: formData.colorCode || undefined,
+      description: formData.description || undefined,
+      is_night_shift: formData.isNightShift,
+      sort_order: formData.sortOrder,
+    };
+
+    if (isEditing && editingType) {
+      updateShiftMutation.mutate({
+        id: editingType.id,
+        ...shiftData,
+      });
+    } else {
+      createShiftMutation.mutate(shiftData);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    if (confirm('このシフト形態を削除しますか？')) {
+      deleteShiftMutation.mutate({ id });
+    }
   };
 
   const handleCancel = () => {
-    setIsEditing(false);
-    setEditingType(null);
-    setFormData({ name: '', startTime: '', endTime: '', breakTime: '' });
+    resetForm();
   };
 
   return (
@@ -159,8 +199,70 @@ export function AttendanceTypesManagement() {
                       placeholder='60'
                     />
                   </div>
+                  <div>
+                    <Label htmlFor='colorCode'>色コード</Label>
+                    <Input
+                      id='colorCode'
+                      value={formData.colorCode}
+                      onChange={e =>
+                        setFormData({ ...formData, colorCode: e.target.value })
+                      }
+                      placeholder='例: bg-blue-100 text-blue-800'
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor='description'>説明</Label>
+                    <Input
+                      id='description'
+                      value={formData.description}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          description: e.target.value,
+                        })
+                      }
+                      placeholder='シフト形態の説明'
+                    />
+                  </div>
+                  <div className='flex items-center space-x-2'>
+                    <input
+                      type='checkbox'
+                      id='isNightShift'
+                      checked={formData.isNightShift}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          isNightShift: e.target.checked,
+                        })
+                      }
+                    />
+                    <Label htmlFor='isNightShift'>夜勤シフト</Label>
+                  </div>
+                  <div>
+                    <Label htmlFor='sortOrder'>表示順序</Label>
+                    <Input
+                      id='sortOrder'
+                      type='number'
+                      min='0'
+                      value={formData.sortOrder}
+                      onChange={e =>
+                        setFormData({
+                          ...formData,
+                          sortOrder: parseInt(e.target.value) || 0,
+                        })
+                      }
+                      placeholder='0'
+                    />
+                  </div>
                   <div className='flex space-x-2'>
-                    <Button onClick={handleSave} className='flex-1'>
+                    <Button
+                      onClick={handleSave}
+                      className='flex-1'
+                      disabled={
+                        createShiftMutation.isPending ||
+                        updateShiftMutation.isPending
+                      }
+                    >
                       {isEditing ? '更新' : '追加'}
                     </Button>
                     {isEditing && (
@@ -194,7 +296,14 @@ export function AttendanceTypesManagement() {
                       className='p-4 border border-gray-200 rounded-lg'
                     >
                       <div className='flex items-center justify-between mb-2'>
-                        <Badge className={type.color}>{type.name}</Badge>
+                        <Badge
+                          className={
+                            type.color_code || 'bg-gray-100 text-gray-800'
+                          }
+                        >
+                          {type.name}
+                          {type.is_night_shift && ' (夜勤)'}
+                        </Badge>
                         <div className='flex space-x-1'>
                           <Button
                             size='sm'
@@ -207,25 +316,35 @@ export function AttendanceTypesManagement() {
                             size='sm'
                             variant='ghost'
                             className='text-red-600'
+                            onClick={() => handleDelete(type.id)}
+                            disabled={deleteShiftMutation.isPending}
                           >
                             <Trash2 className='h-3 w-3' />
                           </Button>
                         </div>
                       </div>
+                      {type.description && (
+                        <p className='text-sm text-gray-500 mb-2'>
+                          {type.description}
+                        </p>
+                      )}
                       <div className='text-sm text-gray-600'>
                         <p>
-                          勤務時間: {type.startTime} - {type.endTime}
+                          勤務時間: {type.start_time} - {type.end_time}
                         </p>
-                        <p>休憩時間: {type.breakTime}分</p>
+                        <p>休憩時間: {type.break_duration}分</p>
                         <p>
                           実働時間:{' '}
                           {calculateWorkingHours(
-                            type.startTime,
-                            type.endTime,
-                            type.breakTime
+                            type.start_time,
+                            type.end_time,
+                            type.break_duration
                           )}
                           時間
                         </p>
+                        {type.sort_order !== undefined && (
+                          <p>表示順序: {type.sort_order}</p>
+                        )}
                       </div>
                     </div>
                   ))}
