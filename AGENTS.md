@@ -1,3 +1,22 @@
+<!-- OPENSPEC:START -->
+# OpenSpec Instructions
+
+These instructions are for AI assistants working in this project.
+
+Always open `@/openspec/AGENTS.md` when the request:
+- Mentions planning or proposals (words like proposal, spec, change, plan)
+- Introduces new capabilities, breaking changes, architecture shifts, or big performance/security work
+- Sounds ambiguous and you need the authoritative spec before coding
+
+Use `@/openspec/AGENTS.md` to learn:
+- How to create and apply change proposals
+- Spec format and conventions
+- Project structure and guidelines
+
+Keep this managed block so 'openspec update' can refresh the instructions.
+
+<!-- OPENSPEC:END -->
+
 # AGENTS.md
 
 このドキュメントは、AIエージェントがこのプロジェクトで作業する際のガイドラインです。
@@ -89,6 +108,16 @@ pnpm exec tsc
 3. **エラーハンドリング**: TypeScriptエラーは必ず修正してください
 4. **ファイル構造**: 新しいファイルは適切なディレクトリに配置してください
 5. **ドキュメント更新**: 機能実装後は必ず `docs/PR/` ディレクトリのドキュメントを更新してください
+
+## データアクセス層の方針
+
+Supabase を「認証サービス」と「PostgreSQL データベース」として利用しつつ、アプリケーションコードはデータストア実装へ密結合しないようにします。
+
+- **抽象化されたデータソース**: `src/data/**` にインターフェース（例: `AttendanceDataSource`）を定義し、アプリケーションからはこの抽象に依存するよう実装します。現在は Supabase 版 (`SupabaseAttendanceDataSource`) を提供していますが、将来は他サービスに差し替え可能です。
+- **リポジトリ層の分離**: tRPC ルーターや React コンポーネントからは `AttendanceRepository` などのリポジトリを介してデータにアクセスします。リポジトリはデータソースを注入することで、Supabase 以外の実装にも対応しやすくなっています。
+- **Supabase 固有ロジックの集约**: Supabase のクエリ、RPC、RLS 前提の処理は Supabase 用データソース内に閉じ込めます。アプリケーションの他の層では Supabase を直接参照しません。
+- **型／DTO の共通化**: `src/lib/dto/**` に定義したドメインスキーマを基準に、データソース・リポジトリが同じ型を共有します。これによりバックエンドが変わっても型契約を維持しやすくなります。
+- **Auth について**: 認証フロー（`useAuth` や Supabase Auth）は現状のまま Supabase を利用します。将来的に認証を差し替える際も、data 層の構造が独立しているため段階的な移行が可能です。
 
 ## 将来の拡張
 
