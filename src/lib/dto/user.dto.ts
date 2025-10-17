@@ -1,4 +1,4 @@
-import type { UserRole } from '@/lib/types/auth';
+import type { UserRole } from '@/lib/auth/types';
 
 // データベースから取得される生のユーザーデータ
 export interface UserRawData {

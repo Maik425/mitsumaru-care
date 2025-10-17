@@ -11,10 +11,19 @@ import type {
   UpdateAttendanceRequestDto,
   UpdateShiftDto,
 } from '@/lib/dto/attendance.dto';
-import { AttendanceRepository } from '@/lib/repositories/attendance.repository';
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+
+import {
+  AttendanceRepository,
+  SupabaseAttendanceDataSource,
+} from '@/data/attendance';
+
 import { publicProcedure, router } from '../trpc';
+
+const createRepository = (client: SupabaseClient) =>
+  new AttendanceRepository(new SupabaseAttendanceDataSource(client));
 
 export const attendanceRouter = router({
   // 勤怠記録関連
@@ -35,11 +44,10 @@ export const attendanceRouter = router({
     .query(async ({ input, ctx }) => {
       try {
         const dto: GetAttendanceRecordsDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.getAttendanceRecords(dto);
         return result;
       } catch (error) {
-        console.error('Get attendance records error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -54,7 +62,7 @@ export const attendanceRouter = router({
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       try {
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.getAttendanceRecord(input.id);
         if (!result) {
           throw new TRPCError({
@@ -64,7 +72,6 @@ export const attendanceRouter = router({
         }
         return result;
       } catch (error) {
-        console.error('Get attendance record error:', error);
         throw new TRPCError({
           code: 'NOT_FOUND',
           message:
@@ -93,14 +100,11 @@ export const attendanceRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         const dto: CreateAttendanceRecordDto = input;
-        console.log('Create attendance record - User:', ctx.user?.id);
-        console.log('Create attendance record - DTO:', dto);
 
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.createAttendanceRecord(dto);
         return result;
       } catch (error) {
-        console.error('Create attendance record error:', error);
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message:
@@ -129,11 +133,10 @@ export const attendanceRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         const dto: UpdateAttendanceRecordDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.updateAttendanceRecord(dto);
         return result;
       } catch (error) {
-        console.error('Update attendance record error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -148,11 +151,10 @@ export const attendanceRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         await attendanceRepository.deleteAttendanceRecord(input.id);
         return { success: true };
       } catch (error) {
-        console.error('Delete attendance record error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -179,11 +181,10 @@ export const attendanceRouter = router({
     .query(async ({ input, ctx }) => {
       try {
         const dto: GetAttendanceRequestsDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.getAttendanceRequests(dto);
         return result;
       } catch (error) {
-        console.error('Get attendance requests error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -198,7 +199,7 @@ export const attendanceRouter = router({
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       try {
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.getAttendanceRequest(
           input.id
         );
@@ -210,7 +211,6 @@ export const attendanceRouter = router({
         }
         return result;
       } catch (error) {
-        console.error('Get attendance request error:', error);
         throw new TRPCError({
           code: 'NOT_FOUND',
           message:
@@ -237,11 +237,10 @@ export const attendanceRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         const dto: CreateAttendanceRequestDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.createAttendanceRequest(dto);
         return result;
       } catch (error) {
-        console.error('Create attendance request error:', error);
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message:
@@ -264,11 +263,10 @@ export const attendanceRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         const dto: UpdateAttendanceRequestDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.updateAttendanceRequest(dto);
         return result;
       } catch (error) {
-        console.error('Update attendance request error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -283,11 +281,10 @@ export const attendanceRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         await attendanceRepository.deleteAttendanceRequest(input.id);
         return { success: true };
       } catch (error) {
-        console.error('Delete attendance request error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -309,11 +306,10 @@ export const attendanceRouter = router({
     .query(async ({ input, ctx }) => {
       try {
         const dto: GetShiftsDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.getShifts(dto);
         return result;
       } catch (error) {
-        console.error('Get shifts error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -328,7 +324,7 @@ export const attendanceRouter = router({
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       try {
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.getShift(input.id);
         if (!result) {
           throw new TRPCError({
@@ -338,7 +334,6 @@ export const attendanceRouter = router({
         }
         return result;
       } catch (error) {
-        console.error('Get shift error:', error);
         throw new TRPCError({
           code: 'NOT_FOUND',
           message:
@@ -352,21 +347,20 @@ export const attendanceRouter = router({
   createShift: publicProcedure
     .input(
       z.object({
-        name: z.string().min(1, 'シフト名を入力してください'),
+        name: z.string(),
         start_time: z.string(),
         end_time: z.string(),
-        break_duration: z.number().default(60),
+        break_duration: z.number().optional(),
         facility_id: z.string(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
         const dto: CreateShiftDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.createShift(dto);
         return result;
       } catch (error) {
-        console.error('Create shift error:', error);
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message:
@@ -391,11 +385,10 @@ export const attendanceRouter = router({
     .mutation(async ({ input, ctx }) => {
       try {
         const dto: UpdateShiftDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.updateShift(dto);
         return result;
       } catch (error) {
-        console.error('Update shift error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -410,11 +403,10 @@ export const attendanceRouter = router({
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         await attendanceRepository.deleteShift(input.id);
         return { success: true };
       } catch (error) {
-        console.error('Delete shift error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -438,11 +430,10 @@ export const attendanceRouter = router({
     .query(async ({ input, ctx }) => {
       try {
         const dto: GetUserShiftsDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.getUserShifts(dto);
         return result;
       } catch (error) {
-        console.error('Get user shifts error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -459,17 +450,16 @@ export const attendanceRouter = router({
         user_id: z.string(),
         shift_id: z.string(),
         date: z.string(),
-        is_working: z.boolean().default(true),
+        is_working: z.boolean().optional(),
       })
     )
     .mutation(async ({ input, ctx }) => {
       try {
         const dto: CreateUserShiftDto = input;
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.createUserShift(dto);
         return result;
       } catch (error) {
-        console.error('Create user shift error:', error);
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message:
@@ -491,7 +481,7 @@ export const attendanceRouter = router({
     )
     .query(async ({ input, ctx }) => {
       try {
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
+        const attendanceRepository = createRepository(ctx.supabase);
         const result = await attendanceRepository.getMonthlyAttendanceStats(
           input.user_id,
           input.year,
@@ -499,7 +489,6 @@ export const attendanceRouter = router({
         );
         return result;
       } catch (error) {
-        console.error('Get monthly attendance stats error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:
@@ -519,13 +508,12 @@ export const attendanceRouter = router({
     )
     .query(async ({ input, ctx }) => {
       try {
-        const attendanceRepository = new AttendanceRepository(ctx.supabase);
-        const result = await attendanceRepository.getCurrentlyWorkingStaff(
-          input.facility_id
-        );
+        const attendanceRepository = createRepository(ctx.supabase);
+        const result = await attendanceRepository.getCurrentlyWorkingStaff({
+          facilityId: input.facility_id,
+        });
         return result;
       } catch (error) {
-        console.error('Get currently working staff error:', error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message:

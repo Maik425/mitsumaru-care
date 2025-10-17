@@ -1,4 +1,4 @@
-import { AuthGuard } from '@/components/auth-guard';
+import { AuthGuard } from '@/components/auth/auth-guard';
 import { UserManagement } from '@/components/user-management';
 
 export default function SystemUsersPage() {

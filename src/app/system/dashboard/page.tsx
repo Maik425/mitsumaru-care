@@ -1,4 +1,4 @@
-import { AuthGuard } from '@/components/auth-guard';
+import { AuthGuard } from '@/components/auth/auth-guard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, Building, Settings, Users } from 'lucide-react';

@@ -1,5 +1,6 @@
-import { supabaseAdmin } from '@/lib/supabase';
-import type { AuthUser, LoginCredentials } from '@/lib/types/auth';
+import { handleAuthError } from '@/lib/auth/errors';
+import type { AuthUser, LoginCredentials } from '@/lib/auth/types';
+import { supabaseAdmin } from '@/lib/supabase/server';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { publicProcedure, router } from '../trpc';
@@ -22,10 +23,7 @@ export const authRouter = router({
         });
 
         if (error) {
-          throw new TRPCError({
-            code: 'UNAUTHORIZED',
-            message: 'メールアドレスまたはパスワードが正しくありません',
-          });
+          throw handleAuthError(error);
         }
 
         if (!data.user) {
@@ -49,7 +47,7 @@ export const authRouter = router({
           });
         }
 
-        if (!(userData as any).is_active) {
+        if (!userData.is_active) {
           throw new TRPCError({
             code: 'FORBIDDEN',
             message: 'アカウントが無効化されています',
@@ -57,11 +55,11 @@ export const authRouter = router({
         }
 
         const authUser: AuthUser = {
-          id: (userData as any).id,
-          email: data.user.email!, // auth.usersからemailを取得
-          name: (userData as any).name,
-          role: (userData as any).role,
-          facility_id: (userData as any).facility_id,
+          id: userData.id,
+          email: data.user.email!,
+          name: userData.name,
+          role: userData.role,
+          facility_id: userData.facility_id,
         };
 
         return {
@@ -72,9 +70,11 @@ export const authRouter = router({
         if (error instanceof TRPCError) {
           throw error;
         }
+
+        const authError = handleAuthError(error);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
-          message: 'ログイン処理中にエラーが発生しました',
+          message: authError.message,
         });
       }
     }),
@@ -84,19 +84,14 @@ export const authRouter = router({
     try {
       const { error } = await supabaseAdmin.auth.signOut();
       if (error) {
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'ログアウト処理中にエラーが発生しました',
-        });
+        throw handleAuthError(error);
       }
       return { success: true };
     } catch (error) {
-      if (error instanceof TRPCError) {
-        throw error;
-      }
+      const authError = handleAuthError(error);
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',
-        message: 'ログアウト処理中にエラーが発生しました',
+        message: authError.message,
       });
     }
   }),
@@ -124,11 +119,11 @@ export const authRouter = router({
       }
 
       const authUser: AuthUser = {
-        id: (userData as any).id,
-        email: user.email!, // auth.usersからemailを取得
-        name: (userData as any).name,
-        role: (userData as any).role,
-        facility_id: (userData as any).facility_id,
+        id: userData.id,
+        email: user.email!,
+        name: userData.name,
+        role: userData.role,
+        facility_id: userData.facility_id,
       };
 
       return authUser;

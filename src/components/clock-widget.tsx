@@ -14,6 +14,8 @@ export function ClockWidget() {
   const [isWorking, setIsWorking] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [workingTime, setWorkingTime] = useState('');
+  const [todayDisplay, setTodayDisplay] = useState('');
+  const [hasHydrated, setHasHydrated] = useState(false);
 
   const { user } = useAuthContext();
   const currentUserId = user?.id;
@@ -162,16 +164,18 @@ export function ClockWidget() {
     currentRecord?.break_duration,
   ]);
 
-  const todayDisplay = useMemo(
-    () =>
-      new Date().toLocaleDateString('ja-JP', {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        weekday: 'short',
-      }),
-    []
-  );
+  useEffect(() => {
+    setHasHydrated(true);
+
+    if (typeof window === 'undefined') return;
+    const formatter = new Intl.DateTimeFormat('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short',
+    });
+    setTodayDisplay(formatter.format(new Date()));
+  }, []);
 
   const handleClockIn = async () => {
     if (!currentUserId) {
@@ -233,16 +237,33 @@ export function ClockWidget() {
     }
   };
 
-  // ユーザーがログインしていない場合は何も表示しない
+  if (!hasHydrated) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            <div className='flex items-center gap-2 text-lg font-semibold'>
+              <Clock className='h-5 w-5' />
+              本日の勤怠
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className='py-10 text-center text-sm text-muted-foreground'>
+          読み込み中...
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (!currentUserId) {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className='flex items-center justify-between'>
-            <span className='flex items-center'>
-              <Clock className='h-5 w-5 mr-2' />
+          <CardTitle>
+            <div className='flex items-center gap-2 text-lg font-semibold'>
+              <Clock className='h-5 w-5' />
               打刻
-            </span>
+            </div>
           </CardTitle>
         </CardHeader>
         <CardContent className='text-center'>
@@ -256,9 +277,11 @@ export function ClockWidget() {
     <Card>
       <CardHeader className='space-y-2'>
         <div className='flex items-center justify-between'>
-          <CardTitle className='flex items-center gap-2 text-lg font-semibold'>
-            <Clock className='h-5 w-5' />
-            本日の勤怠
+          <CardTitle>
+            <div className='flex items-center gap-2 text-lg font-semibold'>
+              <Clock className='h-5 w-5' />
+              本日の勤怠
+            </div>
           </CardTitle>
           {isLoadingTodayRecord ? (
             <Badge className='bg-muted text-muted-foreground'>読み込み中</Badge>

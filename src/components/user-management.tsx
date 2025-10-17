@@ -27,9 +27,10 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { ROLE_LABELS } from '@/lib/auth/config';
+import type { UserRole } from '@/lib/auth/types';
 import type { UserResponseDto } from '@/lib/dto/user.dto';
 import { trpc } from '@/lib/trpc';
-import { ROLE_LABELS, type UserRole } from '@/lib/types/auth';
 import { Edit, Plus, Search, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 

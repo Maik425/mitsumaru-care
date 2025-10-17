@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
 import { initTRPC } from '@trpc/server';
 import { type NextRequest } from 'next/server';
@@ -19,7 +20,7 @@ export const createTRPCContext = async (opts: {
     authHeader ? 'Present' : 'Missing'
   );
 
-  let authSupabase = supabase;
+  let authSupabase: SupabaseClient = supabase;
 
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);

@@ -1,4 +1,4 @@
-import { AuthGuard } from '@/components/auth-guard';
+import { AuthGuard } from '@/components/auth/auth-guard';
 import { FacilityDashboard } from '@/components/facility-dashboard';
 
 export default function FacilityDashboardPage() {

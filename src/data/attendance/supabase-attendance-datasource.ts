@@ -16,17 +16,27 @@ import type {
   UpdateShiftDto,
   UserShift,
 } from '@/lib/dto/attendance.dto';
+import type { SupabaseClient } from '@supabase/supabase-js';
+
 import { supabase } from '@/lib/supabase';
 
-export class AttendanceRepository {
-  constructor(private supabaseClient = supabase) {}
+import type { AttendanceDataSource } from './attendance-datasource';
+import type {
+  CurrentlyWorkingStaffQuery,
+  CurrentlyWorkingStaffRecord,
+} from './types';
 
-  // 勤怠記録関連
+export class SupabaseAttendanceDataSource implements AttendanceDataSource {
+  constructor(private readonly client: SupabaseClient = supabase) {}
+
+  private from(table: string) {
+    return this.client.from(table);
+  }
+
   async getAttendanceRecords(
     dto: GetAttendanceRecordsDto
   ): Promise<AttendanceRecord[]> {
-    let query = this.supabaseClient
-      .from('attendance_records')
+    let query = this.from('attendance_records')
       .select('*')
       .order('date', { ascending: false });
 
@@ -51,26 +61,38 @@ export class AttendanceRepository {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+    return (data ?? []) as AttendanceRecord[];
   }
 
   async getAttendanceRecord(id: string): Promise<AttendanceRecord | null> {
-    const { data, error } = await this.supabaseClient
-      .from('attendance_records')
+    const { data, error } = await this.from('attendance_records')
       .select('*')
       .eq('id', id)
       .single();
 
     if (error) throw error;
-    return data;
+    return (data as AttendanceRecord) ?? null;
   }
 
   async createAttendanceRecord(
     dto: CreateAttendanceRecordDto
   ): Promise<AttendanceRecord> {
-    const { data, error } = await this.supabaseClient
-      .from('attendance_records')
-      .insert(dto as any)
+    const insertPayload = {
+      user_id: dto.user_id,
+      date: dto.date,
+      shift_id: dto.shift_id ?? null,
+      scheduled_start_time: dto.scheduled_start_time ?? null,
+      scheduled_end_time: dto.scheduled_end_time ?? null,
+      actual_start_time: dto.actual_start_time ?? null,
+      actual_end_time: dto.actual_end_time ?? null,
+      break_duration: dto.break_duration ?? 0,
+      overtime_duration: dto.overtime_duration ?? 0,
+      notes: dto.notes ?? null,
+      status: 'pending',
+    };
+
+    const { data, error } = await this.from('attendance_records')
+      .insert(insertPayload)
       .select()
       .single();
 
@@ -82,36 +104,38 @@ export class AttendanceRepository {
     dto: UpdateAttendanceRecordDto
   ): Promise<AttendanceRecord> {
     const { id, ...updateData } = dto;
-    const { data, error } = await (this.supabaseClient as any)
-      .from('attendance_records')
-      .update(updateData)
+    const updatePayload = {
+      actual_start_time: updateData.actual_start_time ?? null,
+      actual_end_time: updateData.actual_end_time ?? null,
+      break_duration: updateData.break_duration ?? 0,
+      overtime_duration: updateData.overtime_duration ?? 0,
+      status: updateData.status,
+      notes: updateData.notes ?? null,
+      approved_by: updateData.approved_by ?? null,
+    };
+
+    const { data, error } = await this.from('attendance_records')
+      .update(updatePayload)
       .eq('id', id)
-      .select();
+      .select()
+      .single();
 
     if (error) throw error;
-
-    if (!data || data.length === 0) {
-      throw new Error(`Attendance record with id ${id} not found`);
-    }
-
-    return data[0] as AttendanceRecord;
+    return data as AttendanceRecord;
   }
 
   async deleteAttendanceRecord(id: string): Promise<void> {
-    const { error } = await this.supabaseClient
-      .from('attendance_records')
+    const { error } = await this.from('attendance_records')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
   }
 
-  // 勤怠申請関連
   async getAttendanceRequests(
     dto: GetAttendanceRequestsDto
   ): Promise<AttendanceRequest[]> {
-    let query = this.supabaseClient
-      .from('attendance_requests')
+    let query = this.from('attendance_requests')
       .select('*')
       .order('created_at', { ascending: false });
 
@@ -133,26 +157,36 @@ export class AttendanceRepository {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+    return (data ?? []) as AttendanceRequest[];
   }
 
   async getAttendanceRequest(id: string): Promise<AttendanceRequest | null> {
-    const { data, error } = await this.supabaseClient
-      .from('attendance_requests')
+    const { data, error } = await this.from('attendance_requests')
       .select('*')
       .eq('id', id)
       .single();
 
     if (error) throw error;
-    return data;
+    return (data as AttendanceRequest) ?? null;
   }
 
   async createAttendanceRequest(
     dto: CreateAttendanceRequestDto
   ): Promise<AttendanceRequest> {
-    const { data, error } = await this.supabaseClient
-      .from('attendance_requests')
-      .insert(dto as any)
+    const requestPayload = {
+      user_id: dto.user_id,
+      type: dto.type,
+      target_date: dto.target_date,
+      original_start_time: dto.original_start_time ?? null,
+      original_end_time: dto.original_end_time ?? null,
+      requested_start_time: dto.requested_start_time ?? null,
+      requested_end_time: dto.requested_end_time ?? null,
+      reason: dto.reason ?? null,
+      status: 'pending',
+    };
+
+    const { data, error } = await this.from('attendance_requests')
+      .insert(requestPayload)
       .select()
       .single();
 
@@ -164,10 +198,12 @@ export class AttendanceRepository {
     dto: UpdateAttendanceRequestDto
   ): Promise<AttendanceRequest> {
     const { id, ...updateData } = dto;
-    const { data, error } = await (this.supabaseClient as any)
-      .from('attendance_requests')
+
+    const { data, error } = await this.from('attendance_requests')
       .update({
-        ...updateData,
+        status: updateData.status,
+        reviewed_by: updateData.reviewed_by,
+        review_notes: updateData.review_notes ?? null,
         reviewed_at: new Date().toISOString(),
       })
       .eq('id', id)
@@ -179,18 +215,15 @@ export class AttendanceRepository {
   }
 
   async deleteAttendanceRequest(id: string): Promise<void> {
-    const { error } = await this.supabaseClient
-      .from('attendance_requests')
+    const { error } = await this.from('attendance_requests')
       .delete()
       .eq('id', id);
 
     if (error) throw error;
   }
 
-  // シフト関連
   async getShifts(dto: GetShiftsDto): Promise<Shift[]> {
-    let query = supabase
-      .from('shifts')
+    let query = this.from('shifts')
       .select('*')
       .order('start_time', { ascending: true });
 
@@ -203,24 +236,31 @@ export class AttendanceRepository {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+    return (data ?? []) as Shift[];
   }
 
   async getShift(id: string): Promise<Shift | null> {
-    const { data, error } = await supabase
-      .from('shifts')
+    const { data, error } = await this.from('shifts')
       .select('*')
       .eq('id', id)
       .single();
 
     if (error) throw error;
-    return data;
+    return (data as Shift) ?? null;
   }
 
   async createShift(dto: CreateShiftDto): Promise<Shift> {
-    const { data, error } = await supabase
-      .from('shifts')
-      .insert(dto as any)
+    const shiftPayload = {
+      name: dto.name,
+      start_time: dto.start_time,
+      end_time: dto.end_time,
+      break_duration: dto.break_duration ?? 0,
+      facility_id: dto.facility_id,
+      is_active: true,
+    };
+
+    const { data, error } = await this.from('shifts')
+      .insert(shiftPayload)
       .select()
       .single();
 
@@ -230,9 +270,16 @@ export class AttendanceRepository {
 
   async updateShift(dto: UpdateShiftDto): Promise<Shift> {
     const { id, ...updateData } = dto;
-    const { data, error } = await (supabase as any)
-      .from('shifts')
-      .update(updateData)
+    const shiftUpdate = {
+      name: updateData.name,
+      start_time: updateData.start_time,
+      end_time: updateData.end_time,
+      break_duration: updateData.break_duration ?? 0,
+      is_active: updateData.is_active,
+    };
+
+    const { data, error } = await this.from('shifts')
+      .update(shiftUpdate)
       .eq('id', id)
       .select()
       .single();
@@ -242,15 +289,13 @@ export class AttendanceRepository {
   }
 
   async deleteShift(id: string): Promise<void> {
-    const { error } = await supabase.from('shifts').delete().eq('id', id);
+    const { error } = await this.from('shifts').delete().eq('id', id);
 
     if (error) throw error;
   }
 
-  // ユーザーシフト関連
   async getUserShifts(dto: GetUserShiftsDto): Promise<UserShift[]> {
-    let query = supabase
-      .from('user_shifts')
+    let query = this.from('user_shifts')
       .select('*')
       .order('date', { ascending: true });
 
@@ -260,19 +305,28 @@ export class AttendanceRepository {
     if (dto.date) {
       query = query.eq('date', dto.date);
     }
-    if (dto.start_date && dto.end_date) {
-      query = query.gte('date', dto.start_date).lte('date', dto.end_date);
+    if (dto.start_date) {
+      query = query.gte('date', dto.start_date);
+    }
+    if (dto.end_date) {
+      query = query.lte('date', dto.end_date);
     }
 
     const { data, error } = await query;
     if (error) throw error;
-    return data || [];
+    return (data ?? []) as UserShift[];
   }
 
   async createUserShift(dto: CreateUserShiftDto): Promise<UserShift> {
-    const { data, error } = await supabase
-      .from('user_shifts')
-      .insert(dto as any)
+    const userShiftPayload = {
+      user_id: dto.user_id,
+      shift_id: dto.shift_id,
+      date: dto.date,
+      is_working: dto.is_working ?? true,
+    };
+
+    const { data, error } = await this.from('user_shifts')
+      .insert(userShiftPayload)
       .select()
       .single();
 
@@ -280,47 +334,26 @@ export class AttendanceRepository {
     return data as UserShift;
   }
 
-  async updateUserShift(id: string, is_working: boolean): Promise<UserShift> {
-    const { data, error } = await (supabase as any)
-      .from('user_shifts')
-      .update({ is_working })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data as UserShift;
-  }
-
-  async deleteUserShift(id: string): Promise<void> {
-    const { error } = await supabase.from('user_shifts').delete().eq('id', id);
-
-    if (error) throw error;
-  }
-
-  // 統計関連
   async getMonthlyAttendanceStats(
     userId: string,
     year: number,
     month: number
-  ): Promise<MonthlyAttendanceStats | null> {
-    const startDate = `${year}-${month.toString().padStart(2, '0')}-01`;
-    const endDate = new Date(year, month, 0).toISOString().split('T')[0]; // 月末日
+  ): Promise<MonthlyAttendanceStats> {
+    const startDate = new Date(year, month - 1, 1).toISOString().split('T')[0];
+    const endDate = new Date(year, month, 0).toISOString().split('T')[0];
 
-    // 勤怠記録を取得
-    const { data: records, error } = await supabase
-      .from('attendance_records')
+    const { data: records, error: recordsError } = await this.from(
+      'attendance_records'
+    )
       .select('*')
       .eq('user_id', userId)
-      .eq('status', 'approved')
       .gte('date', startDate)
-      .lte('date', endDate);
+      .lte('date', endDate)
+      .order('date', { ascending: true });
 
-    if (error) throw error;
+    if (recordsError) throw recordsError;
 
-    // シフト割り当てを取得
-    const { data: shifts, error: shiftError } = await supabase
-      .from('user_shifts')
+    const { data: shifts, error: shiftError } = await this.from('user_shifts')
       .select('*')
       .eq('user_id', userId)
       .eq('is_working', true)
@@ -329,29 +362,27 @@ export class AttendanceRepository {
 
     if (shiftError) throw shiftError;
 
-    // 統計計算
     const totalWorkHours =
-      records?.reduce((sum: number, record: any) => {
+      (records as AttendanceRecord[] | null)?.reduce((sum, record) => {
         if (record.actual_start_time && record.actual_end_time) {
           const start = new Date(`2000-01-01T${record.actual_start_time}`);
           const end = new Date(`2000-01-01T${record.actual_end_time}`);
           const workMinutes =
             (end.getTime() - start.getTime()) / (1000 * 60) -
-            record.break_duration;
+            (record.break_duration ?? 0);
           return sum + Math.max(0, workMinutes / 60);
         }
         return sum;
       }, 0) || 0;
 
     const totalOvertimeHours =
-      records?.reduce(
-        (sum: number, record: any) => sum + record.overtime_duration / 60,
-        0
-      ) || 0;
+      (records as AttendanceRecord[] | null)?.reduce((sum, record) => {
+        return sum + (record.overtime_duration ?? 0) / 60;
+      }, 0) || 0;
     const workDays = records?.length || 0;
     const absentDays = (shifts?.length || 0) - workDays;
     const lateCount =
-      records?.filter((record: any) => {
+      (records as AttendanceRecord[] | null)?.filter(record => {
         if (record.scheduled_start_time && record.actual_start_time) {
           const scheduled = new Date(
             `2000-01-01T${record.scheduled_start_time}`
@@ -371,47 +402,46 @@ export class AttendanceRepository {
       work_days: workDays,
       absent_days: Math.max(0, absentDays),
       late_count: lateCount,
-      early_leave_count: 0, // 実装が必要
-      remaining_paid_leave: 20, // 固定値、実装が必要
+      early_leave_count: 0,
+      remaining_paid_leave: 20,
     };
   }
 
-  // 現在勤務中の職員一覧
-  async getCurrentlyWorkingStaff(facilityId?: string): Promise<any[]> {
-    const today = new Date().toISOString().split('T')[0];
+  async getCurrentlyWorkingStaff(
+    queryDto: CurrentlyWorkingStaffQuery
+  ): Promise<CurrentlyWorkingStaffRecord[]> {
+    let query = this.from('facility_currently_working_staff')
+      .select('*')
+      .order('actual_start_time', { ascending: true });
 
-    let query = supabase
-      .from('attendance_records')
-      .select(
-        `
-        *,
-        users!inner(name, role, facility_id),
-        shifts(name, start_time, end_time)
-      `
-      )
-      .eq('date', today)
-      .is('actual_end_time', null)
-      .not('actual_start_time', 'is', null);
-
-    if (facilityId) {
-      query = query.eq('users.facility_id', facilityId);
+    if (queryDto.facilityId) {
+      query = query.eq('facility_id', queryDto.facilityId);
     }
 
     const { data, error } = await query;
     if (error) throw error;
 
-    return (
-      data?.map((record: any) => ({
-        id: record.user_id,
-        name: record.users.name,
-        position: record.users.role,
-        shift: record.shifts?.name || '未設定',
-        clockInTime: record.actual_start_time,
-        scheduledEnd: record.scheduled_end_time || record.shifts?.end_time,
-        workingHours: this.calculateWorkingHours(record.actual_start_time),
-        status: 'working',
-      })) || []
-    );
+    const rows = (data ?? []) as Array<Record<string, unknown>>;
+
+    return rows.map(record => ({
+      attendanceRecordId: record.attendance_record_id as string,
+      userId: record.user_id as string,
+      name: (record.name as string) ?? '',
+      position: (record.role as string) ?? '',
+      facilityId: (record.facility_id as string) ?? null,
+      shiftName: (record.shift_name as string) ?? '未設定',
+      shiftStart: (record.shift_start_time as string) ?? null,
+      shiftEnd: (record.shift_end_time as string) ?? null,
+      clockInTime: (record.actual_start_time as string) ?? '',
+      scheduledEnd:
+        (record.scheduled_end_time as string) ??
+        (record.shift_end_time as string) ??
+        null,
+      workingHours: this.calculateWorkingHours(
+        (record.actual_start_time as string) ?? ''
+      ),
+      status: 'working',
+    }));
   }
 
   private calculateWorkingHours(startTime: string): string {
