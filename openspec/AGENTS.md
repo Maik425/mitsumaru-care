@@ -296,6 +296,10 @@ Every requirement MUST have at least one scenario.
 ### Requirement Wording
 
 - Use SHALL/MUST for normative requirements (avoid should/may unless intentionally non-normative)
+- **MUST**: 必須要件（システムが必ず実装しなければならない機能）
+- **SHALL**: 規範的要件（システムが実装すべき機能、MUSTより柔軟）
+- 要件文の先頭に「MUST: 」または「SHALL: 」を付ける
+- 例: `MUST: システム管理者はユーザーを登録・管理できる。`
 
 ### Delta Operations
 
@@ -541,3 +545,31 @@ Remember: Specs are truth. Changes are proposals. Keep them in sync.
 1. **tasks.md更新**: 実装完了後は必ず `openspec/changes/*/tasks.md` を更新して完了タスクをマークしてください
 2. **TypeScript型チェック**: `pnpm exec tsc` で型エラーがないことを確認してください
 3. **マイグレーション実行**: データベーススキーマ変更時は `pnpm exec supabase db push` を実行してください
+
+## 🚫 禁止事項
+
+### Git操作の禁止
+
+**重要**: このプロジェクトでは以下のgit操作は**絶対に禁止**です：
+
+- `git add`
+- `git commit`
+- `git push`
+- `git pull`
+- `git merge`
+- `git rebase`
+- `git checkout`
+- `git branch`
+- `git tag`
+- その他すべてのgitコマンド
+
+**理由**:
+
+- コードの変更履歴は自動的に管理される
+- 手動でのgit操作は競合や不整合を引き起こす可能性がある
+- 実装に集中し、バージョン管理は別途行う
+
+**違反時の対応**:
+
+- git操作を検出した場合は即座に停止
+- 実装作業のみに集中する

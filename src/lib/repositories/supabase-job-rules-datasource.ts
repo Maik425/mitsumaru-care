@@ -23,7 +23,7 @@ import { supabase } from '@/lib/supabase';
 import type { JobRulesDataSource } from './job-rules-datasource';
 
 export class SupabaseJobRulesDataSource implements JobRulesDataSource {
-  constructor(private readonly client: SupabaseClient = supabase) {}
+  constructor(private readonly client: SupabaseClient) {}
 
   private from(table: string) {
     return this.client.from(table);

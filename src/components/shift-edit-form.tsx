@@ -3,18 +3,17 @@
 import {
   ArrowLeft,
   Calendar,
-  Zap,
-  Target,
-  Clock,
   CheckCircle,
-  X,
+  Clock,
   Eye,
   Save,
+  Target,
   User,
+  X,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useCallback } from 'react';
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,11 +34,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { api } from '@/lib/trpc';
 
 interface StaffRequirement {
-  早番: number;
-  日勤: number;
-  遅番: number;
+  [key: string]: number;
 }
 
 interface ConfigurationRule {
@@ -59,7 +57,7 @@ interface SpecificStaffAssignment {
   id: string;
   staffName: string;
   date: string; // "2025-03-15"
-  shift: '早番' | '日勤' | '遅番';
+  shift: string;
   reason?: string;
 }
 
@@ -109,6 +107,27 @@ export function ShiftEditForm(props: {
 
   const [selectedMonth, setSelectedMonth] = useState('2025-03');
   const [isGenerating, setIsGenerating] = useState(false);
+
+  // シフト形態をAPIから取得
+  const { data: shiftsData } = api.attendance.getShifts.useQuery({});
+
+  // 動的なシフト形態の配列を作成
+  const shiftTypes = shiftsData
+    ? shiftsData.map(shift => shift.name)
+    : ['早番', '日勤', '遅番'];
+
+  // 配置ルールテンプレートを取得
+  const { data: jobRuleTemplates } = api.jobRules.getJobRuleTemplates.useQuery(
+    {}
+  );
+
+  // 配置ルール適用ミューテーション（TODO: 実装予定）
+  const applyJobRuleMutation = {
+    mutate: () => {
+      console.log('配置ルール適用機能は実装予定です');
+    },
+    isPending: false,
+  };
   const [generationComplete, setGenerationComplete] = useState(false);
   const [showPatternSelection, setShowPatternSelection] = useState(false);
   const [generatedPatterns, setGeneratedPatterns] = useState<ShiftPattern[]>(
@@ -119,60 +138,80 @@ export function ShiftEditForm(props: {
   );
   const [showDetailedView, setShowDetailedView] = useState<string | null>(null);
 
-  const [basicRequirements, setBasicRequirements] = useState<StaffRequirement>({
-    早番: 2,
-    日勤: 3,
-    遅番: 2,
-  });
+  const [basicRequirements, setBasicRequirements] = useState<StaffRequirement>(
+    () => {
+      const initial: StaffRequirement = {};
+      shiftTypes.forEach(shiftType => {
+        initial[shiftType] = 2; // デフォルト値
+      });
+      return initial;
+    }
+  );
 
   const [dailyRequirements, setDailyRequirements] = useState<
-    Record<string, { 早番: number; 日勤: number; 遅番: number }>
+    Record<string, StaffRequirement>
   >({});
 
   const [configurationRules, setConfigurationRules] = useState<
     ConfigurationRule[]
-  >([
-    {
-      id: '1',
-      type: 'weekly',
-      name: '毎週木曜日増員',
-      description: '毎週木曜日は日勤配置を4人に増員',
-      requirements: { 早番: 2, 日勤: 4, 遅番: 2 },
-      dayOfWeek: 4,
-      isActive: true,
-    },
-    {
-      id: '2',
-      type: 'weekly',
-      name: '毎週土曜日削減',
-      description: '毎週土曜日は人員を削減',
-      requirements: { 早番: 2, 日勤: 2, 遅番: 2 },
-      dayOfWeek: 6,
-      isActive: true,
-    },
-    {
-      id: '3',
-      type: 'specific_dates',
-      name: '月中特別配置',
-      description: '特定日の人員配置調整',
-      requirements: { 早番: 3, 日勤: 4, 遅番: 2 },
-      dates: ['2025-03-15', '2025-03-22'],
-      isActive: true,
-    },
-  ]);
+  >(() => {
+    const initialRequirements: StaffRequirement = {};
+    shiftTypes.forEach(shiftType => {
+      initialRequirements[shiftType] = 2;
+    });
+
+    return [
+      {
+        id: '1',
+        type: 'weekly',
+        name: '毎週木曜日増員',
+        description: '毎週木曜日は日勤配置を4人に増員',
+        requirements: { ...initialRequirements, 日勤: 4 },
+        dayOfWeek: 4,
+        isActive: true,
+      },
+      {
+        id: '2',
+        type: 'weekly',
+        name: '毎週土曜日削減',
+        description: '毎週土曜日は人員を削減',
+        requirements: { ...initialRequirements, 日勤: 2 },
+        dayOfWeek: 6,
+        isActive: true,
+      },
+      {
+        id: '3',
+        type: 'specific_dates',
+        name: '月中特別配置',
+        description: '特定日の人員配置調整',
+        requirements: { ...initialRequirements, 早番: 3, 日勤: 4 },
+        dates: ['2025-03-15', '2025-03-22'],
+        isActive: true,
+      },
+    ];
+  });
 
   const [showRuleForm, setShowRuleForm] = useState(false);
   const [editingRule, setEditingRule] = useState<ConfigurationRule | null>(
     null
   );
-  const [ruleFormData, setRuleFormData] = useState<Partial<ConfigurationRule>>({
-    type: 'specific_dates',
-    name: '',
-    description: '',
-    requirements: { 早番: 2, 日勤: 3, 遅番: 2 },
-    dates: [],
-    isActive: true,
-  });
+  const [ruleFormData, setRuleFormData] = useState<Partial<ConfigurationRule>>(
+    () => {
+      const initialRequirements: StaffRequirement = {};
+      shiftTypes.forEach(shiftType => {
+        initialRequirements[shiftType] = 2;
+      });
+
+      return {
+        type: 'specific_dates',
+        name: '',
+        description: '',
+        requirements: initialRequirements,
+        dates: [],
+        isActive: true,
+      };
+    }
+  );
 
   const [selectedDates, setSelectedDates] = useState<number[]>([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -204,7 +243,7 @@ export function ShiftEditForm(props: {
   >({
     staffName: '',
     date: '',
-    shift: '日勤',
+    shift: shiftTypes[0] || '日勤',
     reason: '',
   });
 
@@ -1387,51 +1426,26 @@ export function ShiftEditForm(props: {
                 <div className='text-sm text-gray-600 mb-3'>
                   基本テンプレート
                 </div>
-                <div className='flex items-center justify-between'>
-                  <Label>早番</Label>
-                  <Input
-                    type='number'
-                    value={basicRequirements.早番}
-                    onChange={e =>
-                      setBasicRequirements({
-                        ...basicRequirements,
-                        早番: Number.parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className='w-16 text-center'
-                    min='0'
-                  />
-                </div>
-                <div className='flex items-center justify-between'>
-                  <Label>日勤</Label>
-                  <Input
-                    type='number'
-                    value={basicRequirements.日勤}
-                    onChange={e =>
-                      setBasicRequirements({
-                        ...basicRequirements,
-                        日勤: Number.parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className='w-16 text-center'
-                    min='0'
-                  />
-                </div>
-                <div className='flex items-center justify-between'>
-                  <Label>遅番</Label>
-                  <Input
-                    type='number'
-                    value={basicRequirements.遅番}
-                    onChange={e =>
-                      setBasicRequirements({
-                        ...basicRequirements,
-                        遅番: Number.parseInt(e.target.value) || 0,
-                      })
-                    }
-                    className='w-16 text-center'
-                    min='0'
-                  />
-                </div>
+                {shiftTypes.map(shiftType => (
+                  <div
+                    key={shiftType}
+                    className='flex items-center justify-between'
+                  >
+                    <Label>{shiftType}</Label>
+                    <Input
+                      type='number'
+                      value={basicRequirements[shiftType] || 0}
+                      onChange={e =>
+                        setBasicRequirements({
+                          ...basicRequirements,
+                          [shiftType]: Number.parseInt(e.target.value) || 0,
+                        })
+                      }
+                      className='w-16 text-center'
+                      min='0'
+                    />
+                  </div>
+                ))}
                 <Button
                   variant='outline'
                   size='sm'
@@ -1443,6 +1457,9 @@ export function ShiftEditForm(props: {
                     > = {};
                     for (let day = 1; day <= daysInMonth; day++) {
                       newDailyRequirements[day.toString()] = {
+                        早番: 2,
+                        日勤: 3,
+                        遅番: 2,
                         ...basicRequirements,
                       };
                     }
@@ -1722,7 +1739,7 @@ export function ShiftEditForm(props: {
                 <Label htmlFor='shift-select'>時間帯</Label>
                 <Select
                   value={assignmentFormData.shift}
-                  onValueChange={(value: '早番' | '日勤' | '遅番') =>
+                  onValueChange={(value: string) =>
                     setAssignmentFormData(prev => ({ ...prev, shift: value }))
                   }
                 >
@@ -1730,9 +1747,11 @@ export function ShiftEditForm(props: {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value='早番'>早番</SelectItem>
-                    <SelectItem value='日勤'>日勤</SelectItem>
-                    <SelectItem value='遅番'>遅番</SelectItem>
+                    {shiftTypes.map(shiftType => (
+                      <SelectItem key={shiftType} value={shiftType}>
+                        {shiftType}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>

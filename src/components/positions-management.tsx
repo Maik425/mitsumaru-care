@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Plus, Edit, Trash2, Users } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, Trash2, Users } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -25,15 +25,20 @@ export function PositionsManagement() {
   });
 
   // tRPC queries and mutations
-  const { data: positions = [], refetch } = trpc.positions.getPositions.useQuery({
-    facility_id: user?.facility_id,
-    is_active: true,
-  });
+  const { data: positions = [], refetch } =
+    trpc.positions.getPositions.useQuery({
+      facility_id: user?.facility_id,
+      is_active: true,
+    });
 
   const createPositionMutation = trpc.positions.createPosition.useMutation({
     onSuccess: () => {
       refetch();
       resetForm();
+    },
+    onError: (error: any) => {
+      console.error('役職の作成中にエラーが発生しました:', error);
+      alert(`エラー: ${error.message}`);
     },
   });
 
@@ -167,7 +172,10 @@ export function PositionsManagement() {
                       max='10'
                       value={formData.level}
                       onChange={e =>
-                        setFormData({ ...formData, level: parseInt(e.target.value) || 1 })
+                        setFormData({
+                          ...formData,
+                          level: parseInt(e.target.value) || 1,
+                        })
                       }
                       placeholder='1-10の数値'
                     />
@@ -184,10 +192,13 @@ export function PositionsManagement() {
                     />
                   </div>
                   <div className='flex space-x-2'>
-                    <Button 
-                      onClick={handleSave} 
+                    <Button
+                      onClick={handleSave}
                       className='flex-1'
-                      disabled={createPositionMutation.isPending || updatePositionMutation.isPending}
+                      disabled={
+                        createPositionMutation.isPending ||
+                        updatePositionMutation.isPending
+                      }
                     >
                       {isEditing ? '更新' : '追加'}
                     </Button>
@@ -223,14 +234,20 @@ export function PositionsManagement() {
                     >
                       <div className='flex items-center justify-between mb-2'>
                         <div className='flex items-center space-x-2'>
-                          <Badge className={position.color_code || 'bg-gray-100 text-gray-800'}>
+                          <Badge
+                            className={
+                              position.color_code || 'bg-gray-100 text-gray-800'
+                            }
+                          >
                             {position.name}
                           </Badge>
-                          <Badge variant='outline'>レベル {position.level}</Badge>
+                          <Badge variant='outline'>
+                            レベル {position.level}
+                          </Badge>
                         </div>
                         <div className='flex space-x-1'>
-                          <Button 
-                            size='sm' 
+                          <Button
+                            size='sm'
                             variant='ghost'
                             onClick={() => handleEdit(position)}
                           >

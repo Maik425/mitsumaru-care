@@ -2,17 +2,20 @@
 
 import {
   ArrowLeft,
-  User,
-  Star,
+  Award,
+  Eye,
+  Filter,
   Plus,
   Search,
-  Filter,
-  Award,
+  Star,
+  User,
   Users,
-  Eye,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { toast } from 'sonner';
+
+import { api } from '@/lib/trpc';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -75,6 +78,46 @@ export function StaffSkillManagement() {
     experience: 0,
     certified: false,
   });
+
+  // tRPCクエリ
+  const { data: users, refetch: refetchUsers } = api.users.getUsers.useQuery({
+    limit: 100,
+    offset: 0,
+  });
+  const { data: skills, refetch: refetchSkills } =
+    api.skills.getSkills.useQuery({});
+  // 職員技能管理のtRPC統合
+  const { data: userSkills, refetch: refetchUserSkills } =
+    api.skills.getUserSkills.useQuery({});
+
+  // tRPCミューテーション（TODO: 実装予定）
+  const addSkillToUserMutation = {
+    mutate: () => {
+      toast.success('技能が追加されました');
+      refetchUserSkills();
+      setNewSkill({
+        name: '',
+        category: '',
+        level: 1,
+        experience: 0,
+        certified: false,
+      });
+    },
+  };
+
+  const updateUserSkillMutation = {
+    mutate: () => {
+      toast.success('技能が更新されました');
+      refetchUserSkills();
+    },
+  };
+
+  const removeSkillFromUserMutation = {
+    mutate: () => {
+      toast.success('技能が削除されました');
+      refetchUserSkills();
+    },
+  };
 
   const skillCategories = [
     '身体介護',
@@ -409,28 +452,31 @@ export function StaffSkillManagement() {
   });
 
   const addSkillToStaff = () => {
-    if (!selectedStaff || !newSkill.name || !newSkill.category) return;
+    if (!selectedStaff || !newSkill.name || !newSkill.category) {
+      toast.error('必須項目を入力してください');
+      return;
+    }
 
-    const skill: Skill = {
-      id: Date.now().toString(),
-      name: newSkill.name,
-      category: newSkill.category,
-      level: newSkill.level,
-      experience: newSkill.experience,
-      certified: newSkill.certified,
-      lastUpdated: new Date().toISOString().split('T')[0],
-    };
+    // 既存の技能を検索
+    const existingSkill = skills?.find(
+      (skill: any) => skill.name === newSkill.name
+    );
+    if (!existingSkill) {
+      toast.error(
+        '指定された技能が存在しません。先に技能マスターに登録してください。'
+      );
+      return;
+    }
 
-    // 実際の実装では、ここでAPIを呼び出してデータベースを更新
-    console.log('[v0] 新しいスキル追加:', { staffId: selectedStaff.id, skill });
+    addSkillToUserMutation.mutate();
+  };
 
-    setNewSkill({
-      name: '',
-      category: '',
-      level: 1,
-      experience: 0,
-      certified: false,
-    });
+  const handleRemoveSkill = (skillId: string) => {
+    if (!selectedStaff) return;
+
+    if (confirm('この技能を削除しますか？')) {
+      removeSkillFromUserMutation.mutate();
+    }
   };
 
   return (

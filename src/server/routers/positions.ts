@@ -14,23 +14,23 @@ import {
   SupabasePositionsDataSource,
 } from '@/lib/repositories';
 
-import { publicProcedure, router } from '../trpc';
+import { protectedProcedure, publicProcedure, router } from '../trpc';
 
 const createRepository = (client: SupabaseClient) =>
   new PositionsRepository(new SupabasePositionsDataSource(client));
 
 export const positionsRouter = router({
   // 役職マスター管理
-  getPositions: publicProcedure
+  getPositions: protectedProcedure
     .input(
       z.object({
         facility_id: z.string().optional(),
         is_active: z.boolean().optional(),
-      })
+      }).optional()
     )
     .query(async ({ input, ctx }) => {
       try {
-        const dto: GetPositionsDto = input;
+        const dto: GetPositionsDto = input || {};
         const positionsRepository = createRepository(ctx.supabase);
         const result = await positionsRepository.getPositions(dto);
         return result;
@@ -45,7 +45,7 @@ export const positionsRouter = router({
       }
     }),
 
-  getPosition: publicProcedure
+  getPosition: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       try {
@@ -69,7 +69,7 @@ export const positionsRouter = router({
       }
     }),
 
-  createPosition: publicProcedure
+  createPosition: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1, '役職名を入力してください'),
@@ -96,7 +96,7 @@ export const positionsRouter = router({
       }
     }),
 
-  updatePosition: publicProcedure
+  updatePosition: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -124,7 +124,7 @@ export const positionsRouter = router({
       }
     }),
 
-  deletePosition: publicProcedure
+  deletePosition: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -143,7 +143,7 @@ export const positionsRouter = router({
     }),
 
   // 職員役職管理
-  getUserPositions: publicProcedure
+  getUserPositions: protectedProcedure
     .input(
       z.object({
         user_id: z.string().optional(),
@@ -167,7 +167,7 @@ export const positionsRouter = router({
       }
     }),
 
-  createUserPosition: publicProcedure
+  createUserPosition: protectedProcedure
     .input(
       z.object({
         user_id: z.string(),
@@ -192,7 +192,7 @@ export const positionsRouter = router({
       }
     }),
 
-  deleteUserPosition: publicProcedure
+  deleteUserPosition: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {

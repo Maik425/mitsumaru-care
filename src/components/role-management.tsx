@@ -2,23 +2,24 @@
 
 import {
   ArrowLeft,
-  Copy,
   Calendar,
-  FileText,
-  Edit3,
-  Wand2,
-  Users,
-  UserCheck,
-  Save,
-  Folder,
-  Trash2,
-  Info,
   CheckCircle,
   ChevronDown,
+  Copy,
+  Edit3,
+  FileText,
+  Folder,
+  Info,
+  Save,
+  Trash2,
+  UserCheck,
+  Users,
+  Wand2,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
+
+import { api } from '@/lib/trpc';
 
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -113,7 +114,11 @@ export function RoleManagement() {
     [key: string]: string;
   }>({});
 
-  const workTypeOptions = [
+  // tRPCクエリ
+  const { data: positions } = api.positions.getPositions.useQuery({});
+  const { data: shifts } = api.attendance.getShifts.useQuery({});
+
+  const workTypeOptions = shifts?.map(shift => shift.name) || [
     'A勤',
     'B勤',
     'C勤',
@@ -123,7 +128,11 @@ export function RoleManagement() {
     '早番',
     '日勤',
   ];
-  const positionOptions = ['入浴', 'フロア', '事務'];
+  const positionOptions = positions?.map((position: any) => position.name) || [
+    '入浴',
+    'フロア',
+    '事務',
+  ];
 
   const [expandedWorkTypeRows, setExpandedWorkTypeRows] = useState<Set<string>>(
     new Set()
@@ -1357,7 +1366,7 @@ export function RoleManagement() {
                               </button>
                               {expandedPositionRows.has(staffIdStr) && (
                                 <div className='absolute top-full left-0 z-10 bg-white border border-gray-300 rounded shadow-lg w-full'>
-                                  {positionOptions.map(position => (
+                                  {positionOptions.map((position: any) => (
                                     <button
                                       key={position}
                                       onClick={() =>

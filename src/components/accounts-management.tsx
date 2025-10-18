@@ -1,8 +1,9 @@
 'use client';
 
-import { ArrowLeft, Plus, Edit, Trash2, User, Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Edit, Eye, EyeOff, Plus, Trash2, User } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -16,38 +17,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { api } from '@/lib/trpc';
 
 export function AccountsManagement() {
-  const [accounts, setAccounts] = useState([
-    {
-      id: 1,
-      name: '田中 太郎',
-      email: 'tanaka@mitsumaru.com',
-      role: '管理者',
-      position: '介護福祉士',
-      status: 'active',
-      lastLogin: '2024-02-01 09:30',
-    },
-    {
-      id: 2,
-      name: '佐藤 花子',
-      email: 'sato@mitsumaru.com',
-      role: '一般ユーザー',
-      position: '看護師',
-      status: 'active',
-      lastLogin: '2024-02-01 08:45',
-    },
-    {
-      id: 3,
-      name: '鈴木 次郎',
-      email: 'suzuki@mitsumaru.com',
-      role: '一般ユーザー',
-      position: '介護士',
-      status: 'inactive',
-      lastLogin: '2024-01-28 17:20',
-    },
-  ]);
-
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -57,8 +29,68 @@ export function AccountsManagement() {
     position: '',
   });
 
-  const roles = ['管理者', '一般ユーザー'];
-  const positions = ['介護福祉士', '看護師', '介護士', '管理者'];
+  // tRPCクエリ
+  const { data: users, refetch: refetchUsers } = api.users.getUsers.useQuery({
+    limit: 100,
+    offset: 0,
+  });
+  const { data: positions, refetch: refetchPositions } =
+    api.positions.getPositions.useQuery({});
+
+  // tRPCミューテーション
+  const createUserMutation = api.users.createUser.useMutation({
+    onSuccess: () => {
+      toast.success('アカウントが作成されました');
+      refetchUsers();
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        role: '',
+        position: '',
+      });
+    },
+    onError: (error: any) => {
+      toast.error(`アカウント作成に失敗しました: ${error.message}`);
+    },
+  });
+
+  const updateUserMutation = api.users.updateUser.useMutation({
+    onSuccess: () => {
+      toast.success('アカウントが更新されました');
+      refetchUsers();
+    },
+    onError: (error: any) => {
+      toast.error(`アカウント更新に失敗しました: ${error.message}`);
+    },
+  });
+
+  const deleteUserMutation = api.users.deleteUser.useMutation({
+    onSuccess: () => {
+      toast.success('アカウントが削除されました');
+      refetchUsers();
+    },
+    onError: (error: any) => {
+      toast.error(`アカウント削除に失敗しました: ${error.message}`);
+    },
+  });
+
+  const toggleUserStatusMutation = api.users.updateUser.useMutation({
+    onSuccess: () => {
+      toast.success('アカウントステータスが更新されました');
+      refetchUsers();
+    },
+    onError: (error: any) => {
+      toast.error(`ステータス更新に失敗しました: ${error.message}`);
+    },
+  });
+
+  const roles = ['facility_admin', 'user', 'system_admin'];
+  const roleLabels = {
+    facility_admin: '施設管理者',
+    user: '一般ユーザー',
+    system_admin: 'システム管理者',
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -73,11 +105,17 @@ export function AccountsManagement() {
 
   const getRoleBadge = (role: string) => {
     switch (role) {
-      case '管理者':
-        return <Badge className='bg-blue-100 text-blue-800'>管理者</Badge>;
-      case '一般ユーザー':
+      case 'facility_admin':
+        return <Badge className='bg-blue-100 text-blue-800'>施設管理者</Badge>;
+      case 'user':
         return (
           <Badge className='bg-orange-100 text-orange-800'>一般ユーザー</Badge>
+        );
+      case 'system_admin':
+        return (
+          <Badge className='bg-purple-100 text-purple-800'>
+            システム管理者
+          </Badge>
         );
       default:
         return null;
@@ -85,21 +123,36 @@ export function AccountsManagement() {
   };
 
   const handleSave = () => {
-    // 実際の実装では、ここでAPIを呼び出してデータを保存
-    setFormData({ name: '', email: '', password: '', role: '', position: '' });
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.role
+    ) {
+      toast.error('必須項目を入力してください');
+      return;
+    }
+
+    createUserMutation.mutate({
+      name: formData.name,
+      email: formData.email,
+      password: formData.password,
+      role: formData.role as 'facility_admin' | 'user' | 'system_admin',
+      facility_id: undefined, // TODO: 施設IDを設定
+    });
   };
 
-  const toggleAccountStatus = (id: number) => {
-    setAccounts(
-      accounts.map(account =>
-        account.id === id
-          ? {
-              ...account,
-              status: account.status === 'active' ? 'inactive' : 'active',
-            }
-          : account
-      )
-    );
+  const handleDelete = (userId: string) => {
+    if (confirm('このアカウントを削除しますか？')) {
+      deleteUserMutation.mutate({ id: userId });
+    }
+  };
+
+  const handleToggleStatus = (userId: string, currentStatus: boolean) => {
+    toggleUserStatusMutation.mutate({
+      id: userId,
+      is_active: !currentStatus,
+    });
   };
 
   return (
@@ -196,7 +249,7 @@ export function AccountsManagement() {
                       <SelectContent>
                         {roles.map(role => (
                           <SelectItem key={role} value={role}>
-                            {role}
+                            {roleLabels[role as keyof typeof roleLabels]}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -214,9 +267,9 @@ export function AccountsManagement() {
                         <SelectValue placeholder='役職を選択' />
                       </SelectTrigger>
                       <SelectContent>
-                        {positions.map(position => (
-                          <SelectItem key={position} value={position}>
-                            {position}
+                        {positions?.map((position: any) => (
+                          <SelectItem key={position.id} value={position.id}>
+                            {position.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -240,20 +293,20 @@ export function AccountsManagement() {
               </CardHeader>
               <CardContent>
                 <div className='space-y-3'>
-                  {accounts.map(account => (
+                  {users?.users?.map((user: any) => (
                     <div
-                      key={account.id}
+                      key={user.id}
                       className='p-4 border border-gray-200 rounded-lg'
                     >
                       <div className='flex items-center justify-between mb-3'>
                         <div>
-                          <h3 className='font-medium'>{account.name}</h3>
-                          <p className='text-sm text-gray-600'>
-                            {account.email}
-                          </p>
+                          <h3 className='font-medium'>{user.name}</h3>
+                          <p className='text-sm text-gray-600'>{user.email}</p>
                         </div>
                         <div className='flex items-center space-x-2'>
-                          {getStatusBadge(account.status)}
+                          {getStatusBadge(
+                            user.is_active ? 'active' : 'inactive'
+                          )}
                           <div className='flex space-x-1'>
                             <Button size='sm' variant='ghost'>
                               <Edit className='h-3 w-3' />
@@ -262,6 +315,7 @@ export function AccountsManagement() {
                               size='sm'
                               variant='ghost'
                               className='text-red-600'
+                              onClick={() => handleDelete(user.id)}
                             >
                               <Trash2 className='h-3 w-3' />
                             </Button>
@@ -270,24 +324,33 @@ export function AccountsManagement() {
                       </div>
                       <div className='flex items-center justify-between'>
                         <div className='flex items-center space-x-2'>
-                          {getRoleBadge(account.role)}
-                          <Badge variant='outline'>{account.position}</Badge>
+                          {getRoleBadge(user.role)}
+                          {user.position && (
+                            <Badge variant='outline'>
+                              {user.position.name}
+                            </Badge>
+                          )}
                         </div>
                         <Button
                           size='sm'
                           variant='outline'
-                          onClick={() => toggleAccountStatus(account.id)}
+                          onClick={() =>
+                            handleToggleStatus(user.id, user.is_active)
+                          }
                           className={
-                            account.status === 'active'
+                            user.is_active
                               ? 'text-red-600 border-red-600 hover:bg-red-50 bg-transparent'
                               : 'text-green-600 border-green-600 hover:bg-green-50 bg-transparent'
                           }
                         >
-                          {account.status === 'active' ? '無効化' : '有効化'}
+                          {user.is_active ? '無効化' : '有効化'}
                         </Button>
                       </div>
                       <p className='text-xs text-gray-500 mt-2'>
-                        最終ログイン: {account.lastLogin}
+                        最終ログイン:{' '}
+                        {user.lastLoginAt
+                          ? new Date(user.lastLoginAt).toLocaleString('ja-JP')
+                          : '未ログイン'}
                       </p>
                     </div>
                   ))}

@@ -25,6 +25,10 @@ export const createTRPCContext = async (opts: {
   if (authHeader && authHeader.startsWith('Bearer ')) {
     const token = authHeader.substring(7);
     console.log('tRPC Context - Token length:', token.length);
+    console.log(
+      'tRPC Context - Token preview:',
+      token.substring(0, 20) + '...'
+    );
     try {
       const {
         data: { user: authUser },
@@ -33,6 +37,7 @@ export const createTRPCContext = async (opts: {
       if (!error && authUser) {
         user = authUser;
         console.log('tRPC Context - User authenticated:', authUser.id);
+        console.log('tRPC Context - User email:', authUser.email);
 
         // 認証されたユーザー用のSupabaseクライアントを作成
         authSupabase = createClient(
@@ -48,10 +53,13 @@ export const createTRPCContext = async (opts: {
         );
       } else {
         console.log('tRPC Context - Auth error:', error?.message);
+        console.log('tRPC Context - Auth error details:', error);
       }
     } catch (error) {
       console.error('Error getting user from token:', error);
     }
+  } else {
+    console.log('tRPC Context - No valid auth header found');
   }
 
   return {
@@ -68,3 +76,17 @@ const t = initTRPC.context<Context>().create();
 
 export const router = t.router;
 export const publicProcedure = t.procedure;
+
+export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  console.log('protectedProcedure - ctx.user:', ctx.user);
+  if (!ctx.user) {
+    console.log('protectedProcedure - No user found, throwing Unauthorized');
+    throw new Error('Unauthorized');
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      user: ctx.user,
+    },
+  });
+});

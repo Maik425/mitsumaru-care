@@ -25,6 +25,26 @@ if (!supabaseUrl || !supabaseServiceKey) {
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+async function insertUserData(userId, user) {
+  try {
+    const { error } = await supabase.from('users').upsert({
+      id: userId,
+      email: user.email,
+      name: user.user_metadata.name,
+      role: user.user_metadata.role,
+      facility_id: user.facility_id,
+    });
+
+    if (error) {
+      console.log(`   ⚠️  usersテーブル挿入エラー: ${error.message}`);
+    } else {
+      console.log(`   ✅ usersテーブルにデータ挿入完了`);
+    }
+  } catch (err) {
+    console.log(`   ⚠️  usersテーブル挿入エラー: ${err.message}`);
+  }
+}
+
 const testUsers = [
   {
     email: 'admin@mitsumaru-care.com',
@@ -33,6 +53,7 @@ const testUsers = [
       name: 'システム管理者',
       role: 'system_admin',
     },
+    facility_id: null,
   },
   {
     email: 'facility1@mitsumaru-care.com',
@@ -41,6 +62,7 @@ const testUsers = [
       name: '施設管理者1',
       role: 'facility_admin',
     },
+    facility_id: '550e8400-e29b-41d4-a716-446655440001',
   },
   {
     email: 'user1@mitsumaru-care.com',
@@ -49,6 +71,7 @@ const testUsers = [
       name: '職員1',
       role: 'user',
     },
+    facility_id: '550e8400-e29b-41d4-a716-446655440001',
   },
 ];
 
@@ -67,13 +90,26 @@ async function createTestUsers() {
       });
 
       if (error) {
-        if (error.message.includes('already registered')) {
+        if (
+          error.message.includes('already registered') ||
+          error.message.includes('already been registered')
+        ) {
           console.log(`   ⚠️  既に存在: ${user.email}`);
+          // 既存ユーザーの場合、usersテーブルにデータを挿入
+          const { data: existingUser } = await supabase.auth.admin.listUsers();
+          const foundUser = existingUser.users.find(
+            u => u.email === user.email
+          );
+          if (foundUser) {
+            await insertUserData(foundUser.id, user);
+          }
         } else {
           console.error(`   ❌ エラー: ${error.message}`);
         }
       } else {
         console.log(`   ✅ 作成完了: ${user.email} (ID: ${data.user.id})`);
+        // 新規ユーザーの場合、usersテーブルにデータを挿入
+        await insertUserData(data.user.id, user);
       }
     } catch (err) {
       console.error(`   ❌ 予期しないエラー: ${err.message}`);

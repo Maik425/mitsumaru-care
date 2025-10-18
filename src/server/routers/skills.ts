@@ -12,24 +12,26 @@ import { z } from 'zod';
 
 import { SkillsRepository, SupabaseSkillsDataSource } from '@/lib/repositories';
 
-import { publicProcedure, router } from '../trpc';
+import { protectedProcedure, router } from '../trpc';
 
 const createRepository = (client: SupabaseClient) =>
   new SkillsRepository(new SupabaseSkillsDataSource(client));
 
 export const skillsRouter = router({
   // 技能マスター管理
-  getSkills: publicProcedure
+  getSkills: protectedProcedure
     .input(
-      z.object({
-        facility_id: z.string().optional(),
-        category: z.string().optional(),
-        is_active: z.boolean().optional(),
-      })
+      z
+        .object({
+          facility_id: z.string().optional(),
+          category: z.string().optional(),
+          is_active: z.boolean().optional(),
+        })
+        .optional()
     )
     .query(async ({ input, ctx }) => {
       try {
-        const dto: GetSkillsDto = input;
+        const dto: GetSkillsDto = input || {};
         const skillsRepository = createRepository(ctx.supabase);
         const result = await skillsRepository.getSkills(dto);
         return result;
@@ -44,7 +46,7 @@ export const skillsRouter = router({
       }
     }),
 
-  getSkill: publicProcedure
+  getSkill: protectedProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input, ctx }) => {
       try {
@@ -68,7 +70,7 @@ export const skillsRouter = router({
       }
     }),
 
-  createSkill: publicProcedure
+  createSkill: protectedProcedure
     .input(
       z.object({
         name: z.string().min(1, '技能名を入力してください'),
@@ -80,22 +82,26 @@ export const skillsRouter = router({
     )
     .mutation(async ({ input, ctx }) => {
       try {
+        console.log('createSkill - ctx.user:', ctx.user);
+        console.log('createSkill - input:', input);
         const dto: CreateSkillDto = input;
         const skillsRepository = createRepository(ctx.supabase);
         const result = await skillsRepository.createSkill(dto);
         return result;
       } catch (error) {
+        console.error('createSkill error:', error);
         throw new TRPCError({
           code: 'BAD_REQUEST',
           message:
             error instanceof Error
               ? error.message
               : '技能の作成中にエラーが発生しました',
+          cause: error,
         });
       }
     }),
 
-  updateSkill: publicProcedure
+  updateSkill: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -123,7 +129,7 @@ export const skillsRouter = router({
       }
     }),
 
-  deleteSkill: publicProcedure
+  deleteSkill: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {
@@ -142,7 +148,7 @@ export const skillsRouter = router({
     }),
 
   // 職員技能管理
-  getUserSkills: publicProcedure
+  getUserSkills: protectedProcedure
     .input(
       z.object({
         user_id: z.string().optional(),
@@ -166,7 +172,7 @@ export const skillsRouter = router({
       }
     }),
 
-  createUserSkill: publicProcedure
+  createUserSkill: protectedProcedure
     .input(
       z.object({
         user_id: z.string(),
@@ -193,7 +199,7 @@ export const skillsRouter = router({
       }
     }),
 
-  updateUserSkill: publicProcedure
+  updateUserSkill: protectedProcedure
     .input(
       z.object({
         id: z.string(),
@@ -219,7 +225,7 @@ export const skillsRouter = router({
       }
     }),
 
-  deleteUserSkill: publicProcedure
+  deleteUserSkill: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input, ctx }) => {
       try {

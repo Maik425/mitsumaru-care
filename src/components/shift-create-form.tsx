@@ -1,18 +1,21 @@
 'use client';
 
 import {
-  Calendar,
   ArrowLeft,
-  Download,
-  Share2,
-  Save,
-  Eye,
+  Calendar,
   ChevronLeft,
   ChevronRight,
+  Download,
+  Eye,
   Printer,
+  Save,
+  Share2,
+  User,
 } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useMemo, useCallback } from 'react';
+import { useCallback, useMemo, useState } from 'react';
+
+import { api } from '@/lib/trpc';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -64,6 +67,25 @@ export function ShiftCreateForm() {
   const [dailyStaffRequirements, setDailyStaffRequirements] = useState<
     Record<string, { 早番: number; 日勤: number; 遅番: number }>
   >({});
+  const [selectedJobRuleTemplate, setSelectedJobRuleTemplate] = useState('');
+
+  // tRPCクエリ
+  const { data: jobRuleTemplates } = api.jobRules.getJobRuleTemplates.useQuery(
+    {}
+  );
+  const { data: shiftsData } = api.attendance.getShifts.useQuery({});
+  const { data: users } = api.users.getUsers.useQuery({
+    limit: 100,
+    offset: 0,
+  });
+
+  // 配置ルール適用ミューテーション（TODO: 実装予定）
+  const applyJobRuleMutation = {
+    mutate: () => {
+      console.log('配置ルール適用機能は実装予定です');
+    },
+    isPending: false,
+  };
   const [selectedDates, setSelectedDates] = useState<number[]>([]);
   const [showDateSelector, setShowDateSelector] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -325,46 +347,84 @@ export function ShiftCreateForm() {
     []
   );
 
-  const shiftTypes = useMemo(
-    () => [
-      {
-        code: '早',
-        name: '早番',
-        time: '8:30-17:30',
-        color: 'bg-blue-100 text-blue-800',
-        hours: 8,
-      },
-      {
-        code: '日',
-        name: '日勤',
-        time: '9:00-18:00',
-        color: 'bg-green-100 text-green-800',
-        hours: 8,
-      },
-      {
-        code: '遅',
-        name: '遅番',
-        time: '10:30-19:30',
-        color: 'bg-orange-100 text-orange-800',
-        hours: 8,
-      },
-      {
-        code: '休',
-        name: '公休',
-        time: '',
-        color: 'bg-gray-100 text-gray-800',
-        hours: 0,
-      },
-      {
-        code: '有',
-        name: '有給',
-        time: '',
-        color: 'bg-purple-100 text-purple-800',
-        hours: 0,
-      },
-    ],
-    []
-  );
+  // シフト形態をAPIから取得（既に上で定義済み）
+
+  const shiftTypes = useMemo(() => {
+    if (!shiftsData) {
+      // フォールバック用のデフォルトシフト形態
+      return [
+        {
+          code: '早',
+          name: '早番',
+          time: '8:30-17:30',
+          color: 'bg-blue-100 text-blue-800',
+          hours: 8,
+        },
+        {
+          code: '日',
+          name: '日勤',
+          time: '9:00-18:00',
+          color: 'bg-green-100 text-green-800',
+          hours: 8,
+        },
+        {
+          code: '遅',
+          name: '遅番',
+          time: '10:30-19:30',
+          color: 'bg-orange-100 text-orange-800',
+          hours: 8,
+        },
+        {
+          code: '休',
+          name: '公休',
+          time: '',
+          color: 'bg-gray-100 text-gray-800',
+          hours: 0,
+        },
+        {
+          code: '有',
+          name: '有給',
+          time: '',
+          color: 'bg-purple-100 text-purple-800',
+          hours: 0,
+        },
+      ];
+    }
+
+    // APIから取得したシフト形態を変換
+    return shiftsData.map(shift => {
+      const startTime = shift.start_time;
+      const endTime = shift.end_time;
+      const timeString = startTime && endTime ? `${startTime}-${endTime}` : '';
+
+      // 夜勤の場合は勤務時間を計算（日をまたぐ場合）
+      let hours = 8; // デフォルト
+      if (shift.is_night_shift && startTime && endTime) {
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-02T${endTime}`); // 翌日
+        hours = Math.round(
+          (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+        );
+      } else if (startTime && endTime) {
+        const start = new Date(`2000-01-01T${startTime}`);
+        const end = new Date(`2000-01-01T${endTime}`);
+        hours = Math.round(
+          (end.getTime() - start.getTime()) / (1000 * 60 * 60)
+        );
+      }
+
+      return {
+        code: shift.name.substring(0, 1), // 名前の最初の文字をコードとして使用
+        name: shift.name,
+        time: timeString,
+        color: shift.color_code
+          ? `bg-${shift.color_code}-100 text-${shift.color_code}-800`
+          : 'bg-gray-100 text-gray-800',
+        hours: hours,
+        isNightShift: shift.is_night_shift,
+      };
+    });
+  }, [shiftsData]);
 
   const getMonthData = useCallback(() => {
     const [year, month] = selectedMonth.split('-').map(Number);
@@ -439,6 +499,13 @@ export function ShiftCreateForm() {
     },
     [getCellKey, viewMode]
   );
+
+  // 配置ルール適用ハンドラー
+  const handleApplyJobRule = useCallback(() => {
+    if (!selectedJobRuleTemplate) return;
+
+    applyJobRuleMutation.mutate();
+  }, [selectedJobRuleTemplate, applyJobRuleMutation]);
 
   const handleShiftChange = useCallback(
     (staffId: number, date: number, value: string) => {
@@ -686,6 +753,19 @@ export function ShiftCreateForm() {
                 <Share2 className='h-4 w-4 mr-2' />
                 {isSharing ? '共有中...' : '職員共有'}
               </Button>
+              <Button
+                variant='outline'
+                size='sm'
+                onClick={handleApplyJobRule}
+                disabled={
+                  !selectedJobRuleTemplate || applyJobRuleMutation.isPending
+                }
+              >
+                <User className='h-4 w-4 mr-2' />
+                {applyJobRuleMutation.isPending
+                  ? '適用中...'
+                  : '配置ルール適用'}
+              </Button>
               <Button size='sm' onClick={saveShifts} disabled={isSaving}>
                 <Save className='h-4 w-4 mr-2' />
                 {isSaving ? '保存中...' : '保存'}
@@ -743,6 +823,26 @@ export function ShiftCreateForm() {
                       <SelectItem value='past'>過去分確認</SelectItem>
                       <SelectItem value='current'>現在編集</SelectItem>
                       <SelectItem value='future'>来月予定</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* 配置ルールテンプレート選択 */}
+                <div className='space-y-2'>
+                  <Label>配置ルールテンプレート</Label>
+                  <Select
+                    value={selectedJobRuleTemplate}
+                    onValueChange={setSelectedJobRuleTemplate}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder='テンプレートを選択' />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {jobRuleTemplates?.map(template => (
+                        <SelectItem key={template.id} value={template.id}>
+                          {template.name}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

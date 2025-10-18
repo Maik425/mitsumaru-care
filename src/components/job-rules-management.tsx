@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Plus, Edit, Trash2, Settings, X } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, Settings, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { trpc } from '@/lib/trpc';
+import { api } from '@/lib/trpc';
 
 interface JobAreaSet {
   id: string;
@@ -38,46 +38,52 @@ interface JobRuleTemplate {
 
 export function JobRulesManagement() {
   const { user } = useAuth();
-  
+
   // tRPC queries and mutations
-  const { data: jobTypes = [], refetch: refetchJobTypes } = trpc.jobRules.getJobTypes.useQuery({
-    facility_id: user?.facility_id,
-    is_active: true,
-  });
+  const { data: jobTypesData = [], refetch: refetchJobTypes } =
+    api.jobRules.getJobTypes.useQuery({
+      facility_id: user?.facility_id,
+      is_active: true,
+    });
 
-  const { data: areas = [], refetch: refetchAreas } = trpc.jobRules.getAreas.useQuery({
-    facility_id: user?.facility_id,
-    is_active: true,
-  });
+  const { data: areasData = [], refetch: refetchAreas } =
+    api.jobRules.getAreas.useQuery({
+      facility_id: user?.facility_id,
+      is_active: true,
+    });
 
-  const { data: jobRuleTemplates = [], refetch: refetchTemplates } = trpc.jobRules.getJobRuleTemplates.useQuery({
-    facility_id: user?.facility_id,
-    is_active: true,
-  });
+  const { data: jobRuleTemplatesData = [], refetch: refetchTemplates } =
+    api.jobRules.getJobRuleTemplates.useQuery({
+      facility_id: user?.facility_id,
+      is_active: true,
+    });
 
-  const { data: jobRuleSets = [], refetch: refetchRuleSets } = trpc.jobRules.getJobRuleSets.useQuery({
-    is_active: true,
-  });
+  const { data: jobRuleSetsData = [], refetch: refetchRuleSets } =
+    api.jobRules.getJobRuleSets.useQuery({
+      is_active: true,
+    });
 
-  const createJobTypeMutation = trpc.jobRules.createJobType.useMutation({
+  const createJobTypeMutation = api.jobRules.createJobType.useMutation({
     onSuccess: () => {
       refetchJobTypes();
     },
   });
 
-  const createAreaMutation = trpc.jobRules.createArea.useMutation({
+  const createAreaMutation = api.jobRules.createArea.useMutation({
     onSuccess: () => {
       refetchAreas();
     },
   });
 
-  const createTemplateMutation = trpc.jobRules.createJobRuleTemplate.useMutation({
-    onSuccess: () => {
-      refetchTemplates();
-    },
-  });
+  const createTemplateMutation = api.jobRules.createJobRuleTemplate.useMutation(
+    {
+      onSuccess: () => {
+        refetchTemplates();
+      },
+    }
+  );
 
-  const createRuleSetMutation = trpc.jobRules.createJobRuleSet.useMutation({
+  const createRuleSetMutation = api.jobRules.createJobRuleSet.useMutation({
     onSuccess: () => {
       refetchRuleSets();
     },
@@ -165,7 +171,7 @@ export function JobRulesManagement() {
         })),
         createdAt: new Date().toISOString().split('T')[0],
       };
-      setJobRuleTemplates([...jobRuleTemplates, newTemplate]);
+      // TODO: テンプレート作成後の処理を実装
       setFormData({
         templateName: '',
         description: '',
@@ -411,7 +417,7 @@ export function JobRulesManagement() {
               </CardHeader>
               <CardContent>
                 <div className='space-y-4'>
-                  {jobRuleTemplates.map(template => (
+                  {jobRuleTemplatesData.map((template: any) => (
                     <div
                       key={template.id}
                       className='p-4 border border-gray-200 rounded-lg'
@@ -446,7 +452,7 @@ export function JobRulesManagement() {
                         <p className='text-sm font-medium text-gray-700'>
                           配置セット ({template.jobAreaSets.length}件)
                         </p>
-                        {template.jobAreaSets.map(set => (
+                        {template.jobAreaSets?.map((set: any) => (
                           <div
                             key={set.id}
                             className='flex items-center justify-between p-2 bg-gray-50 rounded'

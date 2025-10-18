@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowLeft, Plus, Edit, Trash2, Award } from 'lucide-react';
+import { ArrowLeft, Award, Edit, Plus, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { useState } from 'react';
 
@@ -41,6 +41,10 @@ export function SkillsManagement() {
     onSuccess: () => {
       refetch();
       resetForm();
+    },
+    onError: (error: any) => {
+      console.error('技能の作成中にエラーが発生しました:', error);
+      alert(`エラー: ${error.message}`);
     },
   });
 
@@ -264,10 +268,13 @@ export function SkillsManagement() {
                     />
                   </div>
                   <div className='flex space-x-2'>
-                    <Button 
-                      onClick={handleSave} 
+                    <Button
+                      onClick={handleSave}
                       className='flex-1'
-                      disabled={createSkillMutation.isPending || updateSkillMutation.isPending}
+                      disabled={
+                        createSkillMutation.isPending ||
+                        updateSkillMutation.isPending
+                      }
                     >
                       {isEditing ? '更新' : '追加'}
                     </Button>
@@ -312,8 +319,8 @@ export function SkillsManagement() {
                           </Badge>
                         </div>
                         <div className='flex space-x-1'>
-                          <Button 
-                            size='sm' 
+                          <Button
+                            size='sm'
                             variant='ghost'
                             onClick={() => handleEdit(skill)}
                           >

@@ -418,24 +418,24 @@ INSERT INTO shifts (name, start_time, end_time, break_duration, facility_id) VAL
 
 -- 職員のシフト割り当て（2024年2月1日）
 INSERT INTO user_shifts (user_id, shift_id, date) VALUES
-  ('00000000-0000-0000-0000-000000000004', (SELECT id FROM shifts WHERE name = '日勤' AND facility_id = '550e8400-e29b-41d4-a716-446655440001' LIMIT 1), '2024-02-01'),
+  ('28b050bf-c246-4fd5-ad03-a1247bf90f83', (SELECT id FROM shifts WHERE name = '日勤' AND facility_id = '550e8400-e29b-41d4-a716-446655440001' LIMIT 1), '2024-02-01'),
   ('00000000-0000-0000-0000-000000000005', (SELECT id FROM shifts WHERE name = '早番' AND facility_id = '550e8400-e29b-41d4-a716-446655440002' LIMIT 1), '2024-02-01'),
   ('00000000-0000-0000-0000-000000000006', (SELECT id FROM shifts WHERE name = '遅番' AND facility_id = '550e8400-e29b-41d4-a716-446655440003' LIMIT 1), '2024-02-01');
 
 -- 勤怠記録のダミーデータ
 INSERT INTO attendance_records (user_id, date, shift_id, scheduled_start_time, scheduled_end_time, actual_start_time, actual_end_time, break_duration, overtime_duration, status, notes) VALUES
-  ('00000000-0000-0000-0000-000000000004', '2024-02-01', (SELECT id FROM shifts WHERE name = '日勤' AND facility_id = '550e8400-e29b-41d4-a716-446655440001' LIMIT 1), '09:00', '18:00', '08:55', '18:10', 60, 10, 'approved', ''),
+  ('28b050bf-c246-4fd5-ad03-a1247bf90f83', '2024-02-01', (SELECT id FROM shifts WHERE name = '日勤' AND facility_id = '550e8400-e29b-41d4-a716-446655440001' LIMIT 1), '09:00', '18:00', '08:55', '18:10', 60, 10, 'approved', ''),
   ('00000000-0000-0000-0000-000000000005', '2024-02-01', (SELECT id FROM shifts WHERE name = '早番' AND facility_id = '550e8400-e29b-41d4-a716-446655440002' LIMIT 1), '07:00', '16:00', '07:05', '16:00', 60, 0, 'pending', '電車遅延のため5分遅刻'),
   ('00000000-0000-0000-0000-000000000006', '2024-02-01', (SELECT id FROM shifts WHERE name = '遅番' AND facility_id = '550e8400-e29b-41d4-a716-446655440003' LIMIT 1), '11:00', '20:00', '10:45', '20:30', 60, 30, 'correction_requested', '緊急対応のため残業');
 
 -- 勤怠申請のダミーデータ
 INSERT INTO attendance_requests (user_id, type, target_date, original_start_time, original_end_time, requested_start_time, requested_end_time, reason, status) VALUES
-  ('00000000-0000-0000-0000-000000000004', 'clock_correction', '2024-01-30', '09:00', '18:00', '09:00', '18:00', '打刻忘れ', 'pending'),
+  ('28b050bf-c246-4fd5-ad03-a1247bf90f83', 'clock_correction', '2024-01-30', '09:00', '18:00', '09:00', '18:00', '打刻忘れ', 'pending'),
   ('00000000-0000-0000-0000-000000000005', 'overtime', '2024-01-31', '07:00', '16:00', '07:00', '16:30', '緊急対応', 'pending');
 
 -- 申請履歴ダミーデータ
 INSERT INTO holiday_requests (user_id, type, dates, status, reason)
 VALUES
-  ('00000000-0000-0000-0000-000000000004', 'regular', ARRAY['2025-10-15']::date[], 'approved', NULL),
-  ('00000000-0000-0000-0000-000000000004', 'regular', ARRAY['2025-11-03','2025-11-05']::date[], 'pending', NULL),
-  ('00000000-0000-0000-0000-000000000004', 'exchange', ARRAY['2025-10-08']::date[], 'pending', '家族の予定のため');
+  ('28b050bf-c246-4fd5-ad03-a1247bf90f83', 'regular', ARRAY['2025-10-15']::date[], 'approved', NULL),
+  ('28b050bf-c246-4fd5-ad03-a1247bf90f83', 'regular', ARRAY['2025-11-03','2025-11-05']::date[], 'pending', NULL),
+  ('28b050bf-c246-4fd5-ad03-a1247bf90f83', 'exchange', ARRAY['2025-10-08']::date[], 'pending', '家族の予定のため');

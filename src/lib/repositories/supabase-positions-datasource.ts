@@ -14,7 +14,7 @@ import { supabase } from '@/lib/supabase';
 import type { PositionsDataSource } from './positions-datasource';
 
 export class SupabasePositionsDataSource implements PositionsDataSource {
-  constructor(private readonly client: SupabaseClient = supabase) {}
+  constructor(private readonly client: SupabaseClient) {}
 
   private from(table: string) {
     return this.client.from(table);

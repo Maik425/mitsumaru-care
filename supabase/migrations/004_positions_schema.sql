@@ -6,7 +6,7 @@ CREATE TABLE positions (
   name VARCHAR(100) NOT NULL,
   description TEXT,
   level INTEGER NOT NULL CHECK (level >= 1 AND level <= 10),
-  color_code VARCHAR(20),
+  color_code VARCHAR(50),
   facility_id UUID REFERENCES facilities(id) ON DELETE CASCADE,
   is_active BOOLEAN DEFAULT true,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

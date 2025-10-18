@@ -10,12 +10,10 @@ import type {
 } from '@/lib/dto/skills.dto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { supabase } from '@/lib/supabase';
-
 import type { SkillsDataSource } from './skills-datasource';
 
 export class SupabaseSkillsDataSource implements SkillsDataSource {
-  constructor(private readonly client: SupabaseClient = supabase) {}
+  constructor(private readonly client: SupabaseClient) {}
 
   private from(table: string) {
     return this.client.from(table);
@@ -66,7 +64,12 @@ export class SupabaseSkillsDataSource implements SkillsDataSource {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase createSkill error:', error);
+      throw new Error(
+        `Failed to create skill: ${error.message} (code: ${error.code})`
+      );
+    }
     return data as Skill;
   }
 
