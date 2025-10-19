@@ -84,10 +84,12 @@ export default function SystemDashboardPage() {
                 <Building className='mr-2 h-4 w-4' />
                 施設管理
               </Button>
-              <Button className='w-full justify-start' variant='outline'>
-                <Settings className='mr-2 h-4 w-4' />
-                システム設定
-              </Button>
+              <Link href='/system/settings'>
+                <Button className='w-full justify-start' variant='outline'>
+                  <Settings className='mr-2 h-4 w-4' />
+                  システム設定
+                </Button>
+              </Link>
             </CardContent>
           </Card>
 

@@ -75,7 +75,11 @@ export function LoginForm() {
       }
     } catch (error) {
       console.error('Login form error:', error);
-      setError('ログイン中にエラーが発生しました');
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'ログイン中にエラーが発生しました'
+      );
     } finally {
       setIsLoading(false);
     }

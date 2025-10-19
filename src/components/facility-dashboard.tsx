@@ -41,11 +41,14 @@ export function FacilityDashboard() {
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      console.log('ログアウトボタンがクリックされました');
+      console.log('ログアウト処理を開始します...');
+
       await signOut();
+
+      console.log('ログアウト処理が完了しました');
     } catch (error) {
       console.error('ログアウト処理でエラーが発生しました:', error);
-    } finally {
+      // エラーが発生してもローディング状態を解除
       setIsLoggingOut(false);
     }
   };
