@@ -1,4 +1,4 @@
-import { AuthGuard } from '@/components/auth/auth-guard';
+import { RoleBasedLayout } from '@/components/layouts/role-based-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, Building, Settings, Users } from 'lucide-react';
@@ -6,7 +6,10 @@ import Link from 'next/link';
 
 export default function SystemDashboardPage() {
   return (
-    <AuthGuard requiredRole='system_admin'>
+    <RoleBasedLayout
+      title='システム管理ダッシュボード'
+      description='システム全体の管理を行います'
+    >
       <div className='container mx-auto py-6'>
         <div className='mb-6'>
           <h1 className='text-3xl font-bold'>システム管理ダッシュボード</h1>
@@ -126,6 +129,6 @@ export default function SystemDashboardPage() {
           </Card>
         </div>
       </div>
-    </AuthGuard>
+    </RoleBasedLayout>
   );
 }

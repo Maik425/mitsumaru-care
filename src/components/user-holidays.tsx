@@ -11,13 +11,13 @@ import {
 import type React from 'react';
 import { useEffect, useState } from 'react';
 
+import { RoleBasedLayout } from '@/components/layouts/role-based-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UserShell } from '@/components/user-shell';
 import { useAuthContext } from '@/contexts/auth-context';
 import { api } from '@/lib/trpc';
 
@@ -198,7 +198,7 @@ export function UserHolidays() {
   };
 
   return (
-    <UserShell
+    <RoleBasedLayout
       title='希望休申請'
       description='希望休や交換希望の申請・履歴を確認できます'
     >
@@ -650,6 +650,6 @@ export function UserHolidays() {
           z-index: 9999;
         }
       `}</style>
-    </UserShell>
+    </RoleBasedLayout>
   );
 }

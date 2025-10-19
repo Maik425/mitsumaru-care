@@ -1,19 +1,17 @@
 'use client';
 
-import { Calendar, Clock } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 
 import { ClockWidget } from './clock-widget';
 
+import { RoleBasedLayout } from '@/components/layouts/role-based-layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { UserShell } from '@/components/user-shell';
 import { useAuthContext } from '@/contexts/auth-context';
 import type { AttendanceRecord } from '@/lib/dto/attendance.dto';
 import { api } from '@/lib/trpc';
 
 export function UserDashboard() {
-  const { signOut, user } = useAuthContext();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const { user } = useAuthContext();
 
   const today = new Date();
   const currentYear = today.getFullYear();
@@ -134,25 +132,8 @@ export function UserDashboard() {
     [dailyRows]
   );
 
-  const handleLogout = async () => {
-    try {
-      setIsLoggingOut(true);
-      console.log('ログアウトボタンがクリックされました');
-      await signOut();
-    } catch (error) {
-      console.error('ログアウト処理でエラーが発生しました:', error);
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
-
-  const menuItems = [
-    { name: '勤怠管理', href: '/user/attendance', icon: Clock },
-    { name: '希望休管理', href: '/user/holidays', icon: Calendar },
-  ];
-
   return (
-    <UserShell
+    <RoleBasedLayout
       title='ダッシュボード'
       description='日々の勤怠状況を確認できます'
     >
@@ -280,6 +261,6 @@ export function UserDashboard() {
           </CardContent>
         </Card>
       </div>
-    </UserShell>
+    </RoleBasedLayout>
   );
 }

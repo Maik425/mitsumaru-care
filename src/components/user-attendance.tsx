@@ -5,6 +5,7 @@ import { CheckCircle, Clock, Plus } from 'lucide-react';
 import type React from 'react';
 import { useMemo, useState } from 'react';
 
+import { RoleBasedLayout } from '@/components/layouts/role-based-layout';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +19,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { UserShell } from '@/components/user-shell';
 import { useAuthContext } from '@/contexts/auth-context';
 
 export function UserAttendance() {
@@ -216,7 +216,7 @@ export function UserAttendance() {
   }, [recentRecords]);
 
   return (
-    <UserShell
+    <RoleBasedLayout
       title='勤怠申請'
       description='打刻申請と最近の勤怠を確認できます'
     >
@@ -590,6 +590,6 @@ export function UserAttendance() {
           </Card>
         </div>
       </div>
-    </UserShell>
+    </RoleBasedLayout>
   );
 }
