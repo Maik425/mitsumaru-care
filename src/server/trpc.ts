@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { createClient } from '@supabase/supabase-js';
-import { initTRPC } from '@trpc/server';
+import { initTRPC, TRPCError } from '@trpc/server';
 import { type NextRequest } from 'next/server';
 
 import { supabase } from '@/lib/supabase';
@@ -89,4 +89,60 @@ export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
       user: ctx.user,
     },
   });
+});
+
+export const systemAdminProcedure = t.procedure.use(async ({ ctx, next }) => {
+  console.log('systemAdminProcedure - ctx.user:', ctx.user);
+  if (!ctx.user) {
+    console.log('systemAdminProcedure - No user found, throwing Unauthorized');
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Unauthorized',
+    });
+  }
+
+  // ユーザーの詳細情報を取得してロールを確認
+  try {
+    const { data: userData, error } = await ctx.supabase
+      .from('users')
+      .select('role')
+      .eq('id', ctx.user.id)
+      .single();
+
+    if (error || !userData) {
+      console.log('systemAdminProcedure - User data not found:', error);
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'User data not found',
+      });
+    }
+
+    if (userData.role !== 'system_admin') {
+      console.log(
+        'systemAdminProcedure - User is not system admin:',
+        userData.role
+      );
+      throw new TRPCError({
+        code: 'FORBIDDEN',
+        message: 'Access denied: System admin required',
+      });
+    }
+
+    return next({
+      ctx: {
+        ...ctx,
+        user: ctx.user,
+        userRole: userData.role,
+      },
+    });
+  } catch (error) {
+    console.error('systemAdminProcedure - Error checking user role:', error);
+    if (error instanceof TRPCError) {
+      throw error;
+    }
+    throw new TRPCError({
+      code: 'INTERNAL_SERVER_ERROR',
+      message: 'Access denied: System admin required',
+    });
+  }
 });

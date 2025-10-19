@@ -9,13 +9,13 @@ import type {
 import { UserRepository } from '@/lib/repositories/user.repository';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { publicProcedure, router } from '../trpc';
+import { publicProcedure, router, systemAdminProcedure } from '../trpc';
 
 const userRepository = new UserRepository();
 
 export const usersRouter = router({
-  // ユーザー一覧取得
-  getUsers: publicProcedure
+  // ユーザー一覧取得（システム管理者専用）
+  getUsers: systemAdminProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).default(10),
@@ -47,8 +47,8 @@ export const usersRouter = router({
       }
     }),
 
-  // ユーザー詳細取得
-  getUser: publicProcedure
+  // ユーザー詳細取得（システム管理者専用）
+  getUser: systemAdminProcedure
     .input(z.object({ id: z.string() }))
     .query(async ({ input }) => {
       try {
@@ -67,8 +67,8 @@ export const usersRouter = router({
       }
     }),
 
-  // ユーザー作成
-  createUser: publicProcedure
+  // ユーザー作成（システム管理者専用）
+  createUser: systemAdminProcedure
     .input(
       z.object({
         email: z.string().email('有効なメールアドレスを入力してください'),
@@ -102,8 +102,8 @@ export const usersRouter = router({
       }
     }),
 
-  // ユーザー更新
-  updateUser: publicProcedure
+  // ユーザー更新（システム管理者専用）
+  updateUser: systemAdminProcedure
     .input(
       z.object({
         id: z.string(),
@@ -137,8 +137,8 @@ export const usersRouter = router({
       }
     }),
 
-  // ユーザー削除
-  deleteUser: publicProcedure
+  // ユーザー削除（システム管理者専用）
+  deleteUser: systemAdminProcedure
     .input(z.object({ id: z.string() }))
     .mutation(async ({ input }) => {
       try {
@@ -173,6 +173,83 @@ export const usersRouter = router({
             error instanceof Error
               ? error.message
               : 'パスワードリセット処理中にエラーが発生しました',
+        });
+      }
+    }),
+
+  // 施設一覧取得（システム管理者専用）
+  getFacilities: systemAdminProcedure.query(async ({ ctx }) => {
+    try {
+      const { data: facilities, error } = await ctx.supabase
+        .from('facilities')
+        .select('id, name, address, created_at')
+        .order('name');
+
+      if (error) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: '施設一覧の取得中にエラーが発生しました',
+        });
+      }
+
+      return { facilities: facilities || [] };
+    } catch (error) {
+      console.error('Get facilities error:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message:
+          error instanceof Error
+            ? error.message
+            : '施設一覧の取得中にエラーが発生しました',
+      });
+    }
+  }),
+
+  // 施設別ユーザー統計取得（システム管理者専用）
+  getUserStatsByFacility: systemAdminProcedure
+    .input(z.object({ facility_id: z.string().optional() }))
+    .query(async ({ input, ctx }) => {
+      try {
+        let query = ctx.supabase
+          .from('users')
+          .select('role, facility_id, is_active');
+
+        if (input.facility_id) {
+          query = query.eq('facility_id', input.facility_id);
+        }
+
+        const { data: users, error } = await query;
+
+        if (error) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'ユーザー統計の取得中にエラーが発生しました',
+          });
+        }
+
+        // ロール別・施設別の統計を計算
+        const stats = {
+          total: users?.length || 0,
+          active: users?.filter(u => u.is_active).length || 0,
+          inactive: users?.filter(u => !u.is_active).length || 0,
+          byRole: {
+            system_admin:
+              users?.filter(u => u.role === 'system_admin').length || 0,
+            facility_admin:
+              users?.filter(u => u.role === 'facility_admin').length || 0,
+            user: users?.filter(u => u.role === 'user').length || 0,
+          },
+        };
+
+        return stats;
+      } catch (error) {
+        console.error('Get user stats error:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message:
+            error instanceof Error
+              ? error.message
+              : 'ユーザー統計の取得中にエラーが発生しました',
         });
       }
     }),

@@ -47,13 +47,14 @@ export function AuthGuard({
   }
 
   if (!user) {
-    return fallback || null;
+    return (
+      fallback || <FullScreenLoadingSpinner text='ログインが必要です...' />
+    );
   }
 
   if (requiredRole && user.role !== requiredRole) {
-    return fallback || null;
+    return fallback || <FullScreenLoadingSpinner text='権限を確認中...' />;
   }
 
   return <>{children}</>;
 }
-

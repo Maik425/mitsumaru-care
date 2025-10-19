@@ -4,13 +4,13 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink } from '@trpc/client';
 import { useMemo, useState } from 'react';
 
-import { useAuthContext } from '@/contexts/auth-context';
+import { useAuth } from '@/hooks/use-auth';
 import { supabase } from '@/lib/supabase';
 import { trpc } from '@/lib/trpc';
 
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());
-  const { accessToken } = useAuthContext();
+  const { accessToken } = useAuth();
   const [clientStateToken, setClientStateToken] = useState<string | null>(null);
 
   const token = accessToken ?? clientStateToken;

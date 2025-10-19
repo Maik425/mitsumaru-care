@@ -17,32 +17,72 @@ export class UserRepository {
    */
   async getUsers(dto: GetUsersDto): Promise<UsersListResponseDto> {
     try {
-      const { data, error } = await (supabaseAdmin as any).rpc(
-        'get_users_with_email',
-        {
-          limit_count: dto.limit || 10,
-          offset_count: dto.offset || 0,
-          role_filter: dto.role || null,
-          facility_filter: dto.facility_id || null,
-        }
-      );
+      // クエリを構築
+      let query = supabaseAdmin
+        .from('users')
+        .select('*', { count: 'exact' })
+        .order('created_at', { ascending: false });
+
+      // フィルタリング
+      if (dto.role) {
+        query = query.eq('role', dto.role);
+      }
+      if (dto.facility_id) {
+        query = query.eq('facility_id', dto.facility_id);
+      }
+
+      // ページネーション
+      const limit = dto.limit || 10;
+      const offset = dto.offset || 0;
+      query = query.range(offset, offset + limit - 1);
+
+      const { data, error, count } = await query;
 
       if (error) {
         throw new Error(`ユーザー一覧の取得に失敗しました: ${error.message}`);
       }
 
-      // 総数を取得
-      const { count } = await supabaseAdmin
-        .from('users')
-        .select('*', { count: 'exact', head: true });
+      // 各ユーザーのemailを取得
+      const usersWithEmail: UserRawData[] = [];
+      for (const user of (data as any[]) || []) {
+        try {
+          const { data: authData } = await supabaseAdmin.auth.admin.getUserById(
+            user.id
+          );
+          const email = authData?.user?.email || '';
 
-      const users = this.mapRawDataToResponseDto(data as UserRawData[]);
+          usersWithEmail.push({
+            id: user.id,
+            email,
+            name: user.name,
+            role: user.role,
+            facility_id: user.facility_id,
+            is_active: user.is_active,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+          });
+        } catch (emailError) {
+          // emailが取得できない場合は空文字で続行
+          usersWithEmail.push({
+            id: user.id,
+            email: '',
+            name: user.name,
+            role: user.role,
+            facility_id: user.facility_id,
+            is_active: user.is_active,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+          });
+        }
+      }
+
+      const users = this.mapRawDataToResponseDto(usersWithEmail);
 
       return {
         users,
         total: count || 0,
-        limit: dto.limit || 10,
-        offset: dto.offset || 0,
+        limit,
+        offset,
       };
     } catch (error) {
       throw new Error(`ユーザー一覧の取得中にエラーが発生しました: ${error}`);
@@ -116,6 +156,7 @@ export class UserRepository {
       // ユーザー情報をデータベースに保存
       const insertData = {
         id: authData.user.id,
+        email: dto.email,
         name: dto.name,
         role: dto.role,
         facility_id: dto.facility_id,
