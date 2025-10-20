@@ -68,12 +68,10 @@ export function RoleBasedLayout({
 
   return (
     <SidebarProvider open={isOpen} onOpenChange={handleOpenChange}>
-      <div className='flex h-screen'>
-        <UnifiedSidebar title={title} description={description} />
-        <SidebarLayout title={title} description={description}>
-          {children}
-        </SidebarLayout>
-      </div>
+      <UnifiedSidebar title={title} description={description} />
+      <SidebarLayout title={title} description={description}>
+        {children}
+      </SidebarLayout>
     </SidebarProvider>
   );
 }

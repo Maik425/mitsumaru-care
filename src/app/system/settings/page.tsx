@@ -9,7 +9,7 @@ export default function SystemSettingsPage() {
         title='システム設定管理'
         description='システム全体の設定、通知設定、セキュリティ設定を管理します'
       >
-        <div className='container mx-auto py-6'>
+        <div className='container mx-auto p-6'>
           <SystemSettingsManagement />
         </div>
       </RoleBasedLayout>

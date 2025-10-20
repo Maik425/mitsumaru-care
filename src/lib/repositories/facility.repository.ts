@@ -30,7 +30,7 @@ export class FacilityRepository {
     dto: GetFacilitiesDto
   ): Promise<FacilitiesListResponseDto> {
     try {
-      let query = supabaseAdmin
+      let query = supabaseAdmin!
         .from('facilities')
         .select('*', { count: 'exact' })
         .order('created_at', { ascending: false });
@@ -52,7 +52,7 @@ export class FacilityRepository {
         throw new Error(`施設一覧の取得に失敗しました: ${error.message}`);
       }
 
-      const facilities = this.mapRawDataToResponseDto((data as any[]) || []);
+      const facilities = this.mapRawDataToResponseDto((data as any) || []);
 
       return {
         facilities,

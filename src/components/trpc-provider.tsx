@@ -15,6 +15,10 @@ export function TRPCProvider({ children }: { children: React.ReactNode }) {
 
   const token = accessToken ?? clientStateToken;
 
+  console.log('TRPCProvider - accessToken from useAuth:', accessToken);
+  console.log('TRPCProvider - clientStateToken:', clientStateToken);
+  console.log('TRPCProvider - final token:', token);
+
   const trpcClient = useMemo(() => {
     return trpc.createClient({
       links: [

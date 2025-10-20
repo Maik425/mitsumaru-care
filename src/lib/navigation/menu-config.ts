@@ -61,6 +61,16 @@ const facilityMenuConfig: NavigationConfig = {
   subtitle: '管理者画面',
   sections: [
     {
+      title: 'ダッシュボード',
+      items: [
+        {
+          name: 'ダッシュボード',
+          href: '/facility/dashboard',
+          icon: BarChart3,
+        },
+      ],
+    },
+    {
       title: 'シフト管理',
       items: [
         {
@@ -126,6 +136,12 @@ const systemMenuConfig: NavigationConfig = {
   title: 'みつまるケア',
   subtitle: 'システム管理者画面',
   sections: [
+    {
+      title: 'ダッシュボード',
+      items: [
+        { name: 'ダッシュボード', href: '/system/dashboard', icon: BarChart3 },
+      ],
+    },
     {
       title: 'ユーザー管理',
       items: [

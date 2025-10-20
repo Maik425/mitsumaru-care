@@ -9,8 +9,6 @@ import type {
 } from '@/lib/dto/positions.dto';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
-import { supabase } from '@/lib/supabase';
-
 import type { PositionsDataSource } from './positions-datasource';
 
 export class SupabasePositionsDataSource implements PositionsDataSource {
@@ -34,7 +32,10 @@ export class SupabasePositionsDataSource implements PositionsDataSource {
     }
 
     const { data, error } = await query;
-    if (error) throw error;
+
+    if (error) {
+      throw error;
+    }
     return (data ?? []) as Position[];
   }
 

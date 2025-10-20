@@ -1,8 +1,8 @@
+'use client';
+
 import { RoleBasedLayout } from '@/components/layouts/role-based-layout';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, Building, Settings, Users } from 'lucide-react';
-import Link from 'next/link';
 
 export default function SystemDashboardPage() {
   return (
@@ -10,7 +10,7 @@ export default function SystemDashboardPage() {
       title='システム管理ダッシュボード'
       description='システム全体の管理を行います'
     >
-      <div className='container mx-auto py-6'>
+      <div className='container mx-auto p-6'>
         <div className='mb-6'>
           <h1 className='text-3xl font-bold'>システム管理ダッシュボード</h1>
           <p className='text-gray-600 mt-2'>システム全体の管理を行います</p>
@@ -68,68 +68,42 @@ export default function SystemDashboardPage() {
           </Card>
         </div>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          <Card>
-            <CardHeader>
-              <CardTitle>クイックアクション</CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-4'>
-              <Link href='/system/users'>
-                <Button className='w-full justify-start' variant='outline'>
-                  <Users className='mr-2 h-4 w-4' />
-                  ユーザー管理
-                </Button>
-              </Link>
-              <Button className='w-full justify-start' variant='outline'>
-                <Building className='mr-2 h-4 w-4' />
-                施設管理
-              </Button>
-              <Link href='/system/settings'>
-                <Button className='w-full justify-start' variant='outline'>
-                  <Settings className='mr-2 h-4 w-4' />
-                  システム設定
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>最近のアクティビティ</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className='space-y-4'>
-                <div className='flex items-center space-x-4'>
-                  <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                  <div className='flex-1'>
-                    <p className='text-sm font-medium'>
-                      新しいユーザーが登録されました
-                    </p>
-                    <p className='text-xs text-gray-500'>2時間前</p>
-                  </div>
-                </div>
-                <div className='flex items-center space-x-4'>
-                  <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
-                  <div className='flex-1'>
-                    <p className='text-sm font-medium'>
-                      施設設定が更新されました
-                    </p>
-                    <p className='text-xs text-gray-500'>4時間前</p>
-                  </div>
-                </div>
-                <div className='flex items-center space-x-4'>
-                  <div className='w-2 h-2 bg-yellow-500 rounded-full'></div>
-                  <div className='flex-1'>
-                    <p className='text-sm font-medium'>
-                      システムメンテナンスが完了しました
-                    </p>
-                    <p className='text-xs text-gray-500'>1日前</p>
-                  </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>最近のアクティビティ</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className='space-y-4'>
+              <div className='flex items-center space-x-4'>
+                <div className='w-2 h-2 bg-green-500 rounded-full'></div>
+                <div className='flex-1'>
+                  <p className='text-sm font-medium'>
+                    新しいユーザーが登録されました
+                  </p>
+                  <p className='text-xs text-gray-500'>2時間前</p>
                 </div>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className='flex items-center space-x-4'>
+                <div className='w-2 h-2 bg-blue-500 rounded-full'></div>
+                <div className='flex-1'>
+                  <p className='text-sm font-medium'>
+                    施設設定が更新されました
+                  </p>
+                  <p className='text-xs text-gray-500'>4時間前</p>
+                </div>
+              </div>
+              <div className='flex items-center space-x-4'>
+                <div className='w-2 h-2 bg-yellow-500 rounded-full'></div>
+                <div className='flex-1'>
+                  <p className='text-sm font-medium'>
+                    システムメンテナンスが完了しました
+                  </p>
+                  <p className='text-xs text-gray-500'>1日前</p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </RoleBasedLayout>
   );

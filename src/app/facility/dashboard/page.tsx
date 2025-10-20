@@ -1,3 +1,5 @@
+'use client';
+
 import { RoleBasedLayout } from '@/components/layouts/role-based-layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -69,34 +71,36 @@ export default function FacilityDashboardPage() {
       title='管理者ダッシュボード'
       description='介護業務の効率化をサポートします'
     >
-      <div className='mb-8'>
-        <h2 className='text-2xl font-bold text-gray-900 mb-2'>
-          管理者ダッシュボード
-        </h2>
-        <p className='text-gray-600'>介護業務の効率化をサポートします</p>
-      </div>
+      <div className='p-6'>
+        <div className='mb-8'>
+          <h2 className='text-2xl font-bold text-gray-900 mb-2'>
+            管理者ダッシュボード
+          </h2>
+          <p className='text-gray-600'>介護業務の効率化をサポートします</p>
+        </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-        {menuItems.map(section => (
-          <Card key={section.title} className='h-fit'>
-            <CardHeader>
-              <CardTitle className='text-lg'>{section.title}</CardTitle>
-            </CardHeader>
-            <CardContent className='space-y-2'>
-              {section.items.map(item => {
-                const Icon = item.icon;
-                return (
-                  <Link key={item.name} href={item.href}>
-                    <Button variant='ghost' className='w-full justify-start'>
-                      <Icon className='h-4 w-4 mr-2' />
-                      {item.name}
-                    </Button>
-                  </Link>
-                );
-              })}
-            </CardContent>
-          </Card>
-        ))}
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
+          {menuItems.map(section => (
+            <Card key={section.title} className='h-fit'>
+              <CardHeader>
+                <CardTitle className='text-lg'>{section.title}</CardTitle>
+              </CardHeader>
+              <CardContent className='space-y-2'>
+                {section.items.map(item => {
+                  const Icon = item.icon;
+                  return (
+                    <Link key={item.name} href={item.href}>
+                      <Button variant='ghost' className='w-full justify-start'>
+                        <Icon className='h-4 w-4 mr-2' />
+                        {item.name}
+                      </Button>
+                    </Link>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     </RoleBasedLayout>
   );

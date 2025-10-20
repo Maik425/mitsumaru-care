@@ -53,24 +53,35 @@ export function LoginForm() {
     setIsLoading(true);
 
     try {
+      console.log('Login form: Starting login process for:', email);
       const result = await signIn(email, password);
+      console.log('Login form: Sign in result:', result);
 
       if (result.success && result.user) {
+        console.log(
+          'Login form: Login successful, redirecting to:',
+          result.user.role
+        );
         // ロールに基づいてリダイレクト
         switch (result.user.role) {
           case 'system_admin':
+            console.log('Login form: Redirecting to system dashboard');
             router.push('/system/dashboard');
             break;
           case 'facility_admin':
+            console.log('Login form: Redirecting to facility dashboard');
             router.push('/facility/dashboard');
             break;
           case 'user':
+            console.log('Login form: Redirecting to user dashboard');
             router.push('/user/dashboard');
             break;
           default:
+            console.log('Login form: Redirecting to default user dashboard');
             router.push('/user/dashboard');
         }
       } else {
+        console.error('Login form: Login failed:', result.error);
         setError(result.error || 'ログインに失敗しました');
       }
     } catch (error) {

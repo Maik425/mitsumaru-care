@@ -14,7 +14,7 @@ import {
   SupabasePositionsDataSource,
 } from '@/lib/repositories';
 
-import { protectedProcedure, publicProcedure, router } from '../trpc';
+import { protectedProcedure, router } from '../trpc';
 
 const createRepository = (client: SupabaseClient) =>
   new PositionsRepository(new SupabasePositionsDataSource(client));
@@ -23,10 +23,12 @@ export const positionsRouter = router({
   // 役職マスター管理
   getPositions: protectedProcedure
     .input(
-      z.object({
-        facility_id: z.string().optional(),
-        is_active: z.boolean().optional(),
-      }).optional()
+      z
+        .object({
+          facility_id: z.string().optional(),
+          is_active: z.boolean().optional(),
+        })
+        .optional()
     )
     .query(async ({ input, ctx }) => {
       try {

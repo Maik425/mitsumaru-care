@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js';
+import { Database } from './types/supabase';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
@@ -14,11 +15,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 
 // Create a singleton instance to avoid multiple GoTrueClient instances
-let supabaseInstance: ReturnType<typeof createClient> | null = null;
+let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null;
 
 export const supabase = (() => {
   if (!supabaseInstance) {
-    supabaseInstance = createClient(supabaseUrl, supabaseAnonKey, {
+    supabaseInstance = createClient<Database>(supabaseUrl, supabaseAnonKey, {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
@@ -36,7 +37,8 @@ export const supabase = (() => {
 })();
 
 // Server-side client with service role key (only available on server)
-let supabaseAdminInstance: ReturnType<typeof createClient> | null = null;
+let supabaseAdminInstance: ReturnType<typeof createClient<Database>> | null =
+  null;
 
 export const supabaseAdmin = (() => {
   // Always create admin client on server side
@@ -50,12 +52,16 @@ export const supabaseAdmin = (() => {
         throw new Error('SUPABASE_SERVICE_ROLE_KEY is not set');
       }
 
-      supabaseAdminInstance = createClient(supabaseUrl, serviceRoleKey, {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        },
-      });
+      supabaseAdminInstance = createClient<Database>(
+        supabaseUrl,
+        serviceRoleKey,
+        {
+          auth: {
+            autoRefreshToken: false,
+            persistSession: false,
+          },
+        }
+      );
     }
     return supabaseAdminInstance;
   }

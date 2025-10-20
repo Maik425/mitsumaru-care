@@ -23,6 +23,8 @@ import {
 } from '@/components/ui/tooltip';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigation } from '@/hooks/use-navigation';
+import { trpc } from '@/lib/trpc';
+import { useQueryClient } from '@tanstack/react-query';
 import { Building2, LogOut } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -34,14 +36,16 @@ interface UnifiedSidebarProps extends PropsWithChildren {
 }
 
 export function UnifiedSidebar({
-  title,
-  description,
-  children,
+  title: _title,
+  description: _description,
+  children: _children,
 }: UnifiedSidebarProps) {
   const pathname = usePathname();
   const { signOut } = useAuth();
   const { getConfig, isAuthenticated } = useNavigation();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const utils = trpc.useUtils();
+  const queryClient = useQueryClient();
 
   // 認証されていない場合は何も表示しない
   if (!isAuthenticated) {
@@ -56,11 +60,13 @@ export function UnifiedSidebar({
   const handleLogout = async () => {
     try {
       setIsLoggingOut(true);
-      console.log('ログアウト処理を開始します...');
+
+      // React Queryのキャッシュをクリア
+      await queryClient.clear();
+      // tRPC内部のキャッシュ系も明示的に無効化したい場合はinvalidateを使用
+      await utils.invalidate();
 
       await signOut();
-
-      console.log('ログアウト処理が完了しました');
     } catch (error) {
       console.error('ログアウト処理でエラーが発生しました:', error);
       // エラーが発生してもローディング状態を解除
@@ -183,7 +189,7 @@ export function SidebarLayout({
           ) : null}
         </div>
       </header>
-      <main className='flex-1 p-6'>{children}</main>
+      <main className='flex-1'>{children}</main>
     </SidebarInset>
   );
 }

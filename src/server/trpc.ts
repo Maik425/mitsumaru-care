@@ -35,7 +35,6 @@ export const createTRPCContext = async (opts: {
         error,
       } = await supabase.auth.getUser(token);
       if (!error && authUser) {
-        user = authUser;
         console.log('tRPC Context - User authenticated:', authUser.id);
         console.log('tRPC Context - User email:', authUser.email);
 
@@ -51,6 +50,31 @@ export const createTRPCContext = async (opts: {
             },
           }
         );
+
+        // データベースからユーザー情報を取得
+        try {
+          const { data: userData, error: userError } = await authSupabase
+            .from('users')
+            .select('id, name, role, facility_id, is_active')
+            .eq('id', authUser.id)
+            .single();
+
+          if (userError || !userData) {
+            console.error('tRPC Context - User data fetch error:', userError);
+            user = authUser; // 認証ユーザーのみを使用
+          } else {
+            console.log('tRPC Context - User data found:', userData);
+            // 認証ユーザーとデータベースユーザーをマージ
+            user = {
+              ...authUser,
+              ...userData,
+              email: authUser.email || '',
+            };
+          }
+        } catch (dbError) {
+          console.error('tRPC Context - Database error:', dbError);
+          user = authUser; // 認証ユーザーのみを使用
+        }
       } else {
         console.log('tRPC Context - Auth error:', error?.message);
         console.log('tRPC Context - Auth error details:', error);

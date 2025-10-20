@@ -1,11 +1,23 @@
 import { FacilityRepository } from '@/lib/repositories/facility.repository';
 import { z } from 'zod';
-import { router, systemAdminProcedure } from '../trpc';
+import { protectedProcedure, router, systemAdminProcedure } from '../trpc';
 
 const facilityRepository = new FacilityRepository();
 
 export const facilitiesRouter = router({
   // 施設一覧取得（システム管理者専用）
+  list: protectedProcedure
+    .input(
+      z.object({
+        limit: z.number().min(1).max(100).default(10),
+        offset: z.number().min(0).default(0),
+        search: z.string().optional(),
+      })
+    )
+    .query(async ({ input }) => {
+      return await facilityRepository.getFacilities(input);
+    }),
+
   getFacilities: systemAdminProcedure
     .input(
       z.object({

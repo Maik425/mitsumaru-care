@@ -9,7 +9,7 @@ export default function SystemUsersPage() {
         title='ユーザー管理'
         description='システム内のユーザーを管理します'
       >
-        <div className='container mx-auto py-6'>
+        <div className='container mx-auto p-6'>
           <UserManagement />
         </div>
       </RoleBasedLayout>
