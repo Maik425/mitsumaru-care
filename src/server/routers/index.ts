@@ -5,6 +5,7 @@ import { exportRouter } from './export';
 import { facilitiesRouter } from './facilities';
 import { holidayRouter } from './holiday';
 import { jobRulesRouter } from './job-rules';
+import { notificationRouter } from './notification';
 import { positionsRouter } from './positions';
 import { skillsRouter } from './skills';
 import { systemSettingsRouter } from './system-settings';
@@ -21,6 +22,7 @@ export const appRouter = router({
   jobRules: jobRulesRouter,
   systemSettings: systemSettingsRouter,
   export: exportRouter,
+  notification: notificationRouter,
 });
 
 export type AppRouter = typeof appRouter;

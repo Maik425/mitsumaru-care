@@ -1,6 +1,7 @@
 'use client';
 
 import { RoleBasedLayout } from '@/components/layouts/role-based-layout';
+import { SystemNotificationManagement } from '@/components/system-notification-management';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart3, Building, Settings, Users } from 'lucide-react';
 
@@ -104,6 +105,11 @@ export default function SystemDashboardPage() {
             </div>
           </CardContent>
         </Card>
+
+        {/* 通知管理セクション */}
+        <div className='mt-8'>
+          <SystemNotificationManagement />
+        </div>
       </div>
     </RoleBasedLayout>
   );

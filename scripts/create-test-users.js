@@ -73,6 +73,24 @@ const testUsers = [
     },
     facility_id: '550e8400-e29b-41d4-a716-446655440001',
   },
+  {
+    email: 'sk8maiki0425@gmail.com',
+    password: 'password123',
+    user_metadata: {
+      name: 'テストユーザー1',
+      role: 'user',
+    },
+    facility_id: '550e8400-e29b-41d4-a716-446655440001',
+  },
+  {
+    email: 'takano@bizmarq.com',
+    password: 'password123',
+    user_metadata: {
+      name: 'テストユーザー2',
+      role: 'facility_admin',
+    },
+    facility_id: '550e8400-e29b-41d4-a716-446655440001',
+  },
 ];
 
 async function createTestUsers() {
